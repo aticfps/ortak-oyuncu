@@ -6,6 +6,19 @@
 <title>Ortak Oyuncu</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#101322">
+<script>
+const Theme=(()=>{
+  const key='oo-theme',valid=x=>['dark','light','system'].includes(x)?x:'dark';
+  const resolve=(mode,systemDark)=>valid(mode)==='system'?(systemDark?'dark':'light'):valid(mode);
+  const mq=typeof matchMedia==='function'?matchMedia('(prefers-color-scheme: dark)'):null;
+  let mode='dark';try{mode=valid(localStorage.getItem(key))}catch(e){}
+  const apply=()=>{const resolved=resolve(mode,mq?mq.matches:true);document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=resolved==='light'?'#f0f3f8':'#101322';const select=document.getElementById('themeMode');if(select)select.value=mode;return resolved};
+  const set=value=>{mode=valid(value);try{localStorage.setItem(key,mode)}catch(e){}return apply()};
+  const change=()=>{if(mode==='system')apply()};
+  apply();if(mq){if(mq.addEventListener)mq.addEventListener('change',change);else if(mq.addListener)mq.addListener(change)}
+  return {valid,resolve,apply,set,get:()=>mode};
+})();
+</script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -712,6 +725,74 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 #fx{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.v224-enter,.v224-enter .v224-status,.shake{animation:none!important}}
 
+
+/* V22.5: light, dark and OS theme; semantic surface and contrast tokens */
+.v225-themebar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 12px}
+.v225-themebar label{display:flex;align-items:center;gap:6px;font:600 12px/1.2 var(--ui);color:var(--mute)}
+.v225-themebar svg{width:16px;height:16px;flex:none}
+#themeMode{width:auto;min-width:88px;min-height:34px;padding:5px 10px;font:600 13px/1.2 var(--ui);border-radius:8px}
+:root[data-theme="light"]{color-scheme:light;--bg:#f0f3f8;--ink:#172238;--mute:#4f5e73;--line:#d7dfeb;--card:#fff;--panel1:#fff;--panel2:#f7f9fc;--ol:#d5deea;--flood:#397612;--sky:#185caa;--ok:#167344;--bad:#b72545;--p1:#1764ae;--p2:#b72545}
+html[data-theme="light"] body{color:var(--ink);background:radial-gradient(ellipse at 50% 0,#e1e9f8,transparent 60%),var(--bg)}
+html[data-theme="light"] .pitch{opacity:0}
+html[data-theme="light"] .hero{background:linear-gradient(125deg,#fff,#eaf0f9);border-color:var(--line)}
+html[data-theme="light"] .hero h1{color:var(--ink)}
+html[data-theme="light"] .hero h1 span{color:var(--flood)}
+html[data-theme="light"] .hero::after{border-color:#a0b3d52b;box-shadow:0 0 0 36px #a0b3d512,0 0 0 74px #a0b3d50a}
+html[data-theme="light"] .v22-meta span{background:#fff;border-color:var(--line)}
+html[data-theme="light"] .card,html[data-theme="light"] .cards>.card.v22-create,html[data-theme="light"] .cards>.card.v22-join,html[data-theme="light"] .cards>.card.v22-bot,html[data-theme="light"] .cards>.card.v22-daily{background:var(--card);border-color:var(--line);color:var(--ink)}
+html[data-theme="light"] .cards>.card.v22-create{border-top-color:#6ba52d}html[data-theme="light"] .cards>.card.v22-join{border-top-color:#3982d3}html[data-theme="light"] .cards>.card.v22-bot{border-top-color:#9271d1}html[data-theme="light"] .cards>.card.v22-daily{border-top-color:#c18a25}
+html[data-theme="light"] .v22-modeicon{background:#e6f1da;color:#397612}
+html[data-theme="light"] .v22-join .v22-modeicon{background:#e4efff;color:#185caa}
+html[data-theme="light"] .v22-bot .v22-modeicon{background:#f0e9ff;color:#6844a7}
+html[data-theme="light"] .v22-daily .v22-modeicon{background:#fff1d6;color:#8c5a09}
+html[data-theme="light"] .btn,html[data-theme="light"] .cards>.card:nth-of-type(1) .btn,html[data-theme="light"] .cards>.card:nth-of-type(2) .btn{background:#397612;color:#fff}
+html[data-theme="light"] .btn.alt{background:#e7edf5;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .btn:disabled{opacity:.55}
+html[data-theme="light"] input,html[data-theme="light"] select,html[data-theme="light"] .cards>.card:nth-of-type(2) input,html[data-theme="light"] #ansI,html[data-theme="light"] #botL,html[data-theme="light"] .botrow select,html[data-theme="light"] .repf input,html[data-theme="light"] .repf select{background:#fff;color:var(--ink);border-color:#c5d0df}
+html[data-theme="light"] input::placeholder{color:#657489}
+html[data-theme="light"] .board{background:#f8faff;border-bottom-color:var(--line)}
+html[data-theme="light"] .v222-scorewrap .chip,html[data-theme="light"] .v222-scorewrap .chip.me{background:#fff;border-color:var(--line);border-left-color:var(--pc)}
+html[data-theme="light"] .v222-scorewrap .chip.me{background:#eaf2ff}
+html[data-theme="light"] .v222-scorewrap .chip .sc{background:#eaf0f8;color:var(--ink)}
+html[data-theme="light"] .sound,html[data-theme="light"] .rxb button,html[data-theme="light"] .rxb .rxt,html[data-theme="light"] .rxb.open .rxt{background:#e7edf5;border-color:var(--line);color:var(--ink)}
+html[data-theme="light"] .slot,html[data-theme="light"] .slot.full,html[data-theme="light"] .settings,html[data-theme="light"] .codebox,html[data-theme="light"] #brk,html[data-theme="light"] #pick .turnline,html[data-theme="light"] #prof .turnline{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .slot.full{border-left-color:var(--pc)}
+html[data-theme="light"] .slot em,html[data-theme="light"] .uid{background:#e7edf5;color:var(--ink)}
+html[data-theme="light"] #nine .team,html[data-theme="light"] #nine .team.r5{background:#fff;border-color:var(--line);border-top-color:var(--rc)}
+html[data-theme="light"] #nine .team.mypick{background:#eaf4df;border-color:var(--flood)}
+html[data-theme="light"] #nine .team .tag{background:var(--flood);color:#fff}
+html[data-theme="light"] #nine .team .stars{color:#8b650b}
+html[data-theme="light"] #ans .vs,html[data-theme="light"] #rev .vs,html[data-theme="light"] .vs{background:linear-gradient(110deg,#e4efff,#f8faff 48%,#fbe8ed);border-color:var(--line)}
+html[data-theme="light"] #ans .clock,html[data-theme="light"] #rev .clock,html[data-theme="light"] .clock{background:#fff;box-shadow:0 0 0 4px #c5d0df66}
+html[data-theme="light"] .clock svg circle:first-child{stroke:#d7dfeb}
+html[data-theme="light"] #ans .tools .jk,html[data-theme="light"] #ans .tools .jk.ip{background:#edf3f9;border-color:var(--line)}
+html[data-theme="light"] #ans .tools .jk:disabled{background:#f1f3f7;color:#66758a;border-color:var(--line)}
+html[data-theme="light"] .v222-points,html[data-theme="light"] #ans .tools .hint{background:#eaf4df;border-color:#c5dfae}
+html[data-theme="light"] .ipT{background:#e8f2ff;border-color:#b7d3f3;color:#174a87}
+html[data-theme="light"] .opp,html[data-theme="light"] .try,html[data-theme="light"] .hr,html[data-theme="light"] .rank li,html[data-theme="light"] .pfl div,html[data-theme="light"] .pfg div,html[data-theme="light"] .fr,html[data-theme="light"] .adm>div{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .opp,html[data-theme="light"] .try,html[data-theme="light"] .rank li,html[data-theme="light"] #rPts>div{border-left-color:var(--pc)}
+html[data-theme="light"] #rPts>div{background:#fff;color:var(--ink)}
+html[data-theme="light"] #res .v224-result,html[data-theme="light"] #end .v224-result{background:#fff;border-color:var(--line)}
+html[data-theme="light"] #res .v224-result[data-outcome="win"],html[data-theme="light"] #end .v224-result[data-outcome="win"]{background:linear-gradient(145deg,#ecf7e0,#fff);border-color:#a9ce88}
+html[data-theme="light"] .v224-result[data-outcome="none"] .v224-status{color:#b72545;border-color:#e8b4bf;background:#fff0f2}
+html[data-theme="light"] .v224-result[data-outcome="draw"] .v224-status{color:#865b0a}
+html[data-theme="light"] .list li,html[data-theme="light"] .try .g span{background:#edf1f6;color:var(--ink)}
+html[data-theme="light"] .list li.hit,html[data-theme="light"] .try .g .ok{background:#d8f0e1;color:#125e36}
+html[data-theme="light"] .objbox,html[data-theme="light"] .pred{background:#f0f6e8;border-color:#b2d28f}
+html[data-theme="light"] .hr .ok{color:var(--ok)}html[data-theme="light"] .hr .ms{color:#185caa}
+html[data-theme="light"] .stabs button{background:#e7edf5;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .stabs button.on,html[data-theme="light"] .bdg,html[data-theme="light"] .ptsb,html[data-theme="light"] .imodes span,html[data-theme="light"] .pred .btn.on{background:var(--flood);color:#fff}
+html[data-theme="light"] .bdg.no{opacity:1;background:#f0f3f8;color:#68758a;border-color:var(--line)}
+html[data-theme="light"] .fr.on,html[data-theme="light"] .badgeNew{background:#edf6e2;border-color:#b2d28f;color:var(--flood)}
+html[data-theme="light"] .banner{background:#fff0f2;color:#a42140;border-color:#e8b4bf}
+html[data-theme="light"] .intro{background:#18223888}
+html[data-theme="light"] .ibox,html[data-theme="light"] .imock,html[data-theme="light"] .ist,html[data-theme="light"] .ist.r{background:#fff;color:var(--ink);border-color:var(--line);box-shadow:none}
+html[data-theme="light"] .ist b{color:var(--ink);text-shadow:none}
+html[data-theme="light"] .idots i{background:#d1d9e4}html[data-theme="light"] .idots i.on{background:var(--flood)}
+html[data-theme="light"] .tres span,html[data-theme="light"] #tScore i,html[data-theme="light"] .slot small b{color:var(--ink)!important}
+@media(max-width:600px){.v225-themebar{margin-bottom:9px}#themeMode{min-height:34px}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -730,6 +811,7 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 </header>
 
 <main>
+  <div class="v225-themebar"><label for="themeMode"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg> Görünüm</label><select id="themeMode" aria-label="Görünüm teması"><option value="dark">Koyu</option><option value="light">Açık</option><option value="system">Sistem</option></select></div>
   <p class="banner" id="banner" role="status"></p>
   <div class="brk" id="brk" hidden></div>
   <div class="pred" id="pred" hidden><div class="ph2" id="predQ">Bu turu kim bilir?</div><div class="pb" id="predB"></div><p class="tiny" id="predS"></p></div>
@@ -3227,6 +3309,7 @@ const logoURL=id=>Object.prototype.hasOwnProperty.call(CLUB_LOGOS,id)?LOGO_BASE+
 const crest=id=>{if(!has(id))return '';const url=logoURL(id),fallback=crestFallback(id).replace('class="crest"','class="crest-fallback"');return url?`<span class="crest crest-real" aria-hidden="true"><img class="crest-image" alt="" src="${url}" decoding="async" referrerpolicy="no-referrer" onload="this.parentElement.classList.add('loaded')" onerror="this.hidden=true">${fallback}</span>`:crestFallback(id)};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=id=>document.getElementById(id);
+$('themeMode').addEventListener('change',e=>Theme.set(e.target.value));Theme.apply();
 const clean=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,16)||'Oyuncu';
 const clip=(s,n)=>String(s==null?'':s).slice(0,n);
 const COLORS=['#46b0ff','#ff6a5c','#b48cff','#ffa94d'];
@@ -3359,7 +3442,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22.4';
+const APPV='22.5';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
