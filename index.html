@@ -2,10 +2,23 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ortak Oyuncu</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1d1260">
+<meta name="theme-color" content="#101322">
+<script>
+const Theme=(()=>{
+  const key='oo-theme',valid=x=>['dark','light','system'].includes(x)?x:'dark';
+  const resolve=(mode,systemDark)=>valid(mode)==='system'?(systemDark?'dark':'light'):valid(mode);
+  const mq=typeof matchMedia==='function'?matchMedia('(prefers-color-scheme: dark)'):null;
+  let mode='dark';try{mode=valid(localStorage.getItem(key))}catch(e){}
+  const apply=()=>{const resolved=resolve(mode,mq?mq.matches:true);document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=resolved==='light'?'#f0f3f8':'#101322';const select=document.getElementById('themeMode');if(select)select.value=mode;return resolved};
+  const set=value=>{mode=valid(value);try{localStorage.setItem(key,mode)}catch(e){}return apply()};
+  const change=()=>{if(mode==='system')apply()};
+  apply();if(mq){if(mq.addEventListener)mq.addEventListener('change',change);else if(mq.addListener)mq.addListener(change)}
+  return {valid,resolve,apply,set,get:()=>mode};
+})();
+</script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -443,6 +456,400 @@ label{color:var(--mute);font-weight:800}
 .fan svg{filter:drop-shadow(0 6px 0 rgba(18,10,51,.6))}
 .whoami{color:var(--mute)}
 @media(prefers-reduced-motion:reduce){.team.r5::before{animation:none}.btn{transition:none}}
+
+/* V22: compact sports studio theme; gameplay and control IDs unchanged. */
+:root{--bg:#101322;--ink:#f5f6fc;--mute:#aab1c7;--line:rgba(172,185,231,.17);--card:#1a2032;--panel1:#20263a;--panel2:#171d2d;--ol:#101322;--flood:#b8f568;--sky:#78b7ff;--ok:#65e5a1;--bad:#ff7188;--p1:#78b7ff;--p2:#ff8291;--cond:"Barlow Condensed",system-ui,sans-serif}
+html{background:var(--bg)}
+body{font:16px/1.5 Barlow,system-ui,sans-serif;background:radial-gradient(ellipse at 50% -15%,#303657 0,transparent 55%),var(--bg)}
+.pitch{opacity:.13}
+h1,h2,h3,.big,.codebox span,.clock b,.mid b,.btn,.team span,.chip .sc,.vs .t,.rank b,.pts div,.slot strong,.jk,.row input,.ptsb,.stabs button,.how b{font-family:var(--cond);font-weight:800!important;letter-spacing:.01em;text-shadow:none}
+main{max-width:840px;padding:24px max(16px,env(safe-area-inset-right)) calc(92px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.screen.on{animation:v22-enter .22s ease-out}
+@keyframes v22-enter{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{position:relative;isolation:isolate;overflow:hidden;min-height:238px;grid-template-columns:1.2fr .8fr;gap:14px;margin:0 0 18px;padding:24px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(125deg,#262e45,#181d30 65%,#25233e)}
+.hero::after{content:"";position:absolute;z-index:-1;right:-76px;top:-90px;width:360px;height:360px;border:1px solid #ffffff15;border-radius:50%;box-shadow:0 0 0 36px #ffffff06,0 0 0 74px #ffffff04;pointer-events:none}
+.hero h1{font-size:clamp(48px,8vw,78px);line-height:.88;text-transform:uppercase;letter-spacing:-.025em;margin:10px 0 14px}
+.hero h1 span{color:var(--flood)}
+.hero .lead{font-size:15px;line-height:1.45;max-width:36ch;color:var(--mute);margin:0}
+.hero .fan{height:200px;min-width:0}.hero .fan svg{width:90px;height:106px;filter:drop-shadow(0 8px 12px #0008)}
+.v22-eyebrow{font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:var(--flood);display:flex;align-items:center;gap:7px}
+.v22-eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--flood)}
+.v22-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.v22-meta span{font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:7px;padding:4px 8px;color:var(--ink);background:#ffffff08}
+.card,.slot,.tchat,.pred,.brk,.repf,.more,.kc,.ibox{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:none;backdrop-filter:none}
+.cards{gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.cards>.card:nth-of-type(1),.cards>.card:nth-of-type(2){background:var(--card);border-color:var(--line)}
+.cards>.card:nth-of-type(1) h3,.cards>.card:nth-of-type(2) h3,.card h3{font-size:26px;color:var(--ink);text-shadow:none}
+.cards>.card:nth-of-type(1) p,.cards>.card:nth-of-type(2) p,.card p,.card .tiny,.cards>.card:nth-of-type(2) .link{color:var(--mute)}
+.cards>.card:nth-of-type(1) .btn,.cards>.card:nth-of-type(2) .btn{background:var(--flood);color:#18220e;text-shadow:none}
+.cards>.card:nth-of-type(2) input{background:#101524;color:var(--ink);border-color:var(--line)}
+.cards .card{padding:16px;gap:9px;min-height:0;align-content:start}
+.v22-cardhead{display:flex;align-items:center;gap:10px}
+.v22-modeicon{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#b8f56815;color:var(--flood)}
+.v22-modeicon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.v22-join .v22-modeicon{background:#78b7ff16;color:#78b7ff}.v22-bot .v22-modeicon{background:#c3a6ff18;color:#c3a6ff}.v22-daily .v22-modeicon{background:#ffd47e18;color:#ffd47e}
+.cards .card .btn{align-self:end;margin-top:2px}
+.btn,.btn.alt,.btn.ghost,.btn.sm{font:800 20px/1.1 var(--cond);letter-spacing:.015em;border-radius:10px;border:1px solid transparent;min-height:46px;padding:11px 16px;box-shadow:none;text-shadow:none;transition:filter .15s,transform .15s}
+.btn{background:var(--flood);color:#17210d}.btn.alt{background:#343d58;color:var(--ink);border-color:var(--line)}.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.sm{font-size:16px;min-height:44px;padding:8px 12px}
+.btn:active:not(:disabled){transform:translateY(1px);box-shadow:none}
+@media(hover:hover){.btn:not(:disabled):hover{filter:brightness(1.1)}}
+.btn:disabled{opacity:.45;filter:none}
+input,select,.row input{font:700 16px Barlow,system-ui,sans-serif;background:#111626;color:var(--ink);border:1px solid var(--line);border-radius:10px;min-height:46px;box-shadow:none}
+.row input{font:800 22px var(--cond);letter-spacing:.13em}
+input::placeholder{color:#9099b0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--flood);outline-offset:2px}
+.link{font:700 15px Barlow,sans-serif;color:var(--mute);text-decoration:none}
+.whoami{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 12px;gap:7px}
+.how{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.how>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px}.how b{font-size:25px;color:var(--flood)}
+.board{background:#101524f5;border:0;border-bottom:1px solid var(--line);box-shadow:0 8px 24px #0003;backdrop-filter:blur(12px);padding:calc(8px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));gap:10px}
+.chips{gap:6px}.chip,.chip.me{background:#222a3e;border:1px solid var(--line);border-radius:10px;box-shadow:none;padding:4px 8px 4px 4px}.chip.me{border-color:var(--pc)}
+.chip .sc{font-size:26px;background:#101524;color:var(--pc);border-radius:6px;padding:4px 8px}
+.chip .nm{font:700 14px Barlow,sans-serif}.mid b{font-size:24px;color:var(--flood);text-shadow:none}
+.sound{background:#252d42;border:1px solid var(--line);border-radius:8px;box-shadow:none}
+.codebox{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px 18px;gap:14px}
+.codebox span{font-size:clamp(42px,10vw,64px);color:var(--flood);text-shadow:none;letter-spacing:.1em}
+.slots{margin:14px 0;gap:10px}.slot,.slot.full{background:var(--card);border:1px solid var(--line);box-shadow:none;min-height:76px;padding:12px}.slot.full{border-left:3px solid var(--pc,var(--line))}
+.slot strong{font-size:24px;text-shadow:none}
+.settings{background:var(--card);border:1px solid var(--line);padding:14px;border-radius:15px}
+.nine{gap:10px}
+.team,.team.r5{background:linear-gradient(155deg,#263048,#171e30);border:1px solid var(--line);border-top:3px solid var(--rc,#b4c2e0);border-radius:13px;box-shadow:none;padding:14px 5px 10px}
+.team.r5::before{display:none}
+.team span{font:800 17px/1.1 var(--cond);color:var(--ink);text-shadow:none}
+.team .stars{color:var(--rc,#f6d33f);text-shadow:none}.team .stars .off{color:var(--mute)}
+.team .crest{filter:drop-shadow(0 5px 7px #0005)}
+.nine.mine .team:not(:disabled):hover,.nine.mine .team:not(:disabled):active{transform:translateY(-2px);box-shadow:none;border-color:var(--flood)}
+.team:disabled{opacity:.48}.team.mypick,.team.sel{opacity:1;transform:none;background:#354132;box-shadow:0 0 0 2px var(--flood);border-color:var(--flood)}.team.mypick::after{animation:none}
+.team .tag{border:0;box-shadow:none}
+.vs{background:linear-gradient(100deg,#253951,#20263a 48%,#392b40);border:1px solid var(--line);border-radius:18px;padding:18px 10px;box-shadow:none}
+.vs .t{font:800 clamp(19px,4.8vw,28px)/1.05 var(--cond);text-shadow:none}
+.clock{background:#151a2a;border:1px solid var(--line);border-radius:50%}.clock b{color:var(--flood);text-shadow:none}.clock.low b{color:var(--bad)}#ring{stroke:var(--flood)}.clock.low #ring{stroke:var(--bad)}
+.answer input{border:1px solid #b8f56880;box-shadow:none}.answer .btn{min-height:54px}
+.jk,.jk.ip{border:1px solid currentColor;border-radius:9px;background:#ffffff06;font-size:17px}
+.opp,.try,.hr,.rank li,.adm>div,.pfl div,.pfg div,.fr{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:none}
+.opp,.try,.rank li{border-left:3px solid var(--pc,var(--line))}
+.big{font-size:clamp(42px,10vw,72px);color:var(--flood);text-shadow:none}
+.pts div{border:1px solid var(--line);box-shadow:none;border-radius:9px}
+.rank b{color:var(--flood);text-shadow:none}
+.stabs button{background:#252d42;border:1px solid var(--line);box-shadow:none;border-radius:8px}.stabs button.on,.bdg,.ptsb,.imodes span{background:var(--flood);color:#17210d;border:0;box-shadow:none}.bdg.no{background:#ffffff08;color:var(--mute);border:1px solid var(--line)}
+.banner{background:#522b39;color:#ffe3e9;border:1px solid #ff718855;box-shadow:none}
+.rxb button,.rxb .rxt,.rxb.open .rxt{background:#252d42;border:1px solid var(--line);box-shadow:none}
+@media(max-width:600px){
+ main{padding-top:14px}
+ .hero{min-height:180px;padding:18px;grid-template-columns:minmax(0,1fr) 110px;gap:4px;margin-bottom:12px}
+ .hero .fan{height:122px;order:0;overflow:hidden}.hero .fan svg{width:70px;height:82px}
+ .hero h1{font-size:clamp(42px,10vw,58px)}.hero .lead{font-size:13px}.v22-meta{margin-top:10px;gap:4px}.v22-meta span{font-size:10px;padding:3px 5px}
+ .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cards .card{padding:12px;gap:7px}
+ .cards .card h3,.cards>.card:nth-of-type(1) h3,.cards>.card:nth-of-type(2) h3{font-size:22px}
+ .cards .card p{font-size:13px}.cards .card .row{flex-wrap:wrap}.cards .card .row input,.cards .card .row select{flex:1 1 100%;width:100%}.cards .card .row .btn{flex:1}
+ .v22-cardhead{align-items:flex-start;gap:7px;flex-direction:column}.v22-modeicon{width:32px;height:32px}
+ .cards .season,.cards .install{grid-column:1/-1}
+ .how{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .board{gap:5px}.chip .nm{font-size:12px}.chip .sc{font-size:22px}
+ .nine{gap:7px}.team,.team.r5{padding:10px 4px 8px}.team span{font-size:15px}
+ .settings{padding:10px;gap:8px}
+}
+@media(max-width:350px){.hero{grid-template-columns:minmax(0,1fr)}.hero .fan{display:none}.cards{grid-template-columns:minmax(0,1fr)}.v22-cardhead{flex-direction:row}}
+@media(prefers-reduced-motion:reduce){.screen.on{animation:none}.btn,.team{transition:none!important}}
+
+
+/* V22.1: match presentation consistency and stable motion */
+.cards>.card.v22-create,.cards>.card.v22-join,.cards>.card.v22-bot,.cards>.card.v22-daily{display:flex;flex-direction:column;align-items:stretch;min-height:170px;gap:10px;background:linear-gradient(145deg,#252e44,#1a2032);border:1px solid var(--line)}
+.cards>.card.v22-create{border-top:2px solid var(--flood)}.cards>.card.v22-join{border-top:2px solid var(--sky)}.cards>.card.v22-bot{border-top:2px solid #c3a6ff}.cards>.card.v22-daily{border-top:2px solid #ffd47e}
+.cards>.card .v22-cardhead{flex-direction:row;align-items:center}
+.cards>.card .v22-cardhead h3{font-size:24px;line-height:1.05}
+.cards>.card.v22-create>.btn,.cards>.card.v22-daily>.btn,.cards>.card.v22-bot>.row,.cards>.card.v22-join>form{margin-top:auto;align-self:stretch}
+.cards>.card.v22-join>form .btn,.cards>.card.v22-bot>.row .btn{margin:0}
+.cards>.card .row{align-items:stretch}
+.cards>.card.v22-join .link{min-height:32px;text-align:left;padding:0;font-size:13px}
+.cards>.card.v22-bot #botL{height:46px}
+.board{grid-template-columns:minmax(0,1fr) auto;padding-block:8px;align-items:center}
+.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:690px;gap:6px}
+.chip,.chip.me{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"avatar name score";align-items:center;gap:8px;padding:8px;background:#1c2639;border:1px solid #39435a;border-left:3px solid var(--pc);border-radius:11px}
+.chip .av{grid-area:avatar;margin:0;--s:28px}.chip .nm{grid-area:name;max-width:none;line-height:1.1;white-space:nowrap}.chip .sc{grid-area:score;min-width:1.5em;font-size:28px;font-variant-numeric:tabular-nums;padding:4px 8px;line-height:1}
+.chip .nm small{font-size:10px;margin-top:3px}.chip.me{background:#263247}.mid{min-width:92px}.mid .sound{width:38px;height:32px;margin-top:2px}
+#pick .turnline{padding:15px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px}
+#pick .turnline h2{font-size:32px}#pick .lead{font-size:14px;line-height:1.4}
+.pickers{margin:12px 0 0}.pickers span{font-size:12px;padding:4px 8px}
+#nine .team,#nine .team.r5{transform:none;min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid #44516b;border-top:3px solid var(--rc);background:#202a3e;box-shadow:none}
+#nine .team.mypick{border:2px solid var(--flood);border-top:3px solid var(--flood);background:#2c3c32;box-shadow:none;opacity:1}
+#nine .team.mypick::after{display:none}#nine .team .tag{transform:translateX(-50%);top:-9px;font-size:12px}
+#nine .team span{overflow-wrap:anywhere;line-height:1.13}#nine .team .crest{width:66px;height:74px;object-fit:contain}
+#nine.mine .team:not(:disabled):hover{border:1px solid var(--flood);border-top:3px solid var(--flood);transform:translateY(-2px)}
+#nine .team .stars{font-size:12px;letter-spacing:1px}
+#ans .vs,#rev .vs{margin:12px 0 16px;min-height:175px;align-items:center;background:linear-gradient(115deg,#213754,#1d2539 48%,#392b42);padding:16px 10px}
+.vs .t{min-height:126px;align-content:center}.vs .t .crest{width:clamp(58px,17vw,100px);height:90px;object-fit:contain;filter:drop-shadow(0 4px 7px #0004)}
+.clock{width:clamp(76px,20vw,112px);flex:none}.clock b{font-variant-numeric:tabular-nums}.clock svg{overflow:visible}
+#ansF{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+#ansI{width:100%;min-height:54px;font-size:18px;padding:12px 14px}#ansGo{margin:0;min-width:94px;padding:10px 16px}
+#ans .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 0}
+#ans .tools .jk{padding:8px 10px;min-height:46px;background:#283246;color:var(--flood);border:1px solid #46536a;white-space:normal;line-height:1.2}
+#ans .tools .jk.ip{color:var(--sky)}#ans .tools .jk:disabled{opacity:.48}
+#ans .tools .hint{grid-column:1/-1;text-align:center;letter-spacing:.08em;font-size:22px}#ans .tools .hint:empty{display:none}
+#ans .msg{font-size:14px;min-height:24px}#ans .opp{padding:10px 12px;font-size:14px}
+#res .res,#end>.res{padding:18px 14px;background:linear-gradient(145deg,#253448,#1a2032);border:1px solid var(--line);border-radius:18px;margin-bottom:12px}
+#res .big,#eBig{font-size:clamp(34px,8vw,56px);line-height:1.1;overflow-wrap:anywhere}
+#rPair{flex-wrap:wrap;gap:10px}#rPair .crest{width:52px;height:60px}
+#rPts{gap:8px;margin:12px 0}#rPts>div{background:#222c40;color:var(--ink);border-left:3px solid var(--pc);font:700 16px Barlow,sans-serif;padding:8px}
+#rMore,#eHist{max-width:none;margin-top:10px}#rMore summary,#eHist summary{font-size:14px;gap:4px}
+.dock{background:linear-gradient(transparent,var(--bg) 30%);padding:12px 0 calc(12px + env(safe-area-inset-bottom))}.dock .btn{width:100%;max-width:420px}
+.rank{max-width:none;gap:7px;margin:12px 0 16px}.rank li{padding:12px;background:#202a3e}.rank li:first-child{border-color:var(--flood)}.rank li>span{overflow-wrap:anywhere}
+.rank b{font-size:30px;font-variant-numeric:tabular-nums}
+#prof .turnline{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px}
+#pfBody h3{font-size:23px;margin:18px 0 8px}#pfBody .pfg{gap:8px}
+#pfBody .pfg>div{padding:14px 6px;border-top:2px solid #53657f}#pfBody .pfg b{font-size:32px;font-variant-numeric:tabular-nums}
+#pfBody .pfg span{font-size:12px;line-height:1.1}
+#pfBody .pfl div{padding:10px 12px}#pfBody .frames{gap:8px}
+.cards .season{grid-column:1/-1;overflow:hidden}
+.stab{font-size:13px;table-layout:auto;font-variant-numeric:tabular-nums}.stab td,.stab th{padding:8px 5px}.stab td:nth-child(2){overflow-wrap:anywhere}
+.stabs{gap:4px;flex-wrap:wrap}.stabs button{min-height:38px;font-size:14px;padding:5px 8px}
+.screen.on{animation:v22-enter .18s ease-out}.rv.go .t{animation:v22-enter .2s ease-out both}.vs .crest{animation:none}
+.chip.pop .sc{animation:v22-score .25s ease-out}@keyframes v22-score{0%{transform:scale(.9);opacity:.75}100%{transform:none;opacity:1}}
+#rBig.pop,.big{animation:v22-enter .24s ease-out}
+body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}body.hurry .clock{animation:none}
+@media(max-width:600px){.cards>.card .v22-cardhead{gap:6px}.cards>.card .v22-cardhead h3{font-size:20px}.cards>.card .v22-modeicon{width:27px;height:27px}.cards>.card .v22-modeicon svg{width:17px;height:17px}.cards>.card.v22-create,.cards>.card.v22-join,.cards>.card.v22-bot,.cards>.card.v22-daily{min-height:164px;padding:10px}
+ .chip,.chip.me{padding:5px;gap:4px}.chip .av{--s:20px}.chip .sc{font-size:21px;padding:4px}.chip .nm{font-size:11px}.mid{min-width:65px}.mid .sound{width:30px;height:28px}.mid b{font-size:22px}
+ #nine .team,#nine .team.r5{min-height:108px;gap:4px;padding:7px 4px}#nine .team .crest{width:50px;height:57px}#nine .team span{font-size:15px}#nine .team .stars{font-size:10px}
+ #ans .vs,#rev .vs{min-height:142px;padding:10px 6px}.vs .t{min-height:100px;font-size:19px}.vs .t .crest{height:67px}.clock{width:clamp(68px,20vw,94px)}
+ #ansGo{min-width:75px;padding:10px 12px}#pfBody .pfg b{font-size:26px}.stab{font-size:12px}.stab td,.stab th{padding:6px 3px}
+}
+@media(max-width:350px){.cards>.card .v22-cardhead h3{font-size:23px}.chips{grid-template-columns:1fr}.chip .nm{font-size:12px}#nine .team span{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.chip.pop .sc,#rBig.pop,.big,.rv.go .t,.screen.on{animation:none!important}}
+
+
+/* V22.2: screenshot-driven match screen, regular type and centered score strip */
+:root{--ui:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.board{display:block;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:#141a29;box-shadow:none}
+.board[hidden]{display:none}
+.v222-scorewrap{max-width:808px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.v222-scorewrap .chips{max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:58px;background:#20283b;border:1px solid #384459;border-left:3px solid var(--pc);border-radius:12px;gap:10px;padding:8px 10px}
+.v222-scorewrap .chip .nm{font:650 13px/1.2 var(--ui);text-overflow:ellipsis}.v222-scorewrap .chip .nm small{font:500 10px/1.1 var(--ui)}
+.v222-scorewrap .chip .sc{font:750 26px/1 var(--ui)!important;min-width:40px;background:#131a29;color:var(--pc);text-align:center;padding:6px 8px}
+.v222-scorewrap .mid{font:600 11px/1.1 var(--ui);min-width:76px}.v222-scorewrap .mid b{font:750 19px/1.2 var(--ui)!important;margin:2px 0 4px}
+.v222-scorewrap .specn:empty{display:none}.v222-scorewrap .mid .sound{width:32px;height:28px;margin-top:0}
+#ans,#rev,#pick,#res,#end,#prof{font-family:var(--ui)}
+#ans h2,#rev h2,#pick h2,#prof h2{font:750 25px/1.2 var(--ui)!important;letter-spacing:-.035em;text-shadow:none}
+.v222-matchhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 14px}
+.v222-overline,.v222-opplabel{font:650 10px/1.3 var(--ui);letter-spacing:.14em;color:var(--mute)}
+.v222-matchhead h2{margin-top:4px}
+.v222-points{flex:none;padding:7px 11px;border:1px solid #b8f5684a;background:#b8f5680d;color:var(--flood);border-radius:8px;font:700 12px/1.2 var(--ui);letter-spacing:.06em}
+#ans .vs,#rev .vs{position:relative;isolation:isolate;overflow:hidden;margin:0 0 14px;min-height:210px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;background:linear-gradient(110deg,#1e3047 0%,#1a2031 48%,#302536 100%);border:1px solid #3a435a;padding:24px 20px;border-radius:18px}
+#ans .vs::before,#rev .vs::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(50% - .5px),#ffffff0e 50%,transparent calc(50% + .5px))}
+#ans .vs .t,#rev .vs .t{font:700 clamp(15px,2.3vw,21px)/1.15 var(--ui)!important;gap:12px;min-height:150px;text-align:center;overflow-wrap:anywhere}
+#ans .vs .t .crest,#rev .vs .t .crest{height:100px;width:94px;max-width:100%;object-fit:contain}
+#ans .clock,#rev .clock{width:106px;background:#131a29;border:none;box-shadow:0 0 0 6px #ffffff08}
+#ans .clock b,#rev .clock b{font:750 35px/1 var(--ui)!important;text-shadow:none}
+#ans .clock b{padding-bottom:13px}
+#ans .clock::after{content:"SANİYE";position:absolute;top:66%;left:0;right:0;text-align:center;color:var(--mute);font:650 9px/1 var(--ui);letter-spacing:.12em}
+.v222-answerpanel{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+#ansI{font:500 16px/1.3 var(--ui);background:#111725;border:1px solid #586549;min-height:52px}
+#ansGo{font:700 15px/1.2 var(--ui)!important;min-height:52px;min-width:105px}
+#ans .tools .jk,#ans .tools .jk.ip{font:650 13px/1.2 var(--ui)!important;min-height:44px;background:#202b3e}
+#ans .tools .jk:disabled{opacity:1;color:#939db1;background:#1c2435;border-color:#344056}
+#ans .tools .hint{font:700 18px/1.3 var(--ui);padding:10px 12px;background:#b8f5680a;border:1px dashed #b8f56840;border-radius:9px}
+#ans .msg{font:500 13px/1.5 var(--ui);margin:10px 0 0;min-height:20px}
+.v222-opplabel{margin:16px 0 7px}
+#ans .opps{margin-top:0}
+#ans .opp{font:500 13px/1.4 var(--ui);min-height:52px}
+#ans .opp strong{font-weight:650}
+#ans .opp .st{font-size:12px}
+#ans .kmode .vs .t,.kmode .vs .t{visibility:hidden}
+#nine .team span,#res .big,#eBig,#pfBody .pfg b,.rank b{font-family:var(--ui)!important}
+#nine .team span{font-size:14px;font-weight:650!important}
+#quit{color:var(--mute);font:500 13px/1.2 var(--ui)}
+@media(max-width:600px){
+ .board{padding:calc(7px + env(safe-area-inset-top)) 10px 7px}
+ .v222-scorewrap{gap:7px}.v222-scorewrap .chips{gap:5px}
+ .v222-scorewrap .chip,.v222-scorewrap .chip.me{gap:4px;min-height:46px;padding:5px}
+ .v222-scorewrap .chip .nm{font-size:11px}.v222-scorewrap .chip .sc{font-size:20px!important;min-width:26px;padding:4px}
+ .v222-scorewrap .mid{min-width:58px}.v222-scorewrap .mid b{font-size:15px!important}.v222-scorewrap .mid .sound{width:26px;height:26px}
+ #ans h2{font-size:21px!important}.v222-points{font-size:10px;padding:6px 8px}
+ #ans .vs,#rev .vs{min-height:158px;padding:14px 8px;gap:6px}
+ #ans .vs .t,#rev .vs .t{min-height:106px;gap:8px;font-size:14px!important}
+ #ans .vs .t .crest,#rev .vs .t .crest{height:67px;width:62px}
+ #ans .clock,#rev .clock{width:76px;box-shadow:0 0 0 3px #ffffff08}
+ #ans .clock b,#rev .clock b{font-size:26px!important}#ans .clock b{padding-bottom:9px}#ans .clock::after{font-size:7px}
+ .v222-answerpanel{padding:10px}#ansGo{min-width:74px;padding:8px 10px;font-size:13px!important}#ansI{font-size:16px}
+ #nine .team span{font-size:12px}
+}
+@media(max-width:350px){.v222-scorewrap .chips{grid-template-columns:1fr}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:36px}}
+
+
+/* V22.3: source-backed club crests and compact tournament layout */
+.crest-real{display:inline-block;position:relative;flex:none;aspect-ratio:64/74;vertical-align:middle;width:64px;height:74px;overflow:visible}
+.crest-real .crest-image,.crest-real .crest-fallback{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:contain;display:block;filter:none}
+.crest-real .crest-image{opacity:0;pointer-events:none}
+.crest-real.loaded .crest-image{opacity:1}
+.crest-real.loaded .crest-fallback{visibility:hidden}
+.hero .fan .crest-real{position:absolute;width:90px;height:106px;left:50%;top:50%;filter:drop-shadow(0 8px 12px #0008)}
+.hero .fan .crest-real svg{position:absolute;inset:0;width:100%;height:100%;filter:none}
+#nine .team .crest-real{width:66px;height:74px}
+.vs .t .crest-real{width:94px;height:100px}
+.kc .k .crest-real{display:block;width:62px;height:68px;margin:0 auto 4px}
+.kc .k .crest-real svg,.ist .crest-real svg{width:100%;height:100%;margin:0}
+.ist .crest-real{width:64px;height:74px}
+.hr .hp .crest-real{width:38px;height:42px}
+.pfl div>.crest-real{width:30px;height:33px}
+.pair .crest-real{width:54px;height:60px}
+#brk{max-width:none;margin:0 0 10px;padding:10px 14px;gap:3px;font:500 13px/1.35 var(--ui);background:#1a2032}
+#brk .cur{font-size:14px}
+#pick .turnline{padding:12px 14px;margin-bottom:10px}
+#pick .turnline .lead{font:500 13px/1.4 var(--ui);margin-top:6px}
+#pick .pickers{margin:7px 0 0}
+#nine .team,#nine .team.r5{min-height:114px;padding:9px 5px 8px;gap:5px}
+#nine .team .crest-real{width:57px;height:63px}
+#nine .team span:not(.crest-real){font:650 13px/1.15 var(--ui)!important}
+#nine .team .stars{font-size:11px}
+.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:46px;padding:6px 8px}
+.v222-scorewrap .chip .sc{font-size:22px!important}
+@media(max-width:600px){.hero .fan .crest-real{width:67px;height:79px}#nine .team,#nine .team.r5{min-height:97px;padding:6px 3px}#nine .team .crest-real{width:45px;height:53px}#nine .team span:not(.crest-real){font-size:12px!important}#brk{padding:9px 11px;font-size:12px}.vs .t .crest-real{width:62px;height:67px}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:40px;padding:4px}.v222-scorewrap .chip .sc{font-size:19px!important}}
+
+
+/* V22.4: focused result cards and one-shot, non-blocking celebrations */
+.v224-result{position:relative;isolation:isolate;overflow:hidden}
+#res .v224-result,#end .v224-result{border:1px solid #3c4961;padding:22px 16px;background:linear-gradient(145deg,#233047,#1a2032);border-radius:19px}
+#res .v224-result[data-outcome="win"],#end .v224-result[data-outcome="win"]{border-color:#b8f56865;background:radial-gradient(ellipse at 50% 0,#344a34 0,transparent 70%),#1a2631}
+.v224-status{display:inline-block;font:700 11px/1.2 var(--ui);letter-spacing:.12em;color:var(--mute);padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+.v224-result[data-outcome="win"] .v224-status{color:var(--flood);border-color:#b8f56855;background:#b8f56812}
+.v224-result[data-outcome="none"] .v224-status{color:#ffb3be;border-color:#ff71884a;background:#ff71880c}
+.v224-result[data-outcome="draw"] .v224-status{color:#ffd47e}
+#res .v224-result .big,#end .v224-result .big{animation:none;font:750 clamp(30px,6vw,48px)/1.15 var(--ui)!important;letter-spacing:-.03em;text-transform:none;margin:12px 0;color:var(--ink)}
+#res .v224-result[data-outcome="win"] .big,#end .v224-result[data-outcome="win"] .big{color:var(--flood)}
+.v224-enter{animation:v224-reveal .34s cubic-bezier(.2,.8,.2,1) both}
+.v224-enter .v224-status{animation:v224-rise .35s .05s both}
+@keyframes v224-reveal{from{transform:translateY(5px);opacity:.7}to{transform:none;opacity:1}}
+@keyframes v224-rise{from{transform:translateY(4px);opacity:0}to{transform:none;opacity:1}}
+#end .rank li{min-height:54px}
+#fx{pointer-events:none}
+@media(prefers-reduced-motion:reduce){.v224-enter,.v224-enter .v224-status,.shake{animation:none!important}}
+
+
+/* V22.5: light, dark and OS theme; semantic surface and contrast tokens */
+.v225-themebar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 12px}
+.v225-themebar label{display:flex;align-items:center;gap:6px;font:600 12px/1.2 var(--ui);color:var(--mute)}
+.v225-themebar svg{width:16px;height:16px;flex:none}
+#themeMode{width:auto;min-width:88px;min-height:34px;padding:5px 10px;font:600 13px/1.2 var(--ui);border-radius:8px}
+:root[data-theme="light"]{color-scheme:light;--bg:#f0f3f8;--ink:#172238;--mute:#4f5e73;--line:#d7dfeb;--card:#fff;--panel1:#fff;--panel2:#f7f9fc;--ol:#d5deea;--flood:#397612;--sky:#185caa;--ok:#167344;--bad:#b72545;--p1:#1764ae;--p2:#b72545}
+html[data-theme="light"] body{color:var(--ink);background:radial-gradient(ellipse at 50% 0,#e1e9f8,transparent 60%),var(--bg)}
+html[data-theme="light"] .pitch{opacity:0}
+html[data-theme="light"] .hero{background:linear-gradient(125deg,#fff,#eaf0f9);border-color:var(--line)}
+html[data-theme="light"] .hero h1{color:var(--ink)}
+html[data-theme="light"] .hero h1 span{color:var(--flood)}
+html[data-theme="light"] .hero::after{border-color:#a0b3d52b;box-shadow:0 0 0 36px #a0b3d512,0 0 0 74px #a0b3d50a}
+html[data-theme="light"] .v22-meta span{background:#fff;border-color:var(--line)}
+html[data-theme="light"] .card,html[data-theme="light"] .cards>.card.v22-create,html[data-theme="light"] .cards>.card.v22-join,html[data-theme="light"] .cards>.card.v22-bot,html[data-theme="light"] .cards>.card.v22-daily{background:var(--card);border-color:var(--line);color:var(--ink)}
+html[data-theme="light"] .cards>.card.v22-create{border-top-color:#6ba52d}html[data-theme="light"] .cards>.card.v22-join{border-top-color:#3982d3}html[data-theme="light"] .cards>.card.v22-bot{border-top-color:#9271d1}html[data-theme="light"] .cards>.card.v22-daily{border-top-color:#c18a25}
+html[data-theme="light"] .v22-modeicon{background:#e6f1da;color:#397612}
+html[data-theme="light"] .v22-join .v22-modeicon{background:#e4efff;color:#185caa}
+html[data-theme="light"] .v22-bot .v22-modeicon{background:#f0e9ff;color:#6844a7}
+html[data-theme="light"] .v22-daily .v22-modeicon{background:#fff1d6;color:#8c5a09}
+html[data-theme="light"] .btn,html[data-theme="light"] .cards>.card:nth-of-type(1) .btn,html[data-theme="light"] .cards>.card:nth-of-type(2) .btn{background:#397612;color:#fff}
+html[data-theme="light"] .btn.alt{background:#e7edf5;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .btn.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .btn:disabled{opacity:.55}
+html[data-theme="light"] input,html[data-theme="light"] select,html[data-theme="light"] .cards>.card:nth-of-type(2) input,html[data-theme="light"] #ansI,html[data-theme="light"] #botL,html[data-theme="light"] .botrow select,html[data-theme="light"] .repf input,html[data-theme="light"] .repf select{background:#fff;color:var(--ink);border-color:#c5d0df}
+html[data-theme="light"] input::placeholder{color:#657489}
+html[data-theme="light"] .board{background:#f8faff;border-bottom-color:var(--line)}
+html[data-theme="light"] .v222-scorewrap .chip,html[data-theme="light"] .v222-scorewrap .chip.me{background:#fff;border-color:var(--line);border-left-color:var(--pc)}
+html[data-theme="light"] .v222-scorewrap .chip.me{background:#eaf2ff}
+html[data-theme="light"] .v222-scorewrap .chip .sc{background:#eaf0f8;color:var(--ink)}
+html[data-theme="light"] .sound,html[data-theme="light"] .rxb button,html[data-theme="light"] .rxb .rxt,html[data-theme="light"] .rxb.open .rxt{background:#e7edf5;border-color:var(--line);color:var(--ink)}
+html[data-theme="light"] .slot,html[data-theme="light"] .slot.full,html[data-theme="light"] .settings,html[data-theme="light"] .codebox,html[data-theme="light"] #brk,html[data-theme="light"] #pick .turnline,html[data-theme="light"] #prof .turnline{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .slot.full{border-left-color:var(--pc)}
+html[data-theme="light"] .slot em,html[data-theme="light"] .uid{background:#e7edf5;color:var(--ink)}
+html[data-theme="light"] #nine .team,html[data-theme="light"] #nine .team.r5{background:#fff;border-color:var(--line);border-top-color:var(--rc)}
+html[data-theme="light"] #nine .team.mypick{background:#eaf4df;border-color:var(--flood)}
+html[data-theme="light"] #nine .team .tag{background:var(--flood);color:#fff}
+html[data-theme="light"] #nine .team .stars{color:#8b650b}
+html[data-theme="light"] #ans .vs,html[data-theme="light"] #rev .vs,html[data-theme="light"] .vs{background:linear-gradient(110deg,#e4efff,#f8faff 48%,#fbe8ed);border-color:var(--line)}
+html[data-theme="light"] #ans .clock,html[data-theme="light"] #rev .clock,html[data-theme="light"] .clock{background:#fff;box-shadow:0 0 0 4px #c5d0df66}
+html[data-theme="light"] .clock svg circle:first-child{stroke:#d7dfeb}
+html[data-theme="light"] #ans .tools .jk,html[data-theme="light"] #ans .tools .jk.ip{background:#edf3f9;border-color:var(--line)}
+html[data-theme="light"] #ans .tools .jk:disabled{background:#f1f3f7;color:#66758a;border-color:var(--line)}
+html[data-theme="light"] .v222-points,html[data-theme="light"] #ans .tools .hint{background:#eaf4df;border-color:#c5dfae}
+html[data-theme="light"] .ipT{background:#e8f2ff;border-color:#b7d3f3;color:#174a87}
+html[data-theme="light"] .opp,html[data-theme="light"] .try,html[data-theme="light"] .hr,html[data-theme="light"] .rank li,html[data-theme="light"] .pfl div,html[data-theme="light"] .pfg div,html[data-theme="light"] .fr,html[data-theme="light"] .adm>div{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .opp,html[data-theme="light"] .try,html[data-theme="light"] .rank li,html[data-theme="light"] #rPts>div{border-left-color:var(--pc)}
+html[data-theme="light"] #rPts>div{background:#fff;color:var(--ink)}
+html[data-theme="light"] #res .v224-result,html[data-theme="light"] #end .v224-result{background:#fff;border-color:var(--line)}
+html[data-theme="light"] #res .v224-result[data-outcome="win"],html[data-theme="light"] #end .v224-result[data-outcome="win"]{background:linear-gradient(145deg,#ecf7e0,#fff);border-color:#a9ce88}
+html[data-theme="light"] .v224-result[data-outcome="none"] .v224-status{color:#b72545;border-color:#e8b4bf;background:#fff0f2}
+html[data-theme="light"] .v224-result[data-outcome="draw"] .v224-status{color:#865b0a}
+html[data-theme="light"] .list li,html[data-theme="light"] .try .g span{background:#edf1f6;color:var(--ink)}
+html[data-theme="light"] .list li.hit,html[data-theme="light"] .try .g .ok{background:#d8f0e1;color:#125e36}
+html[data-theme="light"] .objbox,html[data-theme="light"] .pred{background:#f0f6e8;border-color:#b2d28f}
+html[data-theme="light"] .hr .ok{color:var(--ok)}html[data-theme="light"] .hr .ms{color:#185caa}
+html[data-theme="light"] .stabs button{background:#e7edf5;color:var(--ink);border-color:var(--line)}
+html[data-theme="light"] .stabs button.on,html[data-theme="light"] .bdg,html[data-theme="light"] .ptsb,html[data-theme="light"] .imodes span,html[data-theme="light"] .pred .btn.on{background:var(--flood);color:#fff}
+html[data-theme="light"] .bdg.no{opacity:1;background:#f0f3f8;color:#68758a;border-color:var(--line)}
+html[data-theme="light"] .fr.on,html[data-theme="light"] .badgeNew{background:#edf6e2;border-color:#b2d28f;color:var(--flood)}
+html[data-theme="light"] .banner{background:#fff0f2;color:#a42140;border-color:#e8b4bf}
+html[data-theme="light"] .intro{background:#18223888}
+html[data-theme="light"] .ibox,html[data-theme="light"] .imock,html[data-theme="light"] .ist,html[data-theme="light"] .ist.r{background:#fff;color:var(--ink);border-color:var(--line);box-shadow:none}
+html[data-theme="light"] .ist b{color:var(--ink);text-shadow:none}
+html[data-theme="light"] .idots i{background:#d1d9e4}html[data-theme="light"] .idots i.on{background:var(--flood)}
+html[data-theme="light"] .tres span,html[data-theme="light"] #tScore i,html[data-theme="light"] .slot small b{color:var(--ink)!important}
+@media(max-width:600px){.v225-themebar{margin-bottom:9px}#themeMode{min-height:34px}}
+
+
+/* V22.6: final responsive polish, optical crest sizing and quiet spacing */
+main{padding-top:16px;padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+.v225-themebar{margin-bottom:10px}
+.note{margin:18px auto 0;max-width:68ch;font:500 11px/1.5 var(--ui);color:var(--mute)}
+#ans .vs,#rev .vs{min-height:194px;padding:20px 16px}
+#ans .vs .t,#rev .vs .t{min-height:140px;gap:9px}
+#ans .vs .t .crest,#rev .vs .t .crest{width:100px;height:100px}
+.crest-real[data-club="DEP"] .crest-image{transform:scale(1.16)}
+#ans .vs .t .crest-real .crest-image,#rev .vs .t .crest-real .crest-image{filter:drop-shadow(0 2px 4px #0002)}
+#ans .vs .t .crest-real,#rev .vs .t .crest-real{filter:none}
+#ans .opp{min-height:46px}
+.v222-opplabel{margin:12px 0 6px}
+.v222-matchhead{margin:0 0 12px}
+#ans .msg{margin-top:8px}
+#ansGo,#ansI,#ans .tools .jk{touch-action:manipulation}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+button:disabled{cursor:default}
+.v222-scorewrap .chip .nm{overflow:hidden;text-overflow:ellipsis}
+.v222-scorewrap .mid{max-width:125px;overflow-wrap:anywhere}
+.v222-scorewrap .chip .sc{font-variant-numeric:tabular-nums}
+#pick .pickers{gap:5px}
+#nine .team{touch-action:manipulation}
+#nine .team:disabled:not(.mypick){cursor:default}
+#rPair .crest-real,.hr .hp .crest-real{flex-shrink:0}
+#rMore summary,#eHist summary{flex-wrap:wrap;line-height:1.4}
+#prof .pfg>div{min-width:0;overflow-wrap:anywhere}
+.tchat{width:100%;max-width:none}
+#quit{min-height:36px;padding:7px 12px}
+body[data-screen="ans"] .note,body[data-screen="rev"] .note,body[data-screen="pick"] .note{margin-top:12px}
+@media(max-width:600px){
+ main{padding-top:10px;padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+ .v225-themebar{margin-bottom:8px}
+ .v222-matchhead{margin-bottom:10px}
+ #ans .vs,#rev .vs{min-height:140px;padding:12px 7px;gap:6px}
+ #ans .vs .t,#rev .vs .t{min-height:99px;gap:6px}
+ #ans .vs .t .crest,#rev .vs .t .crest{width:64px;height:68px}
+ #ans .clock,#rev .clock{width:72px}
+ .v222-scorewrap .chip .nm{white-space:nowrap}
+ .v222-scorewrap .mid{max-width:80px}
+ #ans .opp{min-height:42px}
+ .v222-opplabel{margin:9px 0 5px}
+ #ans .msg{margin-top:7px}
+ .note{font-size:10px;margin-top:12px}
+ .rxb{bottom:calc(8px + env(safe-area-inset-bottom));left:8px}
+ .rxb .rxt{width:40px;height:40px}
+}
+@media(max-width:350px){#ans .vs .t .crest,#rev .vs .t .crest{width:52px;height:56px}#ans .clock,#rev .clock{width:64px}#ans .clock b,#rev .clock b{font-size:22px!important}}
+@media(hover:none){#nine.mine .team:not(:disabled):hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.screen.on,.v224-enter,.v224-enter .v224-status,.chip.pop .sc{animation:none!important}}
+
+/* V22.6: perfectly concentric answer countdown, no gap at full or dot at zero */
+#ans #clock{position:relative;display:block;aspect-ratio:1;border:0;border-radius:50%;box-shadow:none;background:transparent}
+#ans #clock svg{display:block;position:absolute;inset:0;width:100%;height:100%;overflow:hidden;transform:rotate(-90deg);transform-origin:50% 50%}
+#ans #clock b{position:absolute;inset:0;display:grid;place-items:center;padding:0 0 12%;margin:0;line-height:1;text-align:center}
+#ans #clock::after{top:65%;line-height:1}
+html[data-theme="light"] #ans #clock{background:transparent;box-shadow:none}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -455,29 +862,31 @@ label{color:var(--mute);font-weight:800}
 <div class="pitch" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"><line x1="0" y1="520" x2="1000" y2="520"/><circle cx="500" cy="520" r="170"/><circle class="dot" cx="500" cy="520" r="7"/></svg></div>
 
 <header class="board" id="board" hidden aria-live="polite">
-  <div class="chips" id="chips"></div>
+  <div class="v222-scorewrap"><div class="chips" id="chips"></div>
   <div class="mid"><span class="tsc" id="tScore"></span>Tur<b id="rd">–</b><span class="specn" id="specN"></span><button class="sound mic" id="mic" aria-label="Anlatıcıyı aç/kapat" title="Anlatıcı">🎙</button><button class="sound" id="snd" aria-label="Sesi aç/kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="x" d="M16 9l5 6M21 9l-5 6"/></svg></button></div>
+  </div>
 </header>
 
 <main>
+  <div class="v225-themebar"><label for="themeMode"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg> Görünüm</label><select id="themeMode" aria-label="Görünüm teması"><option value="dark">Koyu</option><option value="light">Açık</option><option value="system">Sistem</option></select></div>
   <p class="banner" id="banner" role="status"></p>
   <div class="brk" id="brk" hidden></div>
   <div class="pred" id="pred" hidden><div class="ph2" id="predQ">Bu turu kim bilir?</div><div class="pb" id="predB"></div><p class="tiny" id="predS"></p></div>
   <section class="screen on" id="lobby">
     <div class="hero">
-      <div><h1>Ortak<br><span>Oyuncu</span></h1>
-      <p class="lead">İki takım, tek futbolcu. Ekrana gelen 9 armadan herkes gizlice bir takım seçer; iki takımda da forma giymiş oyuncuyu ilk yazan turu alır.</p></div>
+      <div><div class="v22-eyebrow">Futbol bilgi arenası</div><h1>Ortak<br><span>Oyuncu</span></h1>
+      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>114 takım</span><span>Canlı düello</span><span>2–4 oyuncu</span></div></div>
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
     <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
       <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
-      <div class="card"><h3>Oda kur</h3><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
-      <div class="card"><h3>Odaya katıl</h3><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
-      <div class="card"><h3>Bota karşı oyna</h3><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
+      <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
+      <div class="card v22-join"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h13m-5-5 5 5-5 5"/></svg></span><h3>Odaya katıl</h3></div><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
+      <div class="card v22-bot"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 3v4M2 11v5m20-5v5M9 13h.01M15 13h.01M9 17h6"/></svg></span><h3>Bota karşı oyna</h3></div><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
-      <div class="card"><h3>Günün bulmacası</h3><p>Herkese aynı 5 eşleşme, günde bir kez. Her biri için 30 saniye.</p><button class="btn alt" id="dGo" disabled>Oyna</button></div>
+      <div class="card v22-daily"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-12 5 2 2 4-4"/></svg></span><h3>Günün bulmacası</h3></div><p>Herkese aynı 5 eşleşme, günde bir kez. Her biri için 30 saniye.</p><button class="btn alt" id="dGo" disabled>Oyna</button></div>
       <div class="card season" id="seasonC" hidden><h3>Sezon tablosu</h3><div id="seasonT"><p class="tiny">Yükleniyor…</p></div></div>
     </div>
     <p class="status" id="lStatus" role="status">Bağlanıyor…</p>
@@ -522,19 +931,20 @@ label{color:var(--mute);font-weight:800}
   </section>
 
   <section class="screen" id="ans">
+    <div class="v222-matchhead"><div><span class="v222-overline">ORTAK OYUNCU</span><h2>Futbolcuyu bul</h2></div><span class="v222-points" id="v222Pts"></span></div>
     <div class="kc" id="kChain" hidden></div>
     <div class="vs"><div class="t" id="tA"></div>
-      <div class="clock" id="clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="9"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="#f6d33f" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><b id="aSec"></b></div>
+      <div class="clock" id="clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" pathLength="100" fill="none" stroke="#f6d33f" stroke-width="7" stroke-linecap="round" stroke-dasharray="none" stroke-dashoffset="0"/></svg><b id="aSec"></b></div>
       <div class="t" id="tB"></div></div>
-    <form class="answer" id="ansF"><input id="ansI" placeholder="Futbolcu adı" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Futbolcu adı"><button class="btn" id="ansGo">Gönder</button></form>
+    <div class="v222-answerpanel"><form class="answer" id="ansF"><input id="ansI" placeholder="Futbolcu adı" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Futbolcu adı"><button class="btn" id="ansGo">Gönder</button></form>
     <div class="tools"><button type="button" class="jk" id="jkB"></button><button type="button" class="jk ip" id="ipB">İpucu</button><div class="hint" id="hint"></div></div>
     <p class="ipT" id="ipT" hidden></p>
-    <p class="msg" id="aMsg" role="status"></p>
-    <div class="opps" id="opps"></div>
+    <p class="msg" id="aMsg" role="status"></p></div>
+    <div class="v222-opplabel">RAKİPLER</div><div class="opps" id="opps"></div>
   </section>
 
   <section class="screen" id="res">
-    <div class="res"><div class="pair" id="rPair"></div><div class="big" id="rBig"></div><p class="lead" id="rTxt" style="margin:10px auto 0"></p></div>
+    <div class="res v224-result" id="v224Round"><div class="v224-status" id="v224RoundStatus"></div><div class="pair" id="rPair"></div><div class="big" id="rBig"></div><p class="lead" id="rTxt" style="margin:10px auto 0"></p></div>
     <div class="pts" id="rPts"></div>
     <div class="tries" id="rTries"></div>
     <div class="objbox" id="obj"></div>
@@ -545,7 +955,7 @@ label{color:var(--mute);font-weight:800}
   </section>
 
   <section class="screen" id="end">
-    <div class="res"><div class="big" id="eBig"></div><div id="eTxt" style="margin:16px auto 22px"></div></div>
+    <div class="res v224-result" id="v224Final"><div class="v224-status" id="v224FinalStatus"></div><div class="big" id="eBig"></div><div id="eTxt" style="margin:16px auto 22px"></div></div>
     <div class="badgeNew" id="eBadge" hidden></div>
     <div id="eSeason"></div>
     <details class="more" id="eHist"><summary>Maç özeti: tur tur</summary><div class="hist" id="eHistL"></div></details>
@@ -2819,7 +3229,125 @@ const STY={GS:['h','#fdb912','#c8102e'],FB:['v','#0a2a6b','#ffe000',7],BJK:['h',
  NIC:['v','#e30613','#151515',7],LIL:['h','#e01e13','#20325f'],OL:['s','#f4f4f4','#d20a2e'],RCS:['r','#009fe3','#f4f4f4'],RCL:['v','#ffe100','#e30613',5],BRS:['r','#e30613','#f4f4f4'],
  TFC:['r','#6a2c91','#f4f4f4'],AUX:['b','#f4f4f4','#003f8a'],REN:['l','#e13327','#151515'],ANG:['v','#151515','#f4f4f4',7],HAC:['h','#8ac3ee','#0b2b5e'],LOR:['r','#f58113','#151515'],
  PFC:['b','#1d2c4f','#f4f4f4'],TRO:['r','#005eb8','#f4f4f4'],LMS:['h','#e30613','#ffd200']};
-const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
+// Club logos: luukhopman/football-logos, pinned repository snapshot. Club marks belong to their owners.
+const LOGO_BASE='https://raw.githubusercontent.com/luukhopman/football-logos/2a3978f0b4730645c205d855a4bda54c161183e9/';
+const CLUB_LOGOS=Object.freeze({
+  "GS": "logos/Türkiye - Süper Lig/Galatasaray.png",
+  "FB": "logos/Türkiye - Süper Lig/Fenerbahce.png",
+  "BJK": "logos/Türkiye - Süper Lig/Besiktas JK.png",
+  "TS": "logos/Türkiye - Süper Lig/Trabzonspor.png",
+  "IBF": "logos/Türkiye - Süper Lig/Basaksehir FK.png",
+  "SAM": "logos/Türkiye - Süper Lig/Samsunspor.png",
+  "GOZ": "logos/Türkiye - Süper Lig/Göztepe.png",
+  "EYP": "logos/Türkiye - Süper Lig/Eyüpspor.png",
+  "KAS": "logos/Türkiye - Süper Lig/Kasimpasa.png",
+  "ALA": "logos/Türkiye - Süper Lig/Alanyaspor.png",
+  "KON": "logos/Türkiye - Süper Lig/Konyaspor.png",
+  "GFK": "logos/Türkiye - Süper Lig/Gaziantep FK.png",
+  "RIZ": "logos/Türkiye - Süper Lig/Caykur Rizespor.png",
+  "GNC": "logos/Türkiye - Süper Lig/Genclerbirligi Ankara.png",
+  "KOC": "logos/Türkiye - Süper Lig/Kocaelispor.png",
+  "ERZ": "logos/Türkiye - Süper Lig/Erzurumspor FK.png",
+  "AMD": "logos/Türkiye - Süper Lig/Amed SK.png",
+  "COR": "logos/Türkiye - Süper Lig/Corum FK.png",
+  "RMA": "logos/Spain - LaLiga/Real Madrid.png",
+  "BAR": "logos/Spain - LaLiga/FC Barcelona.png",
+  "ATM": "logos/Spain - LaLiga/Atlético de Madrid.png",
+  "SEV": "logos/Spain - LaLiga/Sevilla FC.png",
+  "VAL": "logos/Spain - LaLiga/Valencia CF.png",
+  "ATH": "logos/Spain - LaLiga/Athletic Bilbao.png",
+  "RSO": "logos/Spain - LaLiga/Real Sociedad.png",
+  "BET": "logos/Spain - LaLiga/Real Betis Balompié.png",
+  "VIL": "logos/Spain - LaLiga/Villarreal CF.png",
+  "CEL": "logos/Spain - LaLiga/Celta de Vigo.png",
+  "GET": "logos/Spain - LaLiga/Getafe CF.png",
+  "OSA": "logos/Spain - LaLiga/CA Osasuna.png",
+  "ALV": "logos/Spain - LaLiga/Deportivo Alavés.png",
+  "ESY": "logos/Spain - LaLiga/RCD Espanyol Barcelona.png",
+  "RAY": "logos/Spain - LaLiga/Rayo Vallecano.png",
+  "LEV": "logos/Spain - LaLiga/Levante UD.png",
+  "ELC": "logos/Spain - LaLiga/Elche CF.png",
+  "RAC": "logos/Spain - LaLiga/Racing Santander.png",
+  "DEP": "logos/Spain - LaLiga/Deportivo A Coruña.png",
+  "MAL": "logos/Spain - LaLiga/Málaga CF.png",
+  "JUV": "logos/Italy - Serie A/Juventus FC.png",
+  "INT": "logos/Italy - Serie A/Inter Milan.png",
+  "MIL": "logos/Italy - Serie A/AC Milan.png",
+  "NAP": "logos/Italy - Serie A/SSC Napoli.png",
+  "ROM": "logos/Italy - Serie A/AS Roma.png",
+  "LAZ": "logos/Italy - Serie A/SS Lazio.png",
+  "ATA": "logos/Italy - Serie A/Atalanta BC.png",
+  "BOL": "logos/Italy - Serie A/Bologna FC 1909.png",
+  "FIO": "logos/Italy - Serie A/ACF Fiorentina.png",
+  "TOR": "logos/Italy - Serie A/Torino FC.png",
+  "GNO": "logos/Italy - Serie A/Genoa CFC.png",
+  "UDI": "logos/Italy - Serie A/Udinese Calcio.png",
+  "CAG": "logos/Italy - Serie A/Cagliari Calcio.png",
+  "LEC": "logos/Italy - Serie A/US Lecce.png",
+  "SAS": "logos/Italy - Serie A/US Sassuolo.png",
+  "PAR": "logos/Italy - Serie A/Parma Calcio 1913.png",
+  "COM": "logos/Italy - Serie A/Como 1907.png",
+  "VEN": "logos/Italy - Serie A/Venezia FC.png",
+  "FRO": "logos/Italy - Serie A/Frosinone Calcio.png",
+  "MNZ": "logos/Italy - Serie A/AC Monza.png",
+  "MUN": "logos/England - Premier League/Manchester United.png",
+  "MCI": "logos/England - Premier League/Manchester City.png",
+  "LIV": "logos/England - Premier League/Liverpool FC.png",
+  "CHE": "logos/England - Premier League/Chelsea FC.png",
+  "ARS": "logos/England - Premier League/Arsenal FC.png",
+  "TOT": "logos/England - Premier League/Tottenham Hotspur.png",
+  "AVL": "logos/England - Premier League/Aston Villa.png",
+  "BOU": "logos/England - Premier League/AFC Bournemouth.png",
+  "BRE": "logos/England - Premier League/Brentford FC.png",
+  "BHA": "logos/England - Premier League/Brighton & Hove Albion.png",
+  "COV": "logos/England - Premier League/Coventry City.png",
+  "CRY": "logos/England - Premier League/Crystal Palace.png",
+  "EVE": "logos/England - Premier League/Everton FC.png",
+  "FUL": "logos/England - Premier League/Fulham FC.png",
+  "HUL": "logos/England - Premier League/Hull City.png",
+  "IPS": "logos/England - Premier League/Ipswich Town.png",
+  "LEE": "logos/England - Premier League/Leeds United.png",
+  "NEW": "logos/England - Premier League/Newcastle United.png",
+  "NFO": "logos/England - Premier League/Nottingham Forest.png",
+  "SUN": "logos/England - Premier League/Sunderland AFC.png",
+  "BAY": "logos/Germany - Bundesliga/Bayern Munich.png",
+  "BVB": "logos/Germany - Bundesliga/Borussia Dortmund.png",
+  "RBL": "logos/Germany - Bundesliga/RB Leipzig.png",
+  "B04": "logos/Germany - Bundesliga/Bayer 04 Leverkusen.png",
+  "SGE": "logos/Germany - Bundesliga/Eintracht Frankfurt.png",
+  "VFB": "logos/Germany - Bundesliga/VfB Stuttgart.png",
+  "SCF": "logos/Germany - Bundesliga/SC Freiburg.png",
+  "TSG": "logos/Germany - Bundesliga/TSG 1899 Hoffenheim.png",
+  "M05": "logos/Germany - Bundesliga/1.FSV Mainz 05.png",
+  "BMG": "logos/Germany - Bundesliga/Borussia Mönchengladbach.png",
+  "SVW": "logos/Germany - Bundesliga/SV Werder Bremen.png",
+  "FCA": "logos/Germany - Bundesliga/FC Augsburg.png",
+  "FCU": "logos/Germany - Bundesliga/1.FC Union Berlin.png",
+  "KOE": "logos/Germany - Bundesliga/1.FC Köln.png",
+  "HSV": "logos/Germany - Bundesliga/Hamburger SV.png",
+  "S04": "logos/Germany - Bundesliga/FC Schalke 04.png",
+  "ELV": "logos/Germany - Bundesliga/SV 07 Elversberg.png",
+  "SCP": "logos/Germany - Bundesliga/SC Paderborn 07.png",
+  "PSG": "logos/France - Ligue 1/Paris Saint-Germain.png",
+  "OM": "logos/France - Ligue 1/Olympique Marseille.png",
+  "MON": "logos/France - Ligue 1/AS Monaco.png",
+  "NIC": "logos/France - Ligue 1/OGC Nice.png",
+  "LIL": "logos/France - Ligue 1/LOSC Lille.png",
+  "OL": "logos/France - Ligue 1/Olympique Lyon.png",
+  "RCS": "logos/France - Ligue 1/RC Strasbourg Alsace.png",
+  "RCL": "logos/France - Ligue 1/RC Lens.png",
+  "BRS": "logos/France - Ligue 1/Stade Brestois 29.png",
+  "TFC": "logos/France - Ligue 1/FC Toulouse.png",
+  "AUX": "logos/France - Ligue 1/AJ Auxerre.png",
+  "REN": "logos/France - Ligue 1/Stade Rennais FC.png",
+  "ANG": "logos/France - Ligue 1/Angers SCO.png",
+  "HAC": "logos/France - Ligue 1/Le Havre AC.png",
+  "LOR": "logos/France - Ligue 1/FC Lorient.png",
+  "PFC": "logos/France - Ligue 1/Paris FC.png",
+  "TRO": "logos/France - Ligue 1/ESTAC Troyes.png",
+  "LMS": "logos/France - Ligue 1/Le Mans FC.png"
+});
+const crestFallback=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
   const P='M32 3 59 11v24c0 18-11.5 30-27 36C16.5 65 5 53 5 35V11z';let pat='';
   if(k==='v'){const w=64/n;for(let i=1;i<n;i+=2)pat+=`<rect x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="74" fill="${c2}"/>`}
   else if(k==='h')pat=`<rect x="32" y="0" width="32" height="74" fill="${c2}"/>`;
@@ -2834,8 +3362,11 @@ const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||
   else pat=`<path d="M32 9.5 53 15.7V35c0 14-9 24-21 29C20 59 11 49 11 35V15.7z" fill="none" stroke="${c2}" stroke-width="4.5"/>`;
   const fs=s.length>3?11:s.length>2?13:16;
   return`<svg class="crest" viewBox="0 0 64 74" aria-hidden="true"><g clip-path="url(#sh)"><rect width="64" height="74" fill="${c1}"/>${pat}<rect width="64" height="74" fill="url(#gloss)"/></g><path d="${P}" fill="none" stroke="#f3efe2" stroke-width="2.6"/><path d="${P}" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1" transform="translate(32 37) scale(.9) translate(-32 -37)"/><circle cx="32" cy="36" r="15" fill="#0a1510" fill-opacity=".86" stroke="#f3efe2" stroke-opacity=".7" stroke-width="1.3"/><text x="32" y="${36+fs*.36}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="${fs}" fill="#fff" letter-spacing=".3">${s}</text></svg>`};
+const logoURL=id=>Object.prototype.hasOwnProperty.call(CLUB_LOGOS,id)?LOGO_BASE+CLUB_LOGOS[id].split('/').map(encodeURIComponent).join('/'):null;
+const crest=id=>{if(!has(id))return '';const url=logoURL(id),fallback=crestFallback(id).replace('class="crest"','class="crest-fallback"');return url?`<span class="crest crest-real" data-club="${id}" aria-hidden="true"><img class="crest-image" alt="" src="${url}" decoding="async" referrerpolicy="no-referrer" onload="this.parentElement.classList.add('loaded')" onerror="this.hidden=true">${fallback}</span>`:crestFallback(id)};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=id=>document.getElementById(id);
+$('themeMode').addEventListener('change',e=>Theme.set(e.target.value));Theme.apply();
 const clean=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,16)||'Oyuncu';
 const clip=(s,n)=>String(s==null?'':s).slice(0,n);
 const COLORS=['#46b0ff','#ff6a5c','#b48cff','#ffa94d'];
@@ -2873,7 +3404,7 @@ const sBtn=$('snd');sBtn.classList.toggle('off',muted);
 sBtn.onclick=()=>{muted=!muted;sBtn.classList.toggle('off',muted);try{localStorage.setItem('oo-mute',muted?'1':'0')}catch(e){}if(!muted)SFX.pick()};
 
 const lStatus=(t,bad)=>{const e=$('lStatus');e.textContent=t;e.classList.toggle('bad',!!bad)};
-$('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<svg ',`<svg style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
+$('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<span ',`<span style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
 const playerName=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,40);
 const Community={list:[],loaded:false,
   merge(e){if(!e||typeof e.t!=='string'||!has(e.a)||!has(e.b))return;const n=playerName(e.t);if(n.length<3||e.a===e.b)return;const k=norm(n);
@@ -2888,9 +3419,9 @@ const Community={list:[],loaded:false,
     if(!Net.db)return;const id=Date.now().toString(36)+Math.random().toString(36).slice(2,7);Net.db.ref('sug/'+id).set(e).catch(()=>{})},
   draw(){$('comD').hidden=!this.list.length;$('comN').textContent=this.list.length;
     $('comL').innerHTML=this.list.slice(0,200).map(e=>`<li>${esc(e.t)} <span style="opacity:.6">· ${esc(TEAMS[e.a][0])} / ${esc(TEAMS[e.b][0])}</span></li>`).join('');
-    $('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu${this.list.length?` (${this.list.length} topluluk eklemesi)`:''}. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin.`}
+    $('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu${this.list.length?` (${this.list.length} topluluk eklemesi)`:''}. Kulüp armaları tanımlama amaçlıdır; yüklenmezse temsili arma kullanılır. Listede olmayan doğru cevap için itiraz edebilirsin.`}
 };
-$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin.`;
+$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Kulüp armaları tanımlama amaçlıdır; yüklenmezse temsili arma kullanılır. Listede olmayan doğru cevap için itiraz edebilirsin.`;
 
 /* ---------- ağ katmanı: Firebase Realtime Database ---------- */
 /* Her oyuncu odada kendi Google kimliğiyle tek bir kayıt tutar. Kayıt bağlantı kopunca silinmez,
@@ -2967,8 +3498,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='21.1';
+const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
+const APPV='22.6';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3520,18 +4051,55 @@ $('again').onclick=()=>{if(isHost)act(()=>startGame())};
 $('toLobby').onclick=()=>leaveRoom();
 
 /* ---------- konfeti ---------- */
-function confetti(cols,big){
-  const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)big=false;
-  const cv=$('fx'),dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth,Hh=cv.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
-  const N=big?160:70,ps=Array.from({length:N},()=>({x:W/2+(Math.random()-.5)*W*.3,y:Hh*.32,vx:(Math.random()-.5)*11,vy:-Math.random()*13-4,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.4,w:6+Math.random()*6,h:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)]}));
-  const t0=performance.now();const f=t=>{const k=(t-t0)/1000;x.clearRect(0,0,W,Hh);ps.forEach(p=>{p.vy+=.38;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-k/2.2);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
-    if(k<2.2)requestAnimationFrame(f);else x.clearRect(0,0,W,Hh)};requestAnimationFrame(f);
+const resultKey=(room,g,kind)=>[room,g.gid,g.st,kind,kind==='round'?g.pn:'end',kind==='round'?(g.wu||'none'):''].join(':');
+function outcomeOf(g,uid){
+  if(!g.pl.some(p=>p.u===uid))return 'spectator';
+  if(g.md==='tr'&&g.ch)return g.ch===uid?'win':'loss';
+  if(g.md==='t'&&g.tm){
+    const total=t=>g.pl.filter(p=>g.tm[p.u]===t).reduce((n,p)=>n+(+p.s||0),0),a=total(0),b=total(1);
+    return a===b?'draw':g.tm[uid]===(a>b?0:1)?'win':'loss';
+  }
+  const top=Math.max(...g.pl.map(p=>+p.s||0)),winners=g.pl.filter(p=>(+p.s||0)===top);
+  return winners.length>1?'draw':winners[0].u===uid?'win':'loss';
 }
-let cfKey='';
-function celebrate(g){const k=g.gid+'-'+g.r+'-'+(+g.vc||0);if(!g.wu||cfKey===k)return;cfKey=k;
-  const sa=STY[g.a]||[],sb=STY[g.b]||[];const run=()=>confetti([sa[1],sa[2],sb[1],sb[2],'#f6d33f'].filter(Boolean),g.wu===ME);
-  requestAnimationFrame(run);if(g.wu===ME)setTimeout(()=>confetti(['#f6d33f','#59e08b','#fff'],false),700);
-  const r=$('rBig');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');$('next').disabled=true;setTimeout(()=>$('next').disabled=false,2500)}
+const Fx={frame:0,seen:new Set(),
+  reduce:()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches,
+  claim(key){
+    if(this.seen.has(key))return false;
+    try{if(sessionStorage.getItem('oo-fx-last')===key){this.seen.add(key);return false}sessionStorage.setItem('oo-fx-last',key)}catch(e){}
+    this.seen.add(key);if(this.seen.size>128)this.seen.delete(this.seen.values().next().value);return true;
+  },
+  stop(){if(this.frame)cancelAnimationFrame(this.frame);this.frame=0;const cv=$('fx'),ctx=cv&&cv.getContext('2d');if(ctx)ctx.clearRect(0,0,cv.width,cv.height)},
+  burst(cols,big){
+    this.stop();if(this.reduce()||document.hidden||!cols.length)return;
+    const cv=$('fx'),W=cv.clientWidth,H=cv.clientHeight,dpr=Math.min(1.5,window.devicePixelRatio||1);
+    if(!W||!H)return;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const x=cv.getContext('2d');if(!x)return;x.setTransform(dpr,0,0,dpr,0,0);
+    const N=big?92:48,duration=big?1650:1100,ps=Array.from({length:N},()=>({x:W*.5+(Math.random()-.5)*W*.32,y:H*.27,vx:(Math.random()-.5)*420,vy:-Math.random()*490-100,r:Math.random()*Math.PI,vr:(Math.random()-.5)*10,w:4+Math.random()*5,h:3+Math.random()*4,c:cols[Math.floor(Math.random()*cols.length)]}));
+    const t0=performance.now();let last=t0;
+    const step=t=>{const elapsed=t-t0,dt=Math.min(.05,Math.max(0,(t-last)/1000));last=t;x.clearRect(0,0,W,H);
+      if(elapsed>=duration||document.hidden){this.frame=0;return}
+      x.globalAlpha=Math.max(0,Math.min(1,(duration-elapsed)/350));
+      for(const p of ps){p.vy+=620*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()}
+      x.globalAlpha=1;this.frame=requestAnimationFrame(step);
+    };this.frame=requestAnimationFrame(step);
+  }
+};
+function animateResult(panel,key,kind){
+  if(!Fx.claim(key))return;
+  if(Fx.reduce())return;
+  panel.classList.remove('v224-enter');void panel.offsetWidth;panel.classList.add('v224-enter');
+  if(kind==='win')Fx.burst(['#b8f568','#f5f6fc','#78b7ff','#ffd47e'],true);
+}
+function presentRound(g){
+  const panel=$('v224Round'),kind=!g.wu?'none':g.wu===ME?'win':g.md==='t'&&g.tm&&g.tm[ME]!=null&&g.tm[ME]===g.tm[g.wu]?'win':'other';
+  panel.dataset.outcome=kind;$('v224RoundStatus').textContent=kind==='none'?'SÜRE DOLDU':kind==='win'?'DOĞRU CEVAP':'TUR SONUCU';
+  animateResult(panel,resultKey(code,g,'round'),kind);
+}
+function presentFinal(g){
+  const panel=$('v224Final'),kind=outcomeOf(g,ME);panel.dataset.outcome=kind;
+  $('v224FinalStatus').textContent=({win:'GALİBİYET',loss:'MAÇ TAMAMLANDI',draw:'BERABERE',spectator:'MAÇ SONU'})[kind];
+  animateResult(panel,resultKey(code,g,'final'),kind);
+}
 /* ---------- sesler ---------- */
 function react(p,g){
   if(!g)return;const i=idxOf(ME),me=i>=0?g.pl[i]:null,pm=p&&i>=0&&Array.isArray(p.pl)?p.pl.find(x=>x.u===ME):null;
@@ -3540,14 +4108,14 @@ function react(p,g){
     if(g.ph==='res')Voice.say(g.wu?`Gooool! ${nameOfU(g.wu)} bildi! ${String(g.hit||'').replace(' (itirazla)','')}`:'Kimse bilemedi. Tur geçersiz, yeniden oynanacak.');
     if(g.ph==='end')setTimeout(()=>Voice.say('Maç bitti! '+$('eBig').textContent),400);
     if(g.ph==='ans'){SFX.whistle();$('ansI').value='';C.ty=0;send({ty:0});lastSec=-1;$('aMsg').textContent='';$('ansI').dataset.l='';setTimeout(()=>{if(i>=0)$('ansI').focus()},60)}
-    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)();celebrate(g)}
+    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)()}
     if(g.ph==='end')SFX.final();
     if(g.ph==='rev')SFX.joker();
     if(g.ph==='pick'&&p&&p.ph==='rev'&&p.r===g.r)SFX.timeup();
     return;
   }
   if(g.ph==='pick'&&Object.keys(g.sp||{}).length>Object.keys(p.sp||{}).length&&!(g.sp||{})[ME])SFX.tick(false);
-  if(g.ph==='res'&&(+g.obOK||0)>(+p.obOK||0)){SFX.goal();confetti(['#f6d33f','#59e08b','#fff'],g.wu===ME)}
+  if(g.ph==='res'&&(+g.obOK||0)>(+p.obOK||0)){SFX.goal()}
   if(g.ph==='res'&&g.ob&&(!p.ob||p.ob.id!==g.ob.id))SFX.tick(true);
   if(g.ph==='ans'){
     const wk=x=>x&&x.wr?+x.wr.k||0:0;
@@ -3567,14 +4135,15 @@ function drawSpecs(){
   const amSpec=!!(Net.mine&&Net.mine.sp),b=$('specB');b.hidden=isHost||!(G.ph==='wait'||G.ph==='end');
   b.textContent=amSpec?(G.pl.length<MAXP?'Oyuncu olarak katıl':'Oda dolu'):'İzleyici ol';if(amSpec&&G.pl.length>=MAXP)b.disabled=true;
 }
+const stableHTML=(el,html)=>{if(el._v22html===html)return false;el._v22html=html;el.innerHTML=html;return true};
 function drawBoard(){
-  if(!G)return;const mi=myIdx();
-  $('chips').innerHTML=G.pl.map((p,i)=>`<div class="chip${i===mi?' me':''}${p.off?' off':''}${isTeam()?' t'+tmOf(p.u):''}" data-u="${esc(p.u)}" style="--pc:${pCol(i)}">${avI(i)}<span class="sc">${shownSc[p.u]!=null?shownSc[p.u]:+p.s||0}</span><span class="nm">${esc(pName(i))}${i===mi?'<small>sen</small>':''}</span></div>`).join('');
-  G.pl.forEach(p=>{const to=+p.s||0,from=shownSc[p.u]!=null?shownSc[p.u]:to;shownSc[p.u]=to;if(to===from)return;
-    const el=$('chips').querySelector(`[data-u="${CSS.escape(p.u)}"]`);if(!el)return;const sc=el.querySelector('.sc');el.classList.add('pop');
-    if(to<from){sc.textContent=to;return}let v=from;const step=()=>{v++;sc.textContent=v;if(v<to)setTimeout(step,170)};setTimeout(step,250)});
+  if(!G)return;const mi=myIdx(),chips=$('chips');
+  const layout=G.pl.map((p,i)=>[p.u,p.n,p.ph,p.fm,p.c,!!p.off,i===mi,isTeam()?tmOf(p.u):null]);
+  const key=JSON.stringify([code,G.gid,layout]);
+  if(chips._v22key!==key){chips._v22key=key;chips.innerHTML=G.pl.map((p,i)=>`<div class="chip${i===mi?' me':''}${p.off?' off':''}${isTeam()?' t'+tmOf(p.u):''}" data-u="${esc(p.u)}" style="--pc:${pCol(i)}">${avI(i)}<span class="sc">${+p.s||0}</span><span class="nm">${esc(pName(i))}${i===mi?'<small>sen</small>':''}</span></div>`).join('')}
+  G.pl.forEach(p=>{const el=chips.querySelector(`[data-u="${CSS.escape(p.u)}"]`);if(!el)return;const sc=el.querySelector('.sc'),to=String(+p.s||0);if(sc.textContent===to)return;sc.textContent=to;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')});
   $('rd').textContent=G.md==='tr'&&G.mt?(G.ch?'Bitti':trName(G.mi)):G.r?`${G.r}/${G.R}`:'–';
-  $('tScore').innerHTML=isTeam()?`<i style="color:${TCOL[0]}">${teamSc(0)}</i> – <i style="color:${TCOL[1]}">${teamSc(1)}</i>`:'';
+  stableHTML($('tScore'),isTeam()?`<i style="color:${TCOL[0]}">${teamSc(0)}</i> – <i style="color:${TCOL[1]}">${teamSc(1)}</i>`:'');
 }
 function draw(){
   if(!G)return;drawBoard();drawSpecs();
@@ -3608,13 +4177,13 @@ function drawPick(){
   $('pSub').innerHTML=(G.redo?`<b style="color:var(--bad)">${esc(G.redo)} Tekrar seçin.</b><br>`:'')+esc(sub)+`<span class="pickers">${pk.map(u=>{const i=idxOf(u);return`<span class="${sp[u]?'done':''}" style="--pc:${pCol(i)}">${avI(i,26)}${esc(pName(i))} · ${sp[u]?'seçti':P(i)&&P(i).off?'bağlantı koptu':'seçiyor'}</span>`}).join('')}</span>`;
   const nine=(Array.isArray(G.nine)?G.nine:[]).filter(has);
   $('nine').classList.toggle('mine',can);
-  $('nine').innerHTML=nine.map(id=>`<button class="team r${starOf(id)}${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span><small class="stars" aria-label="${starOf(id)} yıldız">${starTxt(starOf(id))}</small>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join('');
+  stableHTML($('nine'),nine.map(id=>`<button class="team r${starOf(id)}${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span><small class="stars" aria-label="${starOf(id)} yıldız">${starTxt(starOf(id))}</small>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join(''));
 }
 let rvT=null;
 function drawRev(){
   const first=screen!=='rev';show('rev');const box=document.querySelector('.rv');
   const pk=G.pk||[],a=pk[0],b=pk[1];
-  $('rvA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0])+`<small class="stars">${starTxt(starOf(G.a))}</small><small>${esc(nameOfU(a))}</small>`;$('rvB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0])+`<small class="stars">${starTxt(starOf(G.b))}</small><small>${esc(nameOfU(b))}</small>`;
+  stableHTML($('rvA'),crest(G.a)+esc(TEAMS[G.a][0])+`<small class="stars">${starTxt(starOf(G.a))}</small><small>${esc(nameOfU(a))}</small>`);stableHTML($('rvB'),crest(G.b)+esc(TEAMS[G.b][0])+`<small class="stars">${starTxt(starOf(G.b))}</small><small>${esc(nameOfU(b))}</small>`);
   $('rvTitle').textContent=G.th==='d'?'Derbi zamanı!':G.th==='t'?'Türk oyuncular turu':G.md==='q'?'Yeni eşleşme':'Seçimler açılıyor';$('rvMsg').innerHTML='';
   if(first){box.classList.remove('go');void box.offsetWidth;box.classList.add('go')}
   clearInterval(rvT);const tick=()=>{if(!G||G.ph!=='rev'){clearInterval(rvT);return}const l=Math.max(0,Math.ceil(((+G.rvEnd||0)-gameNow())/1000));$('rvSec').textContent=G.rvOK?(l||'Başla'):'✕';
@@ -3623,7 +4192,7 @@ function drawRev(){
   tick();rvT=setInterval(tick,200);
 }
 function drawAns(){
-  show('ans');const i=myIdx();const km=G.md==='k';$('ans').classList.toggle('kmode',km);$('kChain').hidden=!km;if(km)drawChain(true);
+  show('ans');const i=myIdx();const km=G.md==='k';$('v222Pts').textContent=(km?kPts():+G.pts||1)+' PUAN';$('ans').classList.toggle('kmode',km);$('kChain').hidden=!km;if(km)drawChain(true);
   if($('tA').dataset.id!==G.a+G.b+G.r){$('tA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0]);$('tB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0]);$('tA').dataset.id=G.a+G.b+G.r}
   const duel=i>=0&&isDuel(ME);$('ansF').hidden=!duel;$('jkB').hidden=!duel||!(+G.J>0);$('ipB').hidden=!duel;if(i>=0&&!duel)$('aMsg').textContent='Bu düelloyu izliyorsun, sıran gelince oynayacaksın.';{const ip=i>=0?P(i).ip:'';$('ipT').hidden=!ip;$('ipT').textContent=ip?'İpucu: '+ip:''}
   if(i>=0){$('jkB').textContent=`Joker (${+P(i).j||0})`;$('hint').textContent=P(i).h?clip(P(i).h,60):''}else $('aMsg').textContent='İzleyici olarak bakıyorsun.';
@@ -3664,13 +4233,14 @@ function drawOpps(){
     const st=p.off?'bağlantı koptu':t<(+p.lk||0)?(p.lr==='j'?'donduruldu':'bekliyor'):typing?'yazıyor…':'düşünüyor';
     const k=(p.at||[]).length;return`<div class="opp" style="--pc:${pCol(i)}"><span class="who2">${avI(i,28)}<strong>${esc(pName(i))}</strong></span><span class="st">${st}${k?` · ${k} deneme`:''}${p.ip?' · ipucu aldı':''}</span></div>`}).join('');
 }
+const countdownRing=(left,total)=>{const ratio=Number.isFinite(left)&&Number.isFinite(total)&&total>0?Math.min(1,Math.max(0,left/total)):0;return {dash:ratio===1?'none':'100 100',offset:String(100*(1-ratio)),visibility:ratio===0?'hidden':'visible'}};
 function tickUI(force){
   if(!G||G.ph!=='ans'||screen!=='ans')return;
   const left=Math.max(0,(+G.end||0)-gameNow()),s=Math.ceil(left/1000),tot=(+G.T||30)*1000;
   document.body.classList.toggle('hurry',left>0&&left<5000);
-  $('aSec').textContent=s;$('ring').style.strokeDashoffset=276.5*(1-Math.min(1,left/tot));$('clock').classList.toggle('low',left<6000);
+  $('aSec').textContent=s;const ring=countdownRing(left,tot),rs=$('ring').style;rs.strokeDasharray=ring.dash;rs.strokeDashoffset=ring.offset;rs.visibility=ring.visibility;$('clock').classList.toggle('low',left<6000);
   if(s!==lastSec){if(lastSec>0&&s<=5&&s>0)SFX.tick(s<=3);lastSec=s}
-  if(G.md==='k')drawChain(false);
+  if(G.md==='k'){drawChain(false);$('v222Pts').textContent=kPts()+' PUAN'}
   const i=myIdx();if(i<0||!isDuel(ME))return;const me=P(i);
   const lk=(+me.lk||0)-gameNow(),locked=lk>0,inp=$('ansI'),m=$('aMsg');
   if(gamePaused()){inp.disabled=true;$('ansGo').disabled=true;$('jkB').disabled=true;$('ipB').disabled=true;inp.dataset.pause='1';m.className='msg';m.textContent='Bağlantı bekleniyor…';return}
@@ -3684,18 +4254,18 @@ function tickUI(force){
   else if(force&&!m.textContent){m.className='msg';m.textContent=G.md==='k'?'Bu kulüplerin hepsinde oynamış futbolcuyu yaz.':'İki takımda da oynamış birini yaz.'}
 }
 setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%1000<200)drawOpps()},200);
-function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
+function drawRes(){
   show('res');const mi=myIdx(),wi=idxOf(G.wu);
   if($('repF').dataset.r!==G.gid+'-'+G.pn){$('repF').dataset.r=G.gid+'-'+G.pn;$('repF').hidden=true}$('repB').hidden=G.md==='k';
   $('rPair').innerHTML=G.md==='k'?(G.kc||[]).map(crest).join(''):crest(G.a)+'<i>×</i>'+crest(G.b);
   if(!G.wu){$('rBig').textContent='Tur geçersiz';$('rTxt').textContent=G.md==='k'?`Cevap: ${G.kx}. Kimse puan almadı, tur yeniden oynanacak.`:`Kimse bilemedi, kimse puan almadı. Tur ${G.r} yeni takımlarla tekrar oynanacak.`}
   else{const wp=P(wi)||{};$('rBig').textContent=(wi===mi?'Bildin!':pName(wi)+' bildi')+` +${+wp.g||0}`;$('rTxt').textContent=(G.md==='k'?`${clip(G.hit,60)}: ${(G.kc||[]).map(c=>TEAMS[c][0]).join(', ')}.`:`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`)+(wp.ip?' (İpucuyla, puan yarıya indi.)':'')}
   $('rPts').innerHTML=(isTeam()?`<div style="--pc:${TCOL[0]}">Mavi ${teamSc(0)}</div><div style="--pc:${TCOL[1]}">Kırmızı ${teamSc(1)}</div>`:'')+G.pl.map((p,i)=>`<div style="--pc:${pCol(i)}">${avI(i,30)}${esc(pName(i))} +${+p.g||0}</div>`).join('');
-  const v=cands(),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rSum').textContent=G.md==='k'?'Doğru cevap':'Bu eşleşmedeki ortak oyuncular';$('rMore').open=false;
+  const v=cands(),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rSum').textContent=G.md==='k'?'Doğru cevap':'Bu eşleşmedeki ortak oyuncular';const more=$('rMore'),key=G.gid+':'+G.pn;if(more.dataset.round!==key){more.dataset.round=key;more.open=false}
   $('rList').innerHTML=[...v].sort((x,y)=>(y.n===hit)-(x.n===hit)).map(p=>`<li class="${p.n===hit?'hit':G.used.includes(p.n)?'used':''}">${esc(p.n)}</li>`).join('');
   $('rTries').innerHTML=G.pl.map((p,i)=>{const at=p.at||[];return`<div class="try" style="--pc:${pCol(i)}">${avI(i,26)}<strong>${esc(pName(i))}</strong><span class="g">${at.length?at.map(x=>`<span class="${x.ok?'ok':x.unk?'no unk':'no'}">${esc(clip(x.t,30))}</span>`).join(''):'<span style="opacity:.6">cevap yazmadı</span>'}</span></div>`}).join('');
   drawObj();
-  $('next').hidden=mi<0;$('next').textContent=!G.wu?'Turu tekrar oyna':(G.md==='tr'?!!G.ch:G.r>=G.R)?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';
+  $('next').hidden=mi<0;$('next').textContent=!G.wu?'Turu tekrar oyna':(G.md==='tr'?!!G.ch:G.r>=G.R)?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';presentRound(G);
 }
 function drawEnd(){
   if(screen!=='end'){$('eBadge').hidden=true;$('eBadge').innerHTML=''}
@@ -3715,7 +4285,7 @@ function drawEnd(){
   if($('eHistL').dataset.h!==hh){$('eHistL').dataset.h=hh;$('eHistL').innerHTML=hh}
   Season.record();
   {const sv=Object.values(G.sv||{}).sort((a,b)=>b.s-a.s);const h=sv.length?`<div class="card" style="max-width:520px;margin:0 auto 16px"><h3>İzleyici tahminleri</h3><table class="stab">${sv.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}/${r.t}</td></tr>`).join('')}</table></div>`:'';if($('eSpec').dataset.h!==h){$('eSpec').dataset.h=h;$('eSpec').innerHTML=h}}
-  $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';
+  $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';presentFinal(G);
 }
 
 /* ---------- Firebase ve Google girişi ---------- */
