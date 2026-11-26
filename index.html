@@ -663,6 +663,36 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 }
 @media(max-width:350px){.v222-scorewrap .chips{grid-template-columns:1fr}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:36px}}
 
+
+/* V22.3: source-backed club crests and compact tournament layout */
+.crest-real{display:inline-block;position:relative;flex:none;aspect-ratio:64/74;vertical-align:middle;width:64px;height:74px;overflow:visible}
+.crest-real .crest-image,.crest-real .crest-fallback{position:absolute;inset:0;width:100%;height:100%;margin:0;object-fit:contain;display:block;filter:none}
+.crest-real .crest-image{opacity:0;pointer-events:none}
+.crest-real.loaded .crest-image{opacity:1}
+.crest-real.loaded .crest-fallback{visibility:hidden}
+.hero .fan .crest-real{position:absolute;width:90px;height:106px;left:50%;top:50%;filter:drop-shadow(0 8px 12px #0008)}
+.hero .fan .crest-real svg{position:absolute;inset:0;width:100%;height:100%;filter:none}
+#nine .team .crest-real{width:66px;height:74px}
+.vs .t .crest-real{width:94px;height:100px}
+.kc .k .crest-real{display:block;width:62px;height:68px;margin:0 auto 4px}
+.kc .k .crest-real svg,.ist .crest-real svg{width:100%;height:100%;margin:0}
+.ist .crest-real{width:64px;height:74px}
+.hr .hp .crest-real{width:38px;height:42px}
+.pfl div>.crest-real{width:30px;height:33px}
+.pair .crest-real{width:54px;height:60px}
+#brk{max-width:none;margin:0 0 10px;padding:10px 14px;gap:3px;font:500 13px/1.35 var(--ui);background:#1a2032}
+#brk .cur{font-size:14px}
+#pick .turnline{padding:12px 14px;margin-bottom:10px}
+#pick .turnline .lead{font:500 13px/1.4 var(--ui);margin-top:6px}
+#pick .pickers{margin:7px 0 0}
+#nine .team,#nine .team.r5{min-height:114px;padding:9px 5px 8px;gap:5px}
+#nine .team .crest-real{width:57px;height:63px}
+#nine .team span:not(.crest-real){font:650 13px/1.15 var(--ui)!important}
+#nine .team .stars{font-size:11px}
+.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:46px;padding:6px 8px}
+.v222-scorewrap .chip .sc{font-size:22px!important}
+@media(max-width:600px){.hero .fan .crest-real{width:67px;height:79px}#nine .team,#nine .team.r5{min-height:97px;padding:6px 3px}#nine .team .crest-real{width:45px;height:53px}#nine .team span:not(.crest-real){font-size:12px!important}#brk{padding:9px 11px;font-size:12px}.vs .t .crest-real{width:62px;height:67px}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:40px;padding:4px}.v222-scorewrap .chip .sc{font-size:19px!important}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3041,7 +3071,125 @@ const STY={GS:['h','#fdb912','#c8102e'],FB:['v','#0a2a6b','#ffe000',7],BJK:['h',
  NIC:['v','#e30613','#151515',7],LIL:['h','#e01e13','#20325f'],OL:['s','#f4f4f4','#d20a2e'],RCS:['r','#009fe3','#f4f4f4'],RCL:['v','#ffe100','#e30613',5],BRS:['r','#e30613','#f4f4f4'],
  TFC:['r','#6a2c91','#f4f4f4'],AUX:['b','#f4f4f4','#003f8a'],REN:['l','#e13327','#151515'],ANG:['v','#151515','#f4f4f4',7],HAC:['h','#8ac3ee','#0b2b5e'],LOR:['r','#f58113','#151515'],
  PFC:['b','#1d2c4f','#f4f4f4'],TRO:['r','#005eb8','#f4f4f4'],LMS:['h','#e30613','#ffd200']};
-const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
+// Club logos: luukhopman/football-logos, pinned repository snapshot. Club marks belong to their owners.
+const LOGO_BASE='https://raw.githubusercontent.com/luukhopman/football-logos/2a3978f0b4730645c205d855a4bda54c161183e9/';
+const CLUB_LOGOS=Object.freeze({
+  "GS": "logos/Türkiye - Süper Lig/Galatasaray.png",
+  "FB": "logos/Türkiye - Süper Lig/Fenerbahce.png",
+  "BJK": "logos/Türkiye - Süper Lig/Besiktas JK.png",
+  "TS": "logos/Türkiye - Süper Lig/Trabzonspor.png",
+  "IBF": "logos/Türkiye - Süper Lig/Basaksehir FK.png",
+  "SAM": "logos/Türkiye - Süper Lig/Samsunspor.png",
+  "GOZ": "logos/Türkiye - Süper Lig/Göztepe.png",
+  "EYP": "logos/Türkiye - Süper Lig/Eyüpspor.png",
+  "KAS": "logos/Türkiye - Süper Lig/Kasimpasa.png",
+  "ALA": "logos/Türkiye - Süper Lig/Alanyaspor.png",
+  "KON": "logos/Türkiye - Süper Lig/Konyaspor.png",
+  "GFK": "logos/Türkiye - Süper Lig/Gaziantep FK.png",
+  "RIZ": "logos/Türkiye - Süper Lig/Caykur Rizespor.png",
+  "GNC": "logos/Türkiye - Süper Lig/Genclerbirligi Ankara.png",
+  "KOC": "logos/Türkiye - Süper Lig/Kocaelispor.png",
+  "ERZ": "logos/Türkiye - Süper Lig/Erzurumspor FK.png",
+  "AMD": "logos/Türkiye - Süper Lig/Amed SK.png",
+  "COR": "logos/Türkiye - Süper Lig/Corum FK.png",
+  "RMA": "logos/Spain - LaLiga/Real Madrid.png",
+  "BAR": "logos/Spain - LaLiga/FC Barcelona.png",
+  "ATM": "logos/Spain - LaLiga/Atlético de Madrid.png",
+  "SEV": "logos/Spain - LaLiga/Sevilla FC.png",
+  "VAL": "logos/Spain - LaLiga/Valencia CF.png",
+  "ATH": "logos/Spain - LaLiga/Athletic Bilbao.png",
+  "RSO": "logos/Spain - LaLiga/Real Sociedad.png",
+  "BET": "logos/Spain - LaLiga/Real Betis Balompié.png",
+  "VIL": "logos/Spain - LaLiga/Villarreal CF.png",
+  "CEL": "logos/Spain - LaLiga/Celta de Vigo.png",
+  "GET": "logos/Spain - LaLiga/Getafe CF.png",
+  "OSA": "logos/Spain - LaLiga/CA Osasuna.png",
+  "ALV": "logos/Spain - LaLiga/Deportivo Alavés.png",
+  "ESY": "logos/Spain - LaLiga/RCD Espanyol Barcelona.png",
+  "RAY": "logos/Spain - LaLiga/Rayo Vallecano.png",
+  "LEV": "logos/Spain - LaLiga/Levante UD.png",
+  "ELC": "logos/Spain - LaLiga/Elche CF.png",
+  "RAC": "logos/Spain - LaLiga/Racing Santander.png",
+  "DEP": "logos/Spain - LaLiga/Deportivo A Coruña.png",
+  "MAL": "logos/Spain - LaLiga/Málaga CF.png",
+  "JUV": "logos/Italy - Serie A/Juventus FC.png",
+  "INT": "logos/Italy - Serie A/Inter Milan.png",
+  "MIL": "logos/Italy - Serie A/AC Milan.png",
+  "NAP": "logos/Italy - Serie A/SSC Napoli.png",
+  "ROM": "logos/Italy - Serie A/AS Roma.png",
+  "LAZ": "logos/Italy - Serie A/SS Lazio.png",
+  "ATA": "logos/Italy - Serie A/Atalanta BC.png",
+  "BOL": "logos/Italy - Serie A/Bologna FC 1909.png",
+  "FIO": "logos/Italy - Serie A/ACF Fiorentina.png",
+  "TOR": "logos/Italy - Serie A/Torino FC.png",
+  "GNO": "logos/Italy - Serie A/Genoa CFC.png",
+  "UDI": "logos/Italy - Serie A/Udinese Calcio.png",
+  "CAG": "logos/Italy - Serie A/Cagliari Calcio.png",
+  "LEC": "logos/Italy - Serie A/US Lecce.png",
+  "SAS": "logos/Italy - Serie A/US Sassuolo.png",
+  "PAR": "logos/Italy - Serie A/Parma Calcio 1913.png",
+  "COM": "logos/Italy - Serie A/Como 1907.png",
+  "VEN": "logos/Italy - Serie A/Venezia FC.png",
+  "FRO": "logos/Italy - Serie A/Frosinone Calcio.png",
+  "MNZ": "logos/Italy - Serie A/AC Monza.png",
+  "MUN": "logos/England - Premier League/Manchester United.png",
+  "MCI": "logos/England - Premier League/Manchester City.png",
+  "LIV": "logos/England - Premier League/Liverpool FC.png",
+  "CHE": "logos/England - Premier League/Chelsea FC.png",
+  "ARS": "logos/England - Premier League/Arsenal FC.png",
+  "TOT": "logos/England - Premier League/Tottenham Hotspur.png",
+  "AVL": "logos/England - Premier League/Aston Villa.png",
+  "BOU": "logos/England - Premier League/AFC Bournemouth.png",
+  "BRE": "logos/England - Premier League/Brentford FC.png",
+  "BHA": "logos/England - Premier League/Brighton & Hove Albion.png",
+  "COV": "logos/England - Premier League/Coventry City.png",
+  "CRY": "logos/England - Premier League/Crystal Palace.png",
+  "EVE": "logos/England - Premier League/Everton FC.png",
+  "FUL": "logos/England - Premier League/Fulham FC.png",
+  "HUL": "logos/England - Premier League/Hull City.png",
+  "IPS": "logos/England - Premier League/Ipswich Town.png",
+  "LEE": "logos/England - Premier League/Leeds United.png",
+  "NEW": "logos/England - Premier League/Newcastle United.png",
+  "NFO": "logos/England - Premier League/Nottingham Forest.png",
+  "SUN": "logos/England - Premier League/Sunderland AFC.png",
+  "BAY": "logos/Germany - Bundesliga/Bayern Munich.png",
+  "BVB": "logos/Germany - Bundesliga/Borussia Dortmund.png",
+  "RBL": "logos/Germany - Bundesliga/RB Leipzig.png",
+  "B04": "logos/Germany - Bundesliga/Bayer 04 Leverkusen.png",
+  "SGE": "logos/Germany - Bundesliga/Eintracht Frankfurt.png",
+  "VFB": "logos/Germany - Bundesliga/VfB Stuttgart.png",
+  "SCF": "logos/Germany - Bundesliga/SC Freiburg.png",
+  "TSG": "logos/Germany - Bundesliga/TSG 1899 Hoffenheim.png",
+  "M05": "logos/Germany - Bundesliga/1.FSV Mainz 05.png",
+  "BMG": "logos/Germany - Bundesliga/Borussia Mönchengladbach.png",
+  "SVW": "logos/Germany - Bundesliga/SV Werder Bremen.png",
+  "FCA": "logos/Germany - Bundesliga/FC Augsburg.png",
+  "FCU": "logos/Germany - Bundesliga/1.FC Union Berlin.png",
+  "KOE": "logos/Germany - Bundesliga/1.FC Köln.png",
+  "HSV": "logos/Germany - Bundesliga/Hamburger SV.png",
+  "S04": "logos/Germany - Bundesliga/FC Schalke 04.png",
+  "ELV": "logos/Germany - Bundesliga/SV 07 Elversberg.png",
+  "SCP": "logos/Germany - Bundesliga/SC Paderborn 07.png",
+  "PSG": "logos/France - Ligue 1/Paris Saint-Germain.png",
+  "OM": "logos/France - Ligue 1/Olympique Marseille.png",
+  "MON": "logos/France - Ligue 1/AS Monaco.png",
+  "NIC": "logos/France - Ligue 1/OGC Nice.png",
+  "LIL": "logos/France - Ligue 1/LOSC Lille.png",
+  "OL": "logos/France - Ligue 1/Olympique Lyon.png",
+  "RCS": "logos/France - Ligue 1/RC Strasbourg Alsace.png",
+  "RCL": "logos/France - Ligue 1/RC Lens.png",
+  "BRS": "logos/France - Ligue 1/Stade Brestois 29.png",
+  "TFC": "logos/France - Ligue 1/FC Toulouse.png",
+  "AUX": "logos/France - Ligue 1/AJ Auxerre.png",
+  "REN": "logos/France - Ligue 1/Stade Rennais FC.png",
+  "ANG": "logos/France - Ligue 1/Angers SCO.png",
+  "HAC": "logos/France - Ligue 1/Le Havre AC.png",
+  "LOR": "logos/France - Ligue 1/FC Lorient.png",
+  "PFC": "logos/France - Ligue 1/Paris FC.png",
+  "TRO": "logos/France - Ligue 1/ESTAC Troyes.png",
+  "LMS": "logos/France - Ligue 1/Le Mans FC.png"
+});
+const crestFallback=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
   const P='M32 3 59 11v24c0 18-11.5 30-27 36C16.5 65 5 53 5 35V11z';let pat='';
   if(k==='v'){const w=64/n;for(let i=1;i<n;i+=2)pat+=`<rect x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="74" fill="${c2}"/>`}
   else if(k==='h')pat=`<rect x="32" y="0" width="32" height="74" fill="${c2}"/>`;
@@ -3056,6 +3204,8 @@ const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||
   else pat=`<path d="M32 9.5 53 15.7V35c0 14-9 24-21 29C20 59 11 49 11 35V15.7z" fill="none" stroke="${c2}" stroke-width="4.5"/>`;
   const fs=s.length>3?11:s.length>2?13:16;
   return`<svg class="crest" viewBox="0 0 64 74" aria-hidden="true"><g clip-path="url(#sh)"><rect width="64" height="74" fill="${c1}"/>${pat}<rect width="64" height="74" fill="url(#gloss)"/></g><path d="${P}" fill="none" stroke="#f3efe2" stroke-width="2.6"/><path d="${P}" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1" transform="translate(32 37) scale(.9) translate(-32 -37)"/><circle cx="32" cy="36" r="15" fill="#0a1510" fill-opacity=".86" stroke="#f3efe2" stroke-opacity=".7" stroke-width="1.3"/><text x="32" y="${36+fs*.36}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="${fs}" fill="#fff" letter-spacing=".3">${s}</text></svg>`};
+const logoURL=id=>Object.prototype.hasOwnProperty.call(CLUB_LOGOS,id)?LOGO_BASE+CLUB_LOGOS[id].split('/').map(encodeURIComponent).join('/'):null;
+const crest=id=>{if(!has(id))return '';const url=logoURL(id),fallback=crestFallback(id).replace('class="crest"','class="crest-fallback"');return url?`<span class="crest crest-real" aria-hidden="true"><img class="crest-image" alt="" src="${url}" decoding="async" referrerpolicy="no-referrer" onload="this.parentElement.classList.add('loaded')" onerror="this.hidden=true">${fallback}</span>`:crestFallback(id)};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=id=>document.getElementById(id);
 const clean=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,16)||'Oyuncu';
@@ -3095,7 +3245,7 @@ const sBtn=$('snd');sBtn.classList.toggle('off',muted);
 sBtn.onclick=()=>{muted=!muted;sBtn.classList.toggle('off',muted);try{localStorage.setItem('oo-mute',muted?'1':'0')}catch(e){}if(!muted)SFX.pick()};
 
 const lStatus=(t,bad)=>{const e=$('lStatus');e.textContent=t;e.classList.toggle('bad',!!bad)};
-$('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<svg ',`<svg style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
+$('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<span ',`<span style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
 const playerName=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,40);
 const Community={list:[],loaded:false,
   merge(e){if(!e||typeof e.t!=='string'||!has(e.a)||!has(e.b))return;const n=playerName(e.t);if(n.length<3||e.a===e.b)return;const k=norm(n);
@@ -3110,9 +3260,9 @@ const Community={list:[],loaded:false,
     if(!Net.db)return;const id=Date.now().toString(36)+Math.random().toString(36).slice(2,7);Net.db.ref('sug/'+id).set(e).catch(()=>{})},
   draw(){$('comD').hidden=!this.list.length;$('comN').textContent=this.list.length;
     $('comL').innerHTML=this.list.slice(0,200).map(e=>`<li>${esc(e.t)} <span style="opacity:.6">· ${esc(TEAMS[e.a][0])} / ${esc(TEAMS[e.b][0])}</span></li>`).join('');
-    $('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu${this.list.length?` (${this.list.length} topluluk eklemesi)`:''}. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin.`}
+    $('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu${this.list.length?` (${this.list.length} topluluk eklemesi)`:''}. Kulüp armaları tanımlama amaçlıdır; yüklenmezse temsili arma kullanılır. Listede olmayan doğru cevap için itiraz edebilirsin.`}
 };
-$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin.`;
+$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Kulüp armaları tanımlama amaçlıdır; yüklenmezse temsili arma kullanılır. Listede olmayan doğru cevap için itiraz edebilirsin.`;
 
 /* ---------- ağ katmanı: Firebase Realtime Database ---------- */
 /* Her oyuncu odada kendi Google kimliğiyle tek bir kayıt tutar. Kayıt bağlantı kopunca silinmez,
@@ -3190,7 +3340,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22.2';
+const APPV='22.3';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
