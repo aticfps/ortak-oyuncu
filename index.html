@@ -1238,7 +1238,7 @@ Danny Welbeck|MUN ARS SUN BHA
 Adam Lallana|LIV BHA
 James Milner|LEE NEW AVL MCI LIV BHA
 Pascal Groß|BHA BVB|pascal gross
-João Pedro|BHA CHE
+João Pedro Junqueira de Jesus|BHA CHE|joao pedro,junqueira
 Billy Gilmour|CHE BHA NAP
 Ansu Fati|BAR BHA MON
 Georginio Rutter|TSG LEE BHA
@@ -1326,7 +1326,7 @@ Andreas Pereira|MUN VAL LAZ FUL
 Bernd Leno|B04 ARS FUL
 Tosin Adarabioyo|MCI FUL CHE
 Issa Diop|TFC FUL
-Adama Traoré|BAR AVL FUL
+Adama Traoré Diarra|BAR AVL FUL|adama traore
 Emile Smith Rowe|ARS FUL
 Saša Lukić|TOR FUL
 Kenny Tete|OL FUL
@@ -2719,7 +2719,13 @@ Ahmet İlhan Özek|COR RIZ GNC
 Max Gradel|AMD BOU TFC GFK LEE
 Gökhan Gönül|GNC RIZ
 Caner Erkin|EYP
-Cenk Tosun|KAS`;
+Cenk Tosun|KAS
+Adama Noss Traoré|LIL MON HUL AMD|adama traore,noss traore
+João Pedro Galvão|CAG FB HUL|joao pedro
+Maxime Lopez|OM SAS FIO PFC
+Jonathan Ikoné|PFC COM
+Kevin Trapp|PSG SGE PFC
+Paul Wanner|BAY ELV`;
 
 const norm=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const PLAYERS0=(RAW+'\n'+RAW2+'\n'+RAW3+'\n'+RAW4).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
@@ -2772,7 +2778,19 @@ Mario Gómez|VFB BAY FIO BJK`;
 const PLAYERS=(()=>{const m=new Map();PLAYERS0.forEach(p=>{const q=m.get(norm(p.n));if(q){q.c=[...new Set([...q.c,...p.c])];q.keys=[...new Set([...q.keys,...p.keys])]}else m.set(norm(p.n),{n:p.n,c:[...p.c],keys:[...p.keys]})});return[...m.values()].map(p=>({...p,c:p.c.filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x))}))})();
 KCH.split('\n').forEach(l=>{const[n,c]=l.split('|'),k=c.split(' ').filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x));const p=PLAYERS.find(x=>x.n===n);if(!p)return;k.forEach(x=>{if(!p.c.includes(x))p.c.push(x)});p.k=k});
 const lev=(a,b)=>{const m=a.length,n=b.length;let d=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){let p=d[0];d[0]=i;for(let j=1;j<=n;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[n]};
-const match=(input,list)=>{const q=norm(input);if(q.length<2)return null;for(const p of list)if(p.keys.includes(q))return p;for(const p of list)for(const k of p.keys){const tol=k.length>=9?2:k.length>=5?1:0;if(tol&&Math.abs(k.length-q.length)<=tol&&lev(q,k)<=tol)return p}return null};
+const canonicalKeys=p=>{const n=norm(p.n);return [n,n.replace(/ /g,'')]};
+const match=(input,list,universe=PLAYERS)=>{const q=norm(String(input||''));if(q.length<2||q.length>60)return null;
+  const allowed=new Set(list),all=[...new Set([...universe,...list])];
+  const choose=hits=>{const pool=hits.filter(p=>allowed.has(p));return pool.length===1?pool[0]:null};
+  // A recognized full name must never fall through to another player's surname or typo.
+  const exact=all.filter(p=>canonicalKeys(p).includes(q));if(exact.length)return choose(exact);
+  const aliases=all.filter(p=>p.keys.includes(q));if(aliases.length)return choose(aliases);
+  if(q.length<5)return null;
+  let best=Infinity,hits=[];
+  for(const p of all){let score=Infinity;const full=canonicalKeys(p);for(const k of p.keys){const tol=k.length>=9&&q.length>=9&&full.includes(k)?2:k.length>=5?1:0;if(!tol||Math.abs(k.length-q.length)>tol)continue;const d=lev(q,k);if(d<=tol)score=Math.min(score,d)}
+    if(score<best){best=score;hits=[p]}else if(score===best&&score<Infinity)hits.push(p)}
+  return best<Infinity&&hits.length===1&&allowed.has(hits[0])?hits[0]:null;
+};
 
 const IDS=Object.keys(TEAMS);
 const has=id=>typeof id==='string'&&Object.prototype.hasOwnProperty.call(TEAMS,id);
@@ -2856,14 +2874,17 @@ sBtn.onclick=()=>{muted=!muted;sBtn.classList.toggle('off',muted);try{localStora
 
 const lStatus=(t,bad)=>{const e=$('lStatus');e.textContent=t;e.classList.toggle('bad',!!bad)};
 $('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<svg ',`<svg style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
+const playerName=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,40);
 const Community={list:[],loaded:false,
-  merge(e){if(!e||typeof e.t!=='string'||!has(e.a)||!has(e.b))return;const n=clip(clean(e.t),40);if(n.length<3)return;const k=norm(n);
-    let p=PLAYERS.find(x=>x.keys.includes(k));if(p){[e.a,e.b].forEach(c=>{if(!p.c.includes(c))p.c.push(c)})}
+  merge(e){if(!e||typeof e.t!=='string'||!has(e.a)||!has(e.b))return;const n=playerName(e.t);if(n.length<3||e.a===e.b)return;const k=norm(n);
+    const exact=PLAYERS.filter(x=>canonicalKeys(x).includes(k));
+    if(exact.length>1||(!exact.length&&PLAYERS.some(x=>x.keys.includes(k))))return;
+    let p=exact[0];if(p){[e.a,e.b].forEach(c=>{if(!p.c.includes(c))p.c.push(c)})}
     else{p={n,c:[e.a,e.b],keys:[k,k.replace(/ /g,'')],x:1};const w=k.split(' ');if(w.length>1&&w[w.length-1].length>2)p.keys.push(w[w.length-1]);PLAYERS.push(p)}
     for(const z in SHC)delete SHC[z]},
   async load(){if(!Net.db||this.loaded)return;try{const v=(await Net.db.ref('sug').once('value')).val()||{};this.loaded=true;
     this.list=Object.values(v).filter(e=>e&&has(e.a)&&has(e.b)).sort((a,b)=>(+b.ts||0)-(+a.ts||0));this.list.forEach(e=>this.merge(e));this.draw()}catch(e){}},
-  add(t,a,b){const e={t:clip(clean(String(t).replace(' (itirazla)','')),40),a,b,u:ME,ts:Date.now()};this.merge(e);this.list.unshift(e);this.draw();
+  add(t,a,b){const e={t:playerName(String(t).replace(' (itirazla)','')),a,b,u:ME,ts:Date.now()};this.merge(e);this.list.unshift(e);this.draw();
     if(!Net.db)return;const id=Date.now().toString(36)+Math.random().toString(36).slice(2,7);Net.db.ref('sug/'+id).set(e).catch(()=>{})},
   draw(){$('comD').hidden=!this.list.length;$('comN').textContent=this.list.length;
     $('comL').innerHTML=this.list.slice(0,200).map(e=>`<li>${esc(e.t)} <span style="opacity:.6">· ${esc(TEAMS[e.a][0])} / ${esc(TEAMS[e.b][0])}</span></li>`).join('');
@@ -2931,7 +2952,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='20.1';
+const APPV='20.2';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
