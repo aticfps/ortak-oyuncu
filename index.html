@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ortak Oyuncu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;600;700&display=swap">
+<style>
+/* VOICE: gece maçı; projektörler yanmış, tribün dolu, iki rakip karşı karşıya
+   IDEA: stadyum skorbordu ve çim saha; her ekran sahanın üstünde duran bir pano
+   PICTURE: parlak takım armaları; 3x3 arma ızgarası, cevapta dev geri sayım halkası
+   COLOUR/TYPE: biçilmiş koyu çim yeşili, tebeşir beyazı, projektör sarısı; mavi ve kırmızı oyuncu renkleri; Barlow Condensed italik başlıklar
+   LAYOUT: üstte sabit skorbord, tek sütun oyun alanı; telefonda tek elle oynanır */
+:root{color-scheme:dark;--bg:#072a1a;--ink:#f4f8f3;--mute:#a8c4b1;--line:rgba(255,255,255,.13);--card:rgba(4,22,13,.62);--flood:#f6d33f;--p1:#46b0ff;--p2:#ff6a5c;--ok:#59e08b;--bad:#ff6a5c;--cond:"Barlow Condensed",system-ui,sans-serif}
+*{box-sizing:border-box;min-width:0}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip;min-height:100vh;min-height:100dvh;
+ background:radial-gradient(ellipse 70% 45% at 0% 0%,rgba(255,244,190,.16),transparent 70%),radial-gradient(ellipse 70% 45% at 100% 0%,rgba(255,244,190,.16),transparent 70%),
+ repeating-linear-gradient(180deg,#0b3a23 0 90px,#093320 90px 180px)}
+.pitch{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.pitch svg{width:100%;height:100%}.pitch circle,.pitch line{fill:none;stroke:rgba(255,255,255,.09);stroke-width:3}.pitch .dot{fill:rgba(255,255,255,.12)}
+h1,h2,h3{font-family:var(--cond);font-weight:800;line-height:1.02;margin:0;text-wrap:balance}
+h1{font-size:clamp(52px,14vw,96px);font-style:italic;text-transform:uppercase;letter-spacing:-.01em;text-shadow:0 4px 0 rgba(0,0,0,.35)}
+h1 span{color:var(--flood)}
+h2{font-size:clamp(28px,6vw,40px)}h3{font-size:24px}
+.board{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;padding:10px max(4vw,12px);background:linear-gradient(#04120a,#06190e);border-bottom:3px solid var(--flood);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.board[hidden]{display:none}
+.side{display:flex;align-items:center;gap:10px}.side.r{flex-direction:row-reverse;text-align:right}
+.nm{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm small{display:block;font-weight:600;font-size:12px;color:var(--mute)}
+.sc{font:800 42px/1 var(--cond);min-width:1.35em;text-align:center;border-radius:8px;padding:4px 6px 2px;background:#000;box-shadow:inset 0 0 0 2px rgba(255,255,255,.08)}
+.p1 .sc{color:var(--p1)}.p2 .sc{color:var(--p2)}
+.mid{text-align:center;font-size:12px;color:var(--mute);font-weight:600}.mid b{display:block;font:800 22px/1.1 var(--cond);color:var(--flood)}
+.sound{display:inline-grid;place-items:center;width:44px;height:34px;margin-top:4px;border:0;border-radius:8px;background:rgba(255,255,255,.08);color:var(--ink);cursor:pointer}
+.sound svg{width:20px;height:20px}.sound.off .w{display:none}.sound:not(.off) .x{display:none}
+main{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:clamp(20px,4vw,40px) max(4vw,14px) 56px}
+.screen{display:none}.screen.on{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.lead{color:var(--mute);max-width:56ch;margin:10px 0 0;font-size:17px}
+.btn{font:800 22px/1 var(--cond);letter-spacing:.02em;border:0;border-radius:12px;padding:14px 24px;min-height:52px;background:var(--flood);color:#2b2200;cursor:pointer;box-shadow:0 4px 0 #a48614;white-space:nowrap}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 #a48614}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.alt{background:#fff;color:#0b2a1b;box-shadow:0 4px 0 #9db3a5}
+.btn.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.sm{font-size:17px;padding:8px 14px;min-height:44px}
+.link{background:none;border:0;color:var(--mute);font:600 15px Barlow,sans-serif;text-decoration:underline;cursor:pointer;min-height:44px;padding:0 4px}
+input,select{font:16px Barlow,sans-serif;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:rgba(2,16,9,.7);color:var(--ink);min-height:52px;width:100%}
+input::placeholder{color:#7d9a87}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--flood);outline-offset:2px}
+label{display:grid;gap:6px;font-weight:700;font-size:14px;color:var(--mute)}
+/* lobi */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center;gap:20px;margin-bottom:28px}
+.fan{position:relative;height:230px}
+.fan svg{position:absolute;width:104px;height:120px;left:50%;top:50%;filter:drop-shadow(0 10px 14px rgba(0,0,0,.45));transition:transform .4s}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.cards .field{grid-column:1/-1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px;align-content:start;backdrop-filter:blur(4px)}
+.card p{margin:0;color:var(--mute);font-size:15px}
+.row{display:flex;gap:8px}.row input{flex:1;text-transform:uppercase;font:800 24px var(--cond);letter-spacing:.2em;text-align:center}
+.status{min-height:1.5em;color:var(--mute);margin:16px 0 0}.status.bad{color:var(--bad)}
+.how{margin-top:26px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:15px;color:var(--mute)}
+.how b{display:block;font:800 30px var(--cond);color:var(--flood);line-height:1}
+@media(max-width:600px){.hero{grid-template-columns:minmax(0,1fr)}.fan{height:170px;order:-1}.fan svg{width:84px;height:96px}.cards,.how{grid-template-columns:minmax(0,1fr)}}
+/* bekleme odası */
+.kicker{margin:0;color:var(--mute);font-weight:700}
+.codebox{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 6px}
+.codebox span{font:800 clamp(56px,16vw,88px)/1 var(--cond);letter-spacing:.14em;color:var(--flood);text-shadow:0 0 30px rgba(246,211,63,.35)}
+.slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0}
+.slot{border-radius:16px;padding:16px;border:2px dashed var(--line);background:var(--card);min-height:92px}
+.slot.p1{border:2px solid var(--p1)}.slot.p2{border:2px solid var(--p2)}
+.slot small{display:block;color:var(--mute);font-weight:600}.slot strong{font:800 28px var(--cond);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot em{font-style:normal;font-size:13px;padding:1px 8px;border-radius:5px;background:rgba(255,255,255,.12);margin-left:6px;vertical-align:middle}
+.dots::after{content:"";animation:dots 1.4s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+@media(max-width:600px){.settings{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.settings label:last-child{grid-column:1/-1}}
+/* seçim */
+.turnline{margin-bottom:18px}
+.who{display:inline-block;padding:0 10px;border-radius:8px}
+.who.p1{background:var(--p1);color:#03213a}.who.p2{background:var(--p2);color:#3a0904}
+.nine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.team{position:relative;display:grid;justify-items:center;gap:8px;padding:18px 6px 14px;border-radius:18px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:700 14px Barlow,sans-serif;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.team span{text-align:center;line-height:1.15}
+.team .crest{width:clamp(56px,16vw,78px);height:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
+.nine.mine .team:not(:disabled):hover{transform:translateY(-4px);border-color:var(--flood);box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.nine:not(.mine) .team{cursor:default}
+.team:disabled{opacity:.2;cursor:not-allowed}
+.team.sel{opacity:1;border-color:var(--flood);background:rgba(246,211,63,.13);box-shadow:0 0 0 4px rgba(246,211,63,.15)}
+.team.sel.p1{border-color:var(--p1);background:rgba(70,176,255,.14)}.team.sel.p2{border-color:var(--p2);background:rgba(255,106,92,.14)}
+.tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font:800 14px var(--cond);padding:1px 9px;border-radius:6px;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+.tag.p1{background:var(--p1);color:#03213a}.tag.p2{background:var(--p2);color:#3a0904}
+/* cevap */
+.vs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin-bottom:22px}
+.vs .t{display:grid;justify-items:center;gap:8px;text-align:center;font:800 clamp(19px,4.6vw,28px)/1.05 var(--cond)}
+.vs .crest{width:clamp(80px,22vw,124px);height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5))}
+.clock{position:relative;width:clamp(88px,22vw,126px);aspect-ratio:1}
+.clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+.clock b{position:absolute;inset:0;display:grid;place-items:center;font:800 clamp(36px,9vw,54px) var(--cond);color:var(--flood)}
+.clock.low b{color:var(--bad)}.clock.low #ring{stroke:var(--bad)}
+.answer{display:flex;gap:8px}.answer input{flex:1 1 auto;width:auto}.answer .btn{flex:none;padding:14px 16px}
+.answer input{font-size:19px;min-height:58px;border-color:rgba(246,211,63,.5)}
+.answer.locked input{opacity:.45}
+.tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}
+.jk{font:800 18px var(--cond);border:2px dashed var(--flood);color:var(--flood);background:transparent;border-radius:12px;padding:0 16px;min-height:46px;cursor:pointer}
+.jk:disabled{opacity:.3;cursor:not-allowed}
+.hint{font:800 26px var(--cond);letter-spacing:.12em;color:var(--flood)}
+.msg{min-height:1.5em;margin:10px 0 0;color:var(--mute)}.msg.bad{color:var(--bad);font-weight:600}
+.opp{margin-top:18px;padding:14px 16px;border-radius:14px;background:var(--card);border-left:5px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.opp.p1{border-left-color:var(--p1)}.opp.p2{border-left-color:var(--p2)}
+.opp .st{color:var(--mute)}
+.shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+/* sonuç */
+.res{text-align:center}
+.big{font:800 italic clamp(44px,11vw,72px)/1 var(--cond);color:var(--flood);text-transform:uppercase}
+.pts{display:flex;justify-content:center;gap:12px;margin:16px 0 24px;flex-wrap:wrap}
+.pts div{padding:8px 16px;border-radius:10px;font:800 22px var(--cond)}
+.pts .p1{background:var(--p1);color:#03213a}.pts .p2{background:var(--p2);color:#3a0904}
+.pair{display:flex;justify-content:center;align-items:center;gap:12px;margin:8px 0 4px}.pair .crest{width:54px;height:auto}
+.list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0 26px;padding:0;list-style:none}
+.list li{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-size:15px}
+.list li.hit{background:var(--ok);color:#06321a;font-weight:700}
+.center{text-align:center}.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--mute);margin-top:28px;text-align:center}
+[hidden]{display:none!important}
+.board{grid-template-columns:minmax(0,1fr) auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px 8px}
+.chip{display:flex;align-items:center;gap:8px;padding:3px 10px 3px 3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid transparent;max-width:100%}
+.chip.me{border-color:var(--pc)}.chip.off{opacity:.45}
+.chip .sc{font:800 30px/1 var(--cond);min-width:1.4em;text-align:center;padding:4px 6px 2px;border-radius:7px;background:#000;color:var(--pc)}
+.chip .nm{font-weight:700;font-size:14px;max-width:9em}
+.tiny{font-size:13px;color:var(--mute);margin:4px 0 0}
+.authbox{max-width:480px}.authbox .btn{justify-self:start}
+.whoami{color:var(--mute);margin:0 0 12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}.whoami b{color:var(--ink)}
+.slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+.slot{border-color:var(--pc,var(--line))}.slot.full{border-style:solid}
+.slot.off strong{opacity:.5}
+.whoc{display:inline-block;padding:0 10px;border-radius:8px;background:var(--pc);color:#071a10}
+.team.sel{border-color:var(--pc,var(--flood));background:rgba(255,255,255,.08)}
+.tag{background:var(--pc);color:#071a10}
+.opps{display:grid;gap:8px;margin-top:16px}
+.opp{margin:0;border-left:5px solid var(--pc)}
+.objbox:empty{display:none}
+.objbox{margin-top:14px;padding:14px 16px;border-radius:14px;border:2px dashed var(--flood);background:rgba(246,211,63,.08);display:grid;gap:10px}
+.objbox .btns{justify-content:start}
+.pts div{background:var(--pc);color:#071a10}
+.rank{list-style:none;padding:0;margin:0 auto 24px;max-width:420px;display:grid;gap:8px}
+.rank li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-radius:12px;background:var(--card);border-left:6px solid var(--pc);font-weight:700}
+.rank b{font:800 28px var(--cond)}
+.list li.used{text-decoration:line-through;opacity:.5}
+.banner{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:rgba(255,106,92,.15);color:#ffd0ca;font-weight:600}
+.banner:empty{display:none}
+#quit.sure{color:var(--bad);font-weight:700}
+/* gizli seçim, izleyici, deneme listesi */
+.specn{display:block;font-size:11px;color:var(--mute);min-height:1em}
+.team.mypick{border-color:var(--flood);background:rgba(246,211,63,.16);box-shadow:0 0 0 4px rgba(246,211,63,.18)}
+.pickers{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 16px}
+.pickers span{display:inline-flex;align-items:center;gap:8px;padding:3px 12px 3px 3px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:700;font-size:14px}
+.pickers span.done{border-color:var(--ok);color:var(--ok)}
+.rv .t{opacity:0}.rv.go .t{opacity:1;animation:drop .5s cubic-bezier(.2,1.5,.4,1) both}.rv.go .t:last-child{animation-delay:.15s}
+.rv .t small{font:700 14px Barlow,sans-serif;color:var(--mute)}
+.rv .clock{display:grid;place-items:center}.rv .clock b{position:static;font-size:clamp(44px,12vw,64px)}
+.tries{display:grid;gap:8px;max-width:640px;margin:0 auto 14px}
+.try{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:var(--card);border-left:5px solid var(--pc)}
+.try strong{margin-right:4px}.try .g{display:flex;gap:6px;flex-wrap:wrap}
+.try .g span{font-size:14px;padding:2px 10px;border-radius:999px;background:rgba(255,255,255,.07)}
+.try .g .ok{background:var(--ok);color:#06321a;font-weight:700}.try .g .no{text-decoration:line-through;opacity:.65}
+.try .g .unk{border:1px dashed var(--flood);text-decoration:none;opacity:1}
+/* tasarım 3: sonuç düzeni, animasyon, avatar */
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+.av img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.av{position:relative;overflow:hidden;display:inline-grid;place-items:center;flex:none;width:var(--s,28px);height:var(--s,28px);border-radius:50%;object-fit:cover;background:var(--pc,#345);color:#071a10;font:800 calc(var(--s,28px)*.5) var(--cond);box-shadow:0 0 0 2px var(--pc,#345)}
+.chip{padding:3px 10px 3px 3px}.chip .av{--s:26px;margin-left:4px}
+.chip.pop .sc{animation:pop .6s cubic-bezier(.2,1.7,.4,1)}
+.slot{display:flex;align-items:center;gap:12px}.slot .av{--s:46px}.slot>div{min-width:0}
+.whoc{display:inline-flex;align-items:center;gap:8px;padding:2px 12px 2px 3px}.whoc .av{--s:30px;box-shadow:none}
+.opp{align-items:center}.opp .who2{display:flex;align-items:center;gap:10px}
+.pts div{display:flex;align-items:center;gap:8px;padding:5px 14px 5px 5px}.pts .av{--s:30px;box-shadow:0 0 0 2px #071a10}
+.rank li>span{display:flex;align-items:center;gap:10px}.rank .av{--s:34px}
+.pair{gap:6px}.pair .crest{width:64px}.pair i{font:800 22px var(--cond);color:var(--mute);font-style:normal}
+.big{animation:pop .55s cubic-bezier(.2,1.7,.4,1)}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.more{margin:6px auto 0;max-width:640px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.more summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--mute)}
+.more .list{margin:6px 0 14px}
+.dock{position:sticky;bottom:0;z-index:5;text-align:center;padding:18px 0 calc(14px + env(safe-area-inset-bottom));margin-top:10px;background:linear-gradient(rgba(8,48,29,0),#08301d 45%)}
+.dock .status{margin:8px 0 0}
+.team.flip .crest{animation:flip .7s ease}
+@keyframes flip{0%{transform:rotateY(0) scale(1)}50%{transform:rotateY(180deg) scale(1.15)}100%{transform:rotateY(360deg) scale(1)}}
+.vs .crest{animation:drop .55s cubic-bezier(.2,1.5,.4,1) both}.vs .t:last-child .crest{animation-delay:.12s}
+@keyframes drop{0%{transform:translateY(-40px) scale(.7);opacity:0}100%{transform:none;opacity:1}}
+body.hurry::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:15;box-shadow:inset 0 0 90px rgba(255,60,50,.6);animation:hurry 1s ease-in-out infinite}
+@keyframes hurry{0%,100%{opacity:.25}50%{opacity:1}}
+body.hurry .clock{animation:beat 1s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.big,.team.flip .crest,.vs .crest,.chip.pop .sc,body.hurry::after,body.hurry .clock{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.screen.on,.shake,.dots::after{animation:none!important}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="sh"><path d="M32 3 59 11v24c0 18-11.5 30-27 36C16.5 65 5 53 5 35V11z"/></clipPath><linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".44" stop-color="#fff" stop-opacity=".05"/><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient></defs></svg>
+<div class="pitch" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"><line x1="0" y1="520" x2="1000" y2="520"/><circle cx="500" cy="520" r="170"/><circle class="dot" cx="500" cy="520" r="7"/></svg></div>
+
+<header class="board" id="board" hidden aria-live="polite">
+  <div class="chips" id="chips"></div>
+  <div class="mid">Tur<b id="rd">–</b><span class="specn" id="specN"></span><button class="sound" id="snd" aria-label="Sesi aç/kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="x" d="M16 9l5 6M21 9l-5 6"/></svg></button></div>
+</header>
+
+<main>
+  <p class="banner" id="banner" role="status"></p>
+  <section class="screen on" id="lobby">
+    <div class="hero">
+      <div><h1>Ortak<br><span>Oyuncu</span></h1>
+      <p class="lead">İki takım, tek futbolcu. Ekrana gelen 9 armadan sırayla birer takım seçin; iki takımda da forma giymiş oyuncuyu ilk yazan turu alır.</p></div>
+      <div class="fan" id="fan" aria-hidden="true"></div>
+    </div>
+    <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
+    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="gOut">Çıkış</button></p>
+    <div class="cards" id="cards" hidden>
+      <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
+      <div class="card"><h3>Oda kur</h3><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
+      <div class="card"><h3>Odaya katıl</h3><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
+    </div>
+    <p class="status" id="lStatus" role="status">Bağlanıyor…</p>
+    <div class="how"><div><b>3</b>İlk doğru cevabı yazan alır, rakip 0.</div><div><b>1</b>Süre biter, kimse bilemezse ikinize de.</div><div><b>J</b>Joker baş harfleri gösterir, rakipleri 5 sn dondurur.</div></div>
+    <p class="tiny">iPhone’da ses gelmiyorsa telefonun yanındaki sessiz mod anahtarını kapat.</p>
+  </section>
+
+  <section class="screen" id="wait">
+    <p class="kicker">Oda kodu</p>
+    <div class="codebox"><span id="wCode"></span><div class="btns" style="justify-content:start"><button class="btn sm" id="share">Davet et</button><button class="btn ghost sm" id="copy">Linki kopyala</button></div></div>
+    <p class="lead" id="wNote"></p>
+    <div class="slots" id="slots"></div>
+    <div id="hostCtl" hidden>
+      <div class="settings">
+        <label>Tur<select id="sR"><option>4</option><option selected>6</option><option>8</option><option>10</option></select></label>
+        <label>Cevap süresi<select id="sT"><option value="20">20 sn</option><option value="30" selected>30 sn</option><option value="45">45 sn</option><option value="60">60 sn</option></select></label>
+        <label>Joker (kişi başı)<select id="sJ"><option value="0">Yok</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></label>
+      </div>
+      <button class="btn" id="start" disabled>Maçı başlat</button>
+    </div>
+    <p class="status" id="wStatus" role="status"></p>
+    <p class="tiny" id="specL"></p>
+    <button class="btn ghost sm" id="specB" hidden></button>
+    
+  </section>
+
+  <section class="screen" id="pick">
+    <div class="turnline"><h2 id="pTitle"></h2><p class="lead" id="pSub"></p></div>
+    <div class="nine" id="nine"></div>
+  </section>
+
+  <section class="screen" id="rev">
+    <h2 class="center" id="rvTitle">Seçimler açılıyor</h2>
+    <div class="vs rv"><div class="t" id="rvA"></div><div class="clock"><b id="rvSec">3</b></div><div class="t" id="rvB"></div></div>
+    <p class="lead center" id="rvMsg" style="margin:0 auto"></p>
+  </section>
+
+  <section class="screen" id="ans">
+    <div class="vs"><div class="t" id="tA"></div>
+      <div class="clock" id="clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="9"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="#f6d33f" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><b id="aSec"></b></div>
+      <div class="t" id="tB"></div></div>
+    <form class="answer" id="ansF"><input id="ansI" placeholder="Futbolcu adı" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Futbolcu adı"><button class="btn" id="ansGo">Gönder</button></form>
+    <div class="tools"><button type="button" class="jk" id="jkB"></button><div class="hint" id="hint"></div></div>
+    <p class="msg" id="aMsg" role="status"></p>
+    <div class="opps" id="opps"></div>
+  </section>
+
+  <section class="screen" id="res">
+    <div class="res"><div class="pair" id="rPair"></div><div class="big" id="rBig"></div><p class="lead" id="rTxt" style="margin:10px auto 0"></p></div>
+    <div class="pts" id="rPts"></div>
+    <div class="tries" id="rTries"></div>
+    <div class="objbox" id="obj"></div>
+    <details class="more" id="rMore"><summary>Bu eşleşmedeki ortak oyuncular (<span id="rCount"></span>)</summary><ul class="list" id="rList"></ul></details>
+    <div class="dock"><button class="btn" id="next">Sonraki tur</button><p class="status center" id="rStatus"></p></div>
+  </section>
+
+  <section class="screen" id="end">
+    <div class="res"><div class="big" id="eBig"></div><div id="eTxt" style="margin:16px auto 22px"></div></div>
+    <div class="btns"><button class="btn" id="again">Rövanş</button><button class="btn ghost" id="toLobby">Lobiye dön</button></div>
+    <p class="status center" id="eStatus"></p>
+  </section>
+  <div class="center"><button class="link" id="quit" hidden>Odadan çık</button></div>
+  <p class="note" id="note">Armalar temsili çizimdir.</p>
+</main>
+<script>
+{
+const TEAMS={
+GS:["Galatasaray","GS","#a90432","#fdb912"],FB:["Fenerbahçe","FB","#002d72","#ffed00"],BJK:["Beşiktaş","BJK","#111","#fff"],TS:["Trabzonspor","TS","#6f263d","#87ceeb"],
+RMA:["Real Madrid","RM","#f4f4f4","#c79a1e"],BAR:["Barcelona","FCB","#a50044","#4d8fd6"],ATM:["Atlético Madrid","ATM","#cb3524","#fff"],
+MUN:["Manchester United","MU","#da291c","#fbe122"],MCI:["Manchester City","MC","#6cabdd","#1c2c5b"],LIV:["Liverpool","LFC","#c8102e","#f6eb61"],
+CHE:["Chelsea","CFC","#034694","#fff"],ARS:["Arsenal","AFC","#ef0107","#fff"],JUV:["Juventus","JUV","#111","#fff"],INT:["Inter","INT","#0068a8","#111"],
+MIL:["Milan","ACM","#e3090b","#111"],NAP:["Napoli","NAP","#12a0d7","#fff"],BAY:["Bayern Münih","FCB","#dc052d","#fff"],BVB:["Dortmund","BVB","#fde100","#111"],PSG:["PSG","PSG","#004170","#da291c"],
+IBF:["Başakşehir","İBFK","#e15a0e","#1b2a4a"],TOT:["Tottenham","THFC","#f4f4f4","#132257"],SEV:["Sevilla","SFC","#f4f4f4","#d4021d"],VAL:["Valencia","VCF","#f4f4f4","#ee7f00"],
+ROM:["Roma","ASR","#8e1f2f","#f0bc42"],LAZ:["Lazio","SSL","#87d8f7","#15366b"],OM:["Marseille","OM","#f4f4f4","#2faee0"],MON:["Monaco","ASM","#e51b22","#fff"],
+POR:["Porto","FCP","#003f8a","#fff"],BEN:["Benfica","SLB","#e20e17","#fff"],AJA:["Ajax","AFC","#f4f4f4","#d2122e"]};
+const LEAGUES=[["Türkiye","GS FB BJK TS IBF"],["İngiltere","MUN MCI LIV CHE ARS TOT"],["İspanya","RMA BAR ATM SEV VAL"],["İtalya","JUV INT MIL NAP ROM LAZ"],["Almanya ve Fransa","BAY BVB PSG OM MON"],["Portekiz ve Hollanda","POR BEN AJA"]];
+const RAW=`Arda Turan|GS ATM BAR|arda
+Wesley Sneijder|RMA INT GS
+Didier Drogba|CHE GS
+Mesut Özil|RMA ARS FB
+Robin van Persie|ARS MUN FB|rvp,persie
+Ricardo Quaresma|BAR INT CHE BJK
+Pepe|RMA BJK
+Radamel Falcao|ATM MUN CHE GS
+Zlatan Ibrahimović|JUV INT BAR MIL PSG MUN|zlatan
+Cristiano Ronaldo|MUN RMA JUV|cr7
+Ronaldo Nazário|BAR INT RMA MIL
+Luís Figo|BAR RMA INT
+Thierry Henry|JUV ARS BAR
+Cesc Fàbregas|ARS BAR CHE|cesc
+Alexis Sánchez|BAR ARS MUN INT|alexis
+Fernando Torres|ATM LIV CHE MIL
+Luis Suárez|LIV BAR ATM
+Philippe Coutinho|INT LIV BAR BAY
+Robert Lewandowski|BVB BAY BAR
+Mario Götze|BVB BAY
+Mats Hummels|BVB BAY
+Ousmane Dembélé|BVB BAR PSG
+Neymar|BAR PSG
+Lionel Messi|BAR PSG
+Sergio Ramos|RMA PSG
+Ángel Di María|RMA MUN PSG JUV
+Kylian Mbappé|PSG RMA
+David Beckham|MUN RMA MIL PSG
+Kaká|MIL RMA
+Clarence Seedorf|RMA INT MIL
+Andrea Pirlo|INT MIL JUV
+Gonzalo Higuaín|RMA NAP JUV MIL CHE
+Álvaro Morata|RMA JUV CHE ATM MIL GS
+Mauro Icardi|INT PSG GS
+Arturo Vidal|JUV BAY BAR INT
+Xabi Alonso|LIV RMA BAY
+Michael Owen|LIV RMA MUN
+Raheem Sterling|LIV MCI CHE ARS
+Kevin De Bruyne|CHE MCI NAP
+Mohamed Salah|CHE LIV
+Arjen Robben|CHE RMA BAY
+Petr Čech|CHE ARS
+Ashley Cole|ARS CHE
+William Gallas|CHE ARS
+Samir Nasri|ARS MCI
+Emmanuel Adebayor|ARS MCI RMA
+Gaël Clichy|ARS MCI
+Kolo Touré|ARS MCI LIV
+Carlos Tevez|MUN MCI JUV
+Romelu Lukaku|CHE MUN INT NAP
+Edin Džeko|MCI INT FB
+Juan Mata|CHE MUN GS
+Nemanja Matić|CHE MUN
+Lukas Podolski|BAY ARS INT GS
+Hakan Şükür|GS INT
+Emre Belözoğlu|GS INT FB ATM
+Hamit Altıntop|BAY RMA GS
+Nuri Şahin|BVB RMA LIV
+Hakan Çalhanoğlu|MIL INT
+Cenk Tosun|BJK FB
+Burak Yılmaz|BJK FB GS TS
+Gökhan Gönül|FB BJK
+Caner Erkin|GS FB BJK INT
+Tolga Ciğerci|GS FB
+Emre Mor|BVB GS FB
+Mario Gómez|BAY BJK
+Roberto Carlos|INT RMA FB
+Nicolas Anelka|ARS RMA PSG LIV MCI FB CHE JUV
+Dirk Kuyt|LIV FB
+Raul Meireles|LIV CHE FB
+Diego Lugano|FB PSG
+Felipe Melo|JUV GS INT
+Gheorghe Hagi|RMA BAR GS
+Gheorghe Popescu|BAR GS
+Ryan Babel|LIV BJK GS
+Gary Medel|INT BJK
+Adriano Correia|BAR BJK
+Demba Ba|CHE BJK
+Anderson Talisca|BJK FB
+Wout Weghorst|MUN BJK
+Ciro Immobile|BVB BJK
+Shinji Kagawa|BVB MUN BJK
+Hakim Ziyech|CHE GS
+Wilfried Zaha|MUN GS
+Leroy Sané|MCI BAY GS
+İlkay Gündoğan|BVB MCI BAR GS
+Ederson|MCI FB
+Milan Škriniar|INT PSG FB
+Sofyan Amrabat|MUN FB
+Marco Asensio|RMA PSG FB
+Nani|MUN FB|luis nani
+Arda Güler|FB RMA|arda
+Lucas Torreira|ARS ATM GS
+Kerem Aktürkoğlu|GS FB
+Uğurcan Çakır|TS GS
+John Obi Mikel|CHE TS|mikel,obi mikel
+Daniel Sturridge|CHE MCI LIV TS
+Nicolas Pépé|ARS TS
+José Sosa|BAY MIL BJK TS FB
+Florent Malouda|CHE TS
+Alexander Sørloth|ATM TS
+Franck Ribéry|GS BAY
+Mateja Kežman|CHE ATM PSG FB
+Stephen Appiah|JUV FB
+Diego Ribas|JUV ATM FB|diego
+Leonardo Bonucci|INT JUV MIL FB
+Guti|RMA BJK
+Simão Sabrosa|BAR ATM BJK|simao
+Pascal Nouma|PSG BJK
+Kléberson|MUN BJK
+Fred|MUN FB
+Rivaldo|BAR MIL
+Ronaldinho|PSG BAR MIL
+Samuel Eto'o|RMA BAR INT CHE
+Patrick Kluivert|MIL BAR
+Edgar Davids|MIL JUV INT BAR
+Lilian Thuram|JUV BAR
+Gianluca Zambrotta|JUV BAR MIL
+Fabio Cannavaro|INT JUV RMA
+Emerson|JUV RMA MIL
+Zinedine Zidane|JUV RMA
+Christian Vieri|JUV ATM INT MIL
+Paul Pogba|MUN JUV
+Patrice Evra|MUN JUV
+Thiago Silva|MIL PSG CHE
+Sergio Agüero|ATM MCI BAR|kun
+Diego Forlán|MUN ATM INT
+Antoine Griezmann|ATM BAR
+Michael Laudrup|JUV BAR RMA
+Javier Saviola|BAR RMA
+Bernd Schuster|BAR RMA ATM
+Thibaut Courtois|ATM CHE RMA
+Diego Costa|ATM CHE
+Filipe Luís|ATM CHE
+Rodri|ATM MCI
+João Félix|ATM CHE BAR MIL
+Memphis Depay|MUN BAR ATM|memphis
+Jadon Sancho|BVB MUN CHE
+Erling Haaland|BVB MCI
+Jude Bellingham|BVB RMA
+Achraf Hakimi|RMA BVB INT PSG
+Pierre-Emerick Aubameyang|MIL BVB ARS BAR CHE|auba
+Henrikh Mkhitaryan|BVB MUN ARS INT|miki
+Christian Pulisic|BVB CHE MIL
+Toni Kroos|BAY RMA
+David Alaba|BAY RMA
+Thiago Alcântara|BAR BAY LIV|thiago
+Douglas Costa|BAY JUV
+Michael Ballack|BAY CHE
+Owen Hargreaves|BAY MUN MCI
+Kingsley Coman|PSG JUV BAY
+Lucas Hernández|ATM BAY PSG
+Benjamin Pavard|BAY INT
+Sadio Mané|LIV BAY
+João Cancelo|JUV MCI BAY BAR INT
+Matthijs de Ligt|JUV BAY MUN
+Eden Hazard|CHE RMA
+Mateo Kovačić|INT RMA CHE MCI
+Claude Makélélé|RMA CHE PSG
+Ruud van Nistelrooy|MUN RMA|nistelrooy
+Gabriel Heinze|PSG MUN RMA
+Steve McManaman|LIV RMA MCI
+Álvaro Arbeloa|LIV RMA
+Luis García|BAR LIV ATM
+Javier Mascherano|LIV BAR
+Yossi Benayoun|LIV CHE ARS
+Glen Johnson|CHE LIV
+Joe Cole|CHE LIV
+Mario Balotelli|INT MCI MIL LIV
+Hernán Crespo|INT MIL CHE
+Andriy Shevchenko|MIL CHE|sevcenko,sevchenko
+Juan Sebastián Verón|MUN CHE INT
+Adrian Mutu|CHE JUV
+Ricardo Carvalho|CHE RMA
+Michael Essien|CHE RMA MIL
+Willian|CHE ARS
+David Luiz|CHE PSG ARS
+Olivier Giroud|ARS CHE MIL
+Jorginho|NAP CHE ARS
+Kai Havertz|CHE ARS
+Mason Mount|CHE MUN
+Cole Palmer|MCI CHE
+Juan Cuadrado|CHE JUV INT
+Antonio Rüdiger|CHE RMA
+Bacary Sagna|ARS MCI
+Alexander Hleb|ARS BAR
+Thomas Vermaelen|ARS BAR
+Patrick Vieira|MIL ARS JUV INT MCI
+Emmanuel Petit|ARS BAR CHE
+Marc Overmars|ARS BAR
+Giovanni van Bronckhorst|ARS BAR|bronckhorst
+Wojciech Szczęsny|ARS JUV BAR|szczesny
+Héctor Bellerín|ARS BAR
+Mikel Arteta|PSG ARS
+Nwankwo Kanu|INT ARS
+Dennis Bergkamp|INT ARS
+Sylvinho|ARS BAR MCI
+Gabriel Jesus|MCI ARS
+Oleksandr Zinchenko|MCI ARS
+Yaya Touré|BAR MCI
+Ferran Torres|MCI BAR
+Eric García|MCI BAR
+Edinson Cavani|NAP PSG MUN
+Casemiro|RMA MUN
+Raphaël Varane|RMA MUN
+Gerard Piqué|MUN BAR
+Laurent Blanc|BAR INT MUN
+Jordi Cruyff|BAR MUN
+Henrik Larsson|BAR MUN
+Bebé|MUN BJK
+Dries Mertens|NAP GS
+Victor Osimhen|NAP GS
+Marek Hamšík|NAP TS
+Ezequiel Lavezzi|NAP PSG
+Kalidou Koulibaly|NAP CHE
+José Callejón|RMA NAP
+Raúl Albiol|RMA NAP
+Pepe Reina|BAR LIV BAY NAP MIL|reina
+Diego Maradona|BAR NAP|maradona
+Khvicha Kvaratskhelia|NAP PSG|kvara
+Scott McTominay|MUN NAP`;
+const RAW2=`Paulo Dybala|JUV ROM
+Miralem Pjanić|ROM JUV BAR BJK
+Alisson Becker|ROM LIV|alisson
+Cengiz Ünder|IBF ROM OM FB|cengiz
+Gabriel Batistuta|ROM INT
+Cafu|ROM MIL
+Walter Samuel|ROM RMA INT
+Radja Nainggolan|ROM INT
+Stephan El Shaarawy|MIL MON ROM
+Pavel Nedvěd|LAZ JUV
+Alessandro Nesta|LAZ MIL
+Sérgio Conceição|POR LAZ INT
+Diego Simeone|SEV ATM INT LAZ
+Marcelo Salas|LAZ JUV
+Siniša Mihajlović|ROM LAZ INT
+Jaap Stam|MUN LAZ MIL AJA
+Pedro Rodríguez|BAR CHE ROM LAZ|pedro
+Paul Gascoigne|TOT LAZ
+Miroslav Klose|BAY LAZ
+Lucas Leiva|LIV LAZ
+Stefan de Vrij|LAZ INT
+Keita Baldé|LAZ MON INT|keita
+Luis Alberto|LIV LAZ
+Gaizka Mendieta|VAL LAZ BAR
+Dejan Stanković|LAZ INT
+Fernando Couto|POR BAR LAZ
+Iván de la Peña|BAR LAZ
+Claudio López|VAL LAZ
+Harry Kane|TOT BAY
+Gareth Bale|TOT RMA
+Luka Modrić|TOT RMA MIL
+Christian Eriksen|AJA TOT INT MUN
+Toby Alderweireld|AJA ATM TOT
+Jan Vertonghen|AJA TOT BEN
+Dele Alli|TOT BJK
+Dimitar Berbatov|TOT MUN MON
+Robbie Keane|INT TOT LIV
+Teddy Sheringham|TOT MUN
+Michael Carrick|TOT MUN
+Kyle Walker|TOT MCI MIL
+Rafael van der Vaart|AJA RMA TOT|van der vaart
+Davinson Sánchez|AJA TOT GS|davinson
+Erik Lamela|ROM TOT SEV
+Kieran Trippier|TOT ATM
+Fernando Llorente|JUV SEV TOT NAP
+Lucas Moura|PSG TOT
+Giovani Lo Celso|PSG TOT|lo celso
+Kevin-Prince Boateng|TOT BVB MIL BAR
+Jürgen Klinsmann|INT MON TOT BAY
+Ossie Ardiles|TOT PSG
+Gary Lineker|BAR TOT
+Steven Bergwijn|TOT AJA
+Sergio Reguilón|RMA SEV TOT MUN
+Pierre-Emile Højbjerg|BAY TOT OM
+Clément Lenglet|SEV BAR TOT ATM
+Ivan Perišić|BVB INT BAY TOT
+Dejan Kulusevski|JUV TOT
+Rodrigo Bentancur|JUV TOT
+Timo Werner|CHE TOT
+Dani Alves|SEV BAR JUV PSG
+Ivan Rakitić|SEV BAR
+Jesús Navas|SEV MCI
+Frédéric Kanouté|TOT SEV
+Júlio Baptista|SEV RMA ARS ROM
+Luís Fabiano|POR SEV
+José Antonio Reyes|SEV ARS RMA ATM BEN|reyes
+Seydou Keita|SEV BAR VAL ROM
+Kevin Gameiro|PSG SEV ATM VAL
+Carlos Bacca|SEV MIL
+Grzegorz Krychowiak|SEV PSG
+Ever Banega|VAL INT SEV
+Steven N'Zonzi|SEV ROM
+Jules Koundé|SEV BAR
+Youssef En-Nesyri|SEV FB|nesyri
+Lucas Ocampos|MON OM SEV AJA
+Davor Šuker|SEV RMA ARS
+Federico Fazio|SEV TOT ROM
+Joaquín Correa|SEV LAZ INT
+Mariano Díaz|RMA SEV|mariano
+Johan Cruyff|AJA BAR
+Frank Rijkaard|AJA MIL
+Marco van Basten|AJA MIL|van basten
+Edwin van der Sar|AJA JUV MUN|van der sar
+Frenkie de Jong|AJA BAR|frenkie
+Jari Litmanen|AJA BAR LIV
+Frank de Boer|AJA BAR GS
+Ronald de Boer|AJA BAR
+Michael Reiziger|AJA MIL BAR
+Winston Bogarde|AJA MIL BAR CHE
+Daley Blind|AJA MUN BAY
+Donny van de Beek|AJA MUN|van de beek
+Lisandro Martínez|AJA MUN
+Antony|AJA MUN
+André Onana|AJA INT MUN
+Noussair Mazraoui|AJA BAY MUN
+Ryan Gravenberch|AJA BAY LIV
+Klaas-Jan Huntelaar|AJA RMA MIL
+Steven Pienaar|AJA BVB TOT
+Nigel de Jong|AJA MCI MIL GS
+Dušan Tadić|AJA FB
+Sébastien Haller|AJA BVB
+Benni McCarthy|AJA POR
+Arkadiusz Milik|AJA NAP OM JUV
+Deco|POR BAR CHE
+Paulo Ferreira|POR CHE
+Maniche|POR BEN CHE ATM INT
+James Rodríguez|POR MON RMA BAY|james
+Anderson|POR MUN
+João Moutinho|POR MON
+Danilo|POR RMA MCI JUV
+Alex Sandro|POR JUV
+Éder Militão|POR RMA
+Héctor Herrera|POR ATM
+Iker Casillas|RMA POR
+Jackson Martínez|POR ATM
+Luis Díaz|POR LIV BAY
+Fábio Vieira|POR ARS
+Vitinha|POR PSG
+Mário Jardel|POR GS
+Lucho González|POR OM|lucho
+Vincent Aboubakar|POR BJK
+Maxi Pereira|BEN POR
+Nicolás Otamendi|POR VAL MCI BEN
+Mehdi Taremi|POR INT
+Diogo Dalot|POR MUN MIL
+Diogo Jota|POR LIV
+André Silva|POR MIL SEV
+Chancel Mbemba|POR OM
+Rui Costa|BEN MIL
+Rúben Dias|BEN MCI
+Bernardo Silva|BEN MON MCI
+Ramires|BEN CHE
+Javi García|RMA BEN MCI
+Fábio Coentrão|BEN RMA MON
+Axel Witsel|BEN BVB ATM
+Enzo Fernández|BEN CHE
+Darwin Núñez|BEN LIV
+Pablo Aimar|VAL BEN
+Nicolás Gaitán|BEN ATM
+Gonçalo Ramos|BEN PSG
+Orkun Kökçü|BEN BJK
+Rafa Silva|BEN BJK
+Óscar Cardozo|BEN TS
+Raúl Jiménez|ATM BEN
+Eduardo Salvio|ATM BEN|toto salvio
+Gedson Fernandes|BEN TOT GS BJK|gedson
+Kostas Mitroglou|BEN OM GS
+Nuno Tavares|BEN ARS OM LAZ
+Robinho|RMA MCI MIL IBF
+Martin Škrtel|LIV FB IBF
+Gökhan İnler|NAP BJK IBF
+Edin Višća|IBF TS
+Mehmet Topal|GS VAL FB IBF
+Eljero Elia|JUV IBF
+Krzysztof Piątek|MIL IBF
+Deniz Türüç|FB IBF
+David Villa|VAL BAR ATM
+David Silva|VAL MCI
+Jordi Alba|VAL BAR
+Roberto Ayala|MIL VAL
+Rodrigo Moreno|BEN VAL|rodrigo
+André Gomes|BEN VAL BAR
+Dani Parejo|RMA VAL
+Shkodran Mustafi|VAL ARS
+Geoffrey Kondogbia|SEV MON INT VAL ATM OM
+Gonçalo Guedes|BEN PSG VAL
+Carlos Soler|VAL PSG
+Fernando Morientes|RMA MON LIV VAL OM
+Denis Cheryshev|RMA VAL
+Eliaquim Mangala|POR MCI VAL
+Francis Coquelin|ARS VAL
+Michy Batshuayi|OM CHE BVB VAL BJK FB GS
+Jean-Pierre Papin|OM MIL BAY
+Chris Waddle|TOT OM
+Fabrizio Ravanelli|JUV OM LAZ
+Didier Deschamps|OM JUV CHE VAL
+Marcel Desailly|OM MIL CHE
+Mathieu Valbuena|OM FB
+Mason Greenwood|MUN OM
+Djibril Cissé|LIV OM LAZ
+Abou Diaby|ARS OM
+Kevin Strootman|ROM OM
+Adrien Rabiot|PSG JUV OM MIL
+George Weah|MON PSG MIL CHE
+Ludovic Giuly|MON BAR ROM PSG
+Thomas Lemar|MON ATM
+Tiémoué Bakayoko|MON CHE MIL
+Benjamin Mendy|MON OM MCI
+Aurélien Tchouaméni|MON RMA
+Youssouf Fofana|MON MIL
+Wissam Ben Yedder|SEV MON|ben yedder
+Shabani Nonda|MON ROM GS
+Jérémy Ménez|MON ROM PSG MIL
+Takumi Minamino|LIV MON`;
+const ADD=Object.fromEntries(`Arda Turan|IBF
+Wesley Sneijder|AJA
+Didier Drogba|OM
+Mesut Özil|IBF
+Ricardo Quaresma|POR
+Pepe|POR
+Radamel Falcao|POR MON
+Zlatan Ibrahimović|AJA
+Thierry Henry|MON
+Cesc Fàbregas|MON
+Alexis Sánchez|OM
+Luis Suárez|AJA
+Ángel Di María|BEN
+Kylian Mbappé|MON
+Mohamed Salah|ROM
+William Gallas|TOT
+Emmanuel Adebayor|MON TOT IBF
+Gaël Clichy|IBF
+Romelu Lukaku|ROM
+Edin Džeko|ROM
+Emre Belözoğlu|IBF
+Gheorghe Popescu|TOT
+Ryan Babel|AJA
+Gary Medel|SEV
+Adriano Correia|SEV
+Anderson Talisca|BEN
+Wout Weghorst|AJA
+Hakim Ziyech|AJA
+Ederson|BEN
+Kerem Aktürkoğlu|BEN
+Diego Ribas|POR
+Simão Sabrosa|BEN
+Patrick Kluivert|AJA VAL
+Edgar Davids|AJA TOT
+Lilian Thuram|MON
+Christian Vieri|LAZ MON
+Michael Laudrup|LAZ AJA
+João Félix|BEN
+Pierre-Emerick Aubameyang|MON OM
+João Cancelo|BEN VAL
+Matthijs de Ligt|AJA
+Gabriel Heinze|OM
+Mario Balotelli|OM
+Hernán Crespo|LAZ
+Juan Sebastián Verón|LAZ
+Antonio Rüdiger|ROM
+Emmanuel Petit|MON
+Marc Overmars|AJA
+Wojciech Szczęsny|ROM
+Nwankwo Kanu|AJA
+Dennis Bergkamp|AJA
+Edinson Cavani|VAL
+Laurent Blanc|OM
+Bebé|BEN
+Pepe Reina|LAZ
+Diego Maradona|SEV
+Clarence Seedorf|AJA
+Patrice Evra|MON OM
+Nemanja Matić|BEN ROM
+Juan Mata|VAL
+Henrikh Mkhitaryan|ROM
+Ricardo Carvalho|POR MON
+Casemiro|POR
+Raul Meireles|POR
+Ciro Immobile|LAZ SEV
+Emerson|ROM
+Sergio Ramos|SEV
+Franck Ribéry|OM
+Samir Nasri|OM
+Raúl Albiol|VAL
+Ferran Torres|VAL
+Demba Ba|IBF`.split('\n').map(l=>l.split('|')));
+const norm=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const PLAYERS=(RAW+'\n'+RAW2).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
+const lev=(a,b)=>{const m=a.length,n=b.length;let d=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){let p=d[0];d[0]=i;for(let j=1;j<=n;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[n]};
+const match=(input,list)=>{const q=norm(input);if(q.length<2)return null;for(const p of list)if(p.keys.includes(q))return p;for(const p of list)for(const k of p.keys){const tol=k.length>=9?2:k.length>=5?1:0;if(tol&&Math.abs(k.length-q.length)<=tol&&lev(q,k)<=tol)return p}return null};
+
+const IDS=Object.keys(TEAMS);
+const has=id=>typeof id==='string'&&Object.prototype.hasOwnProperty.call(TEAMS,id);
+const shared=(a,b)=>has(a)&&has(b)?PLAYERS.filter(p=>p.c.includes(a)&&p.c.includes(b)):[];
+const STY={GS:['h','#fdb912','#c8102e'],FB:['v','#0a2a6b','#ffe000',7],BJK:['h','#111','#f4f4f4'],TS:['v','#7b1d34','#7fc4ea',5],IBF:['s','#e8641b','#16244a'],
+ RMA:['s','#f4f4f4','#d4a72c'],BAR:['v','#a50044','#1d4fa3',7],ATM:['v','#d7262b','#f4f4f4',7],SEV:['s','#f4f4f4','#d4021d'],VAL:['b','#f4f4f4','#151515'],
+ MUN:['c','#da291c','#151515'],MCI:['b','#6cabdd','#1c2c5b'],LIV:['r','#c8102e','#f6eb61'],CHE:['r','#034694','#f4f4f4'],ARS:['e','#ef0107','#f4f4f4'],TOT:['l','#f4f4f4','#132257'],
+ JUV:['v','#151515','#f4f4f4',7],INT:['v','#0068a8','#151515',7],MIL:['v','#e3090b','#151515',7],NAP:['r','#12a0d7','#f4f4f4'],ROM:['s','#8e1f2f','#f0bc42'],LAZ:['r','#87d8f7','#15366b'],
+ BAY:['c','#dc052d','#0066b2'],BVB:['b','#fde100','#151515'],PSG:['p','#004170','#da291c'],OM:['b','#f4f4f4','#2faee0'],MON:['dh','#e51b22','#f4f4f4'],POR:['v','#003f8a','#f4f4f4',5],
+ BEN:['r','#e20e17','#f4f4f4'],AJA:['m','#f4f4f4','#d2122e']};
+const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
+  const P='M32 3 59 11v24c0 18-11.5 30-27 36C16.5 65 5 53 5 35V11z';let pat='';
+  if(k==='v'){const w=64/n;for(let i=1;i<n;i+=2)pat+=`<rect x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="74" fill="${c2}"/>`}
+  else if(k==='h')pat=`<rect x="32" y="0" width="32" height="74" fill="${c2}"/>`;
+  else if(k==='dh')pat=`<path d="M64 0V74H0z" fill="${c2}"/>`;
+  else if(k==='s')pat=`<path d="M-6 16 16-6 70 50 48 72z" fill="${c2}"/>`;
+  else if(k==='b')pat=`<rect x="0" y="27" width="64" height="20" fill="${c2}"/>`;
+  else if(k==='l')pat=`<rect x="0" y="50" width="64" height="24" fill="${c2}"/>`;
+  else if(k==='c')pat=`<path d="M0 22 32 42 64 22V34L32 54 0 34z" fill="${c2}"/>`;
+  else if(k==='e')pat=`<rect x="0" y="0" width="13" height="74" fill="${c2}"/><rect x="51" y="0" width="13" height="74" fill="${c2}"/>`;
+  else if(k==='m')pat=`<rect x="20" y="0" width="24" height="74" fill="${c2}"/>`;
+  else if(k==='p')pat=`<rect x="19" y="0" width="26" height="74" fill="#f4f4f4"/><rect x="22" y="0" width="20" height="74" fill="${c2}"/>`;
+  else pat=`<path d="M32 9.5 53 15.7V35c0 14-9 24-21 29C20 59 11 49 11 35V15.7z" fill="none" stroke="${c2}" stroke-width="4.5"/>`;
+  const fs=s.length>3?11:s.length>2?13:16;
+  return`<svg class="crest" viewBox="0 0 64 74" aria-hidden="true"><g clip-path="url(#sh)"><rect width="64" height="74" fill="${c1}"/>${pat}<rect width="64" height="74" fill="url(#gloss)"/></g><path d="${P}" fill="none" stroke="#f3efe2" stroke-width="2.6"/><path d="${P}" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="1" transform="translate(32 37) scale(.9) translate(-32 -37)"/><circle cx="32" cy="36" r="15" fill="#0a1510" fill-opacity=".86" stroke="#f3efe2" stroke-opacity=".7" stroke-width="1.3"/><text x="32" y="${36+fs*.36}" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="${fs}" fill="#fff" letter-spacing=".3">${s}</text></svg>`};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const clean=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,16)||'Oyuncu';
+const clip=(s,n)=>String(s==null?'':s).slice(0,n);
+const COLORS=['#46b0ff','#ff6a5c','#b48cff','#ffa94d'];
+const MAXP=4;
+const STAR=new Set(`Zlatan Ibrahimović|Cristiano Ronaldo|Ronaldo Nazário|Lionel Messi|Neymar|Kylian Mbappé|Luís Figo|Thierry Henry|Cesc Fàbregas|Alexis Sánchez|Fernando Torres|Luis Suárez|Robert Lewandowski|Ángel Di María|David Beckham|Kaká|Andrea Pirlo|Gonzalo Higuaín|Álvaro Morata|Mauro Icardi|Arturo Vidal|Xabi Alonso|Michael Owen|Raheem Sterling|Kevin De Bruyne|Mohamed Salah|Arjen Robben|Romelu Lukaku|Edin Džeko|Juan Mata|Wesley Sneijder|Didier Drogba|Mesut Özil|Robin van Persie|Ricardo Quaresma|Pepe|Radamel Falcao|Arda Turan|Hakan Şükür|Emre Belözoğlu|Hamit Altıntop|Hakan Çalhanoğlu|Burak Yılmaz|Roberto Carlos|Nicolas Anelka|Dirk Kuyt|Gheorghe Hagi|Felipe Melo|Lukas Podolski|Franck Ribéry|İlkay Gündoğan|Leroy Sané|Hakim Ziyech|Ronaldinho|Rivaldo|Samuel Eto'o|Patrick Kluivert|Edgar Davids|Zinedine Zidane|Christian Vieri|Paul Pogba|Patrice Evra|Thiago Silva|Sergio Agüero|Diego Forlán|Antoine Griezmann|Thibaut Courtois|Diego Costa|Erling Haaland|Jude Bellingham|Achraf Hakimi|Pierre-Emerick Aubameyang|Toni Kroos|David Alaba|Eden Hazard|Claude Makélélé|Ruud van Nistelrooy|Mario Balotelli|Hernán Crespo|Andriy Shevchenko|Olivier Giroud|Patrick Vieira|Dennis Bergkamp|Edinson Cavani|Casemiro|Gerard Piqué|Harry Kane|Gareth Bale|Luka Modrić|Christian Eriksen|Dani Alves|Ivan Rakitić|Johan Cruyff|Marco van Basten|Edwin van der Sar|Frenkie de Jong|Deco|James Rodríguez|Rui Costa|David Villa|David Silva|Jordi Alba|George Weah|Alessandro Nesta|Pavel Nedvěd|Diego Simeone|Miroslav Klose|Cafu|Gabriel Batistuta|Sergio Ramos|Mario Götze|Mats Hummels|Ousmane Dembélé|Cengiz Ünder|Victor Osimhen|Dries Mertens|Robinho|Iker Casillas|Didier Deschamps|Marcel Desailly|Jean-Pierre Papin|Gianluca Zambrotta|Fabio Cannavaro|Lilian Thuram|Luis Díaz|Darwin Núñez|Kerem Aktürkoğlu|Arda Güler`.split('|'));
+const hintOf=n=>n.split(/\s+/).map(w=>w[0].toLocaleUpperCase('tr')+'•'.repeat(Math.max(0,[...w].length-1))).join('  ');
+const pkey=(a,b)=>[a,b].sort().join('|');
+
+/* ---------- ses ---------- */
+/* --- Ses: hepsi Web Audio ile sentezleniyor, dosya yok --- */
+let AC=null,muted=false;try{muted=localStorage.getItem('oo-mute')==='1'}catch(e){}
+const audio=()=>{if(muted)return null;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){AC=null}return AC};
+const tone=(f,dur,{type='sine',vol=.2,at=0,to=null,vib=0}={})=>{const c=audio();if(!c)return;const t=c.currentTime+at,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+dur);
+  if(vib){const l=c.createOscillator(),lg=c.createGain();l.frequency.value=28;lg.gain.value=vib;l.connect(lg).connect(o.frequency);l.start(t);l.stop(t+dur)}
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.015);g.gain.setValueAtTime(vol,t+dur-.05);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g).connect(c.destination);o.start(t);o.stop(t+dur+.02)};
+const noise=(dur,{at=0,vol=.25,freq=900}={})=>{const c=audio();if(!c)return;const t=c.currentTime+at,b=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=freq;f.Q.value=.6;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.15);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f).connect(g).connect(c.destination);s.start(t)};
+const SFX={
+  whistle:()=>{tone(2900,.18,{vol:.12,vib:140});tone(2900,.55,{vol:.14,vib:160,at:.24})},
+  final:()=>[0,.45,.9].forEach((a,i)=>tone(2900,i<2?.3:.8,{vol:.14,vib:160,at:a})),
+  tick:hi=>tone(hi?1400:1000,.06,{type:'square',vol:.06}),
+  pick:()=>tone(660,.08,{type:'triangle',vol:.15}),
+  goal:()=>{noise(1.8,{vol:.35,freq:1100});[523,659,784,1047].forEach((f,i)=>tone(f,.16,{type:'triangle',vol:.18,at:i*.09}))},
+  boo:()=>{tone(1700,.45,{vol:.09,to:700});noise(.5,{vol:.12,freq:400})},
+  joker:()=>[880,1175,1568].forEach((f,i)=>tone(f,.12,{type:'triangle',vol:.15,at:i*.07})),
+  timeup:()=>{tone(392,.25,{type:'sawtooth',vol:.08});tone(294,.45,{type:'sawtooth',vol:.08,at:.25})}};
+
+const sBtn=$('snd');sBtn.classList.toggle('off',muted);
+sBtn.onclick=()=>{muted=!muted;sBtn.classList.toggle('off',muted);try{localStorage.setItem('oo-mute',muted?'1':'0')}catch(e){}if(!muted)SFX.pick()};
+
+const lStatus=(t,bad)=>{const e=$('lStatus');e.textContent=t;e.classList.toggle('bad',!!bad)};
+$('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<svg ',`<svg style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
+$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin.`;
+
+/* ---------- ağ katmanı: Firebase Realtime Database ---------- */
+/* Her oyuncu odada kendi Google kimliğiyle tek bir kayıt tutar. Kayıt bağlantı kopunca silinmez,
+   "çevrimdışı" işaretlenir; böylece sayfayı yenileyen ya da uygulamadan çıkıp dönen oyuncu kaldığı yerden devam eder. */
+const Net={db:null,uid:null,code:null,ref:null,mine:{},raw:{},off:0,conn:false,cbs:[]};
+const now=()=>Date.now()+Net.off;
+const alive=n=>!!n&&n.o===1&&now()-(+n.t||0)<45000;
+Net.init=(db,uid)=>{
+  Net.db=db;Net.uid=uid;
+  db.ref('.info/serverTimeOffset').on('value',s=>{Net.off=+s.val()||0});
+  db.ref('.info/connected').on('value',s=>{Net.conn=!!s.val();if(Net.conn&&Net.ref)Net.write();Net.emit()});
+  setInterval(()=>{if(Net.ref&&Net.conn)Net.ref.child(uid).update({o:1,t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})},10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Net.ref)Net.write()});
+};
+Net.parse=v=>{const out={};Object.keys(v||{}).forEach(k=>{const x=v[k]||{};let pr={};try{pr=JSON.parse(x.j)||{}}catch(e){}out[k]={uid:k,o:x.o,t:x.t,pr:k===Net.uid?Net.mine:pr}});return out};
+Net.peek=async c=>{const s=await Net.db.ref('rooms/'+c).once('value');return Net.parse(s.val())};
+Net.enter=async c=>{
+  Net.leave(true);Net.code=c;Net.ref=Net.db.ref('rooms/'+c);
+  const s=await Net.ref.once('value');Net.raw=Net.parse(s.val());
+  const m=Net.raw[Net.uid];if(m){try{Net.mine=JSON.parse((s.val()[Net.uid]||{}).j)||{}}catch(e){Net.mine={}}m.pr=Net.mine}
+  Net.ref.on('value',x=>{Net.raw=Net.parse(x.val());Net.emit()},e=>{console.error(e);lStatus('Veritabanına erişilemedi. Kuralları kontrol et.',true)});
+  return Net.raw;
+};
+Net.write=()=>{if(!Net.ref)return;const r=Net.ref.child(Net.uid);r.onDisconnect().update({o:0});
+  return r.set({uid:Net.uid,o:1,t:firebase.database.ServerValue.TIMESTAMP,j:JSON.stringify(Net.mine)}).catch(e=>console.error(e))};
+Net.set=patch=>{Net.mine={...Net.mine};for(const k in patch){if(patch[k]===null)delete Net.mine[k];else Net.mine[k]=patch[k]}
+  if(Net.raw[Net.uid])Net.raw[Net.uid].pr=Net.mine;return Net.write()};
+Net.leave=keepNothing=>{if(Net.ref){Net.ref.off();const r=Net.ref.child(Net.uid);r.onDisconnect().cancel();r.remove().catch(()=>{})}Net.ref=null;Net.code=null;Net.mine={};Net.raw={}};
+Net.list=()=>Object.values(Net.raw);
+Net.node=u=>Net.raw[u];
+Net.on=f=>Net.cbs.push(f);
+Net.emit=()=>Net.cbs.forEach(f=>{try{f()}catch(e){console.error(e)}});
+
+/* ---------- durum ---------- */
+let G=null,isHost=false,code=null,ME=null,myName='',screen='lobby',lastSec=-1,prevG=null,pending=0,hostAway=0,searchT=null,dirty=false;
+const H={n:{},j:{},o:{},v:{}};
+const C={ans:0,jk:0,ob:0,v:0,ty:0};
+try{myName=localStorage.getItem('oo-name')||''}catch(e){}
+$('myName').value=myName;
+const idxOf=u=>G&&Array.isArray(G.pl)?G.pl.findIndex(x=>x&&x.u===u):-1;
+const myIdx=()=>idxOf(ME);
+const P=i=>G&&G.pl&&G.pl[i]||null;
+const pName=i=>P(i)?clean(P(i).n):'—';
+const pCol=i=>P(i)?COLORS[(+P(i).c||0)%4]:'#888';
+const nameOfU=u=>pName(idxOf(u));
+const colOfU=u=>pCol(idxOf(u));
+let myPhoto='';
+const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googleusercontent|ggpht)\.com\//i.test(u);
+const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
+  return`<span class="av" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
+const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
+const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=id==='lobby';window.scrollTo(0,0)};
+const banner=t=>{$('banner').textContent=t||''};
+const roomUrl=c=>location.origin+location.pathname+'#'+c;
+const saveName=()=>{myName=clean($('myName').value);$('myName').value=myName;try{localStorage.setItem('oo-name',myName)}catch(e){}};
+
+/* ---------- oda kurma / katılma / ayrılma ---------- */
+$('create').onclick=async()=>{
+  audio();saveName();if(!ME)return;
+  const A='ABCDEFGHJKLMNPRSTUVYZ23456789';let c='';
+  for(let t=0;t<6;t++){c=Array.from({length:4},()=>A[Math.floor(Math.random()*A.length)]).join('');const n=await Net.peek(c);if(!Object.values(n).some(x=>alive(x)))break}
+  enterRoom(c,true);
+};
+$('joinF').addEventListener('submit',e=>{e.preventDefault();audio();saveName();const c=$('code').value.trim().toUpperCase();
+  if(!/^[A-Z0-9]{4}$/.test(c))return lStatus('Kod 4 karakter olmalı.',true);if(ME)enterRoom(c,false)});
+$('watchB').onclick=()=>{audio();saveName();const c=$('code').value.trim().toUpperCase();if(!/^[A-Z0-9]{4}$/.test(c))return lStatus('İzlemek için önce oda kodunu yaz.',true);if(ME)enterRoom(c,false,true)};
+$('specB').onclick=()=>{if(!G||isHost)return;const sp=!(Net.mine&&Net.mine.sp);send({sp:sp?1:null});$('specB').disabled=true;setTimeout(()=>{$('specB').disabled=false},1500)};
+async function enterRoom(c,create,spec){
+  code=c;isHost=false;G=null;prevG=null;hostAway=0;banner('');
+  try{history.replaceState(null,'','#'+c)}catch(e){}try{localStorage.setItem('oo-room',c)}catch(e){}
+  show('wait');$('wCode').textContent=c;$('slots').innerHTML='';$('hostCtl').hidden=true;$('wNote').textContent='';$('wStatus').innerHTML='Odaya bağlanılıyor<span class="dots"></span>';
+  let nodes;try{nodes=await Net.enter(c)}catch(e){console.error(e);return leaveRoom('Odaya bağlanılamadı. İnternetini kontrol et.')}
+  const mine=nodes[ME];
+  if(mine&&mine.pr&&mine.pr.h&&mine.pr.g&&Array.isArray(mine.pr.g.pl)){            // sayfayı yenileyen kurucu: oyunu geri yükle
+    isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>{const p=n.pr||{};H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0});
+    publish();return;
+  }
+  if(create){isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:''}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
+  const p=mine&&mine.pr||{};C.ans=Math.max(C.ans,p.ans?+p.ans.n||0:0);C.jk=Math.max(C.jk,p.jk?+p.jk.n||0:0);C.ob=Math.max(C.ob,p.ob?+p.ob.n||0:0);C.v=Math.max(C.v,p.vt?+p.vt.n||0:0);
+  Net.set({nm:myName,ph:okPh(myPhoto)?myPhoto:null,h:null,g:null,ty:0,sp:spec?1:null});
+  clearTimeout(searchT);searchT=setTimeout(()=>{if(code===c&&!G){$('wStatus').textContent='Bu kodla açık bir oda bulunamadı. Kodu kontrol et ya da kurucunun sayfayı açık tuttuğundan emin ol.';try{localStorage.removeItem('oo-room')}catch(e){}}},9000);
+  onNet();
+}
+function leaveRoom(msg){
+  code=null;isHost=false;G=null;prevG=null;banner('');Net.leave();
+  try{localStorage.removeItem('oo-room');history.replaceState(null,'',location.pathname)}catch(e){}
+  show('lobby');lStatus(msg||'Hazır. Oda kur ya da arkadaşının koduyla katıl.',!!msg);
+}
+let quitT=null;
+$('quit').onclick=()=>{const b=$('quit');if(b.classList.contains('sure')){clearTimeout(quitT);b.classList.remove('sure');b.textContent='Odadan çık';leaveRoom();return}
+  b.classList.add('sure');b.textContent=isHost&&G&&G.ph!=='wait'?'Kurucu sensin, oda kapanacak. Emin misin? Tekrar bas':'Emin misin? Tekrar bas';
+  quitT=setTimeout(()=>{b.classList.remove('sure');b.textContent='Odadan çık'},3500)};
+$('share').onclick=()=>{const url=roomUrl(code),text=`Ortak Oyuncu oynayalım! Oda kodu: ${code}`;
+  if(navigator.share)navigator.share({title:'Ortak Oyuncu',text,url}).catch(()=>{});else copyLink()};
+const copyLink=()=>{try{navigator.clipboard.writeText(roomUrl(code)).then(()=>{$('copy').textContent='Kopyalandı'},()=>{$('copy').textContent='Kopyalanamadı'})}catch(e){}};
+$('copy').onclick=copyLink;
+
+/* ---------- kurucu: oyunun tek yöneticisi ---------- */
+function publish(){
+  if(!G)return;dirty=false;G.seq=(+G.seq||0)+1;
+  Net.set({h:1,nm:myName,g:G});
+  react(prevG,G);prevG=JSON.parse(JSON.stringify(G));render();
+}
+const act=f=>{f();if(dirty)publish()};
+const mark=()=>{dirty=true};
+function readSettings(){G.R=+$('sR').value;G.T=+$('sT').value;G.J=+$('sJ').value}
+['sR','sT','sJ'].forEach(id=>$(id).addEventListener('change',()=>{if(isHost&&G&&(G.ph==='wait'||G.ph==='end')){readSettings();publish()}}));
+const freeColor=()=>[0,1,2,3].find(c=>!G.pl.some(p=>p.c===c));
+function hostTick(){
+  if(!isHost||!G)return;const t=now(),idle=G.ph==='wait'||G.ph==='end';
+  G.pl.forEach(p=>{if(p.u===ME)return;const on=alive(Net.node(p.u));
+    if(on&&p.off){p.off=0;mark()}else if(!on&&!p.off){p.off=t;mark()}});
+  for(let i=G.pl.length-1;i>=0;i--){const p=G.pl[i],n=Net.node(p.u);
+    if(p.off&&t-p.off>(idle?15000:60000))removePlayer(i);
+    else if(idle&&p.u!==ME&&n&&n.pr&&n.pr.sp){G.pl.splice(i,1);mark()}}          // izleyiciye geçen oyuncu
+  if(idle&&G.pl.length<MAXP)Net.list().forEach(n=>{if(G.pl.length>=MAXP||n.uid===ME||idxOf(n.uid)>=0||!alive(n)||!n.pr||n.pr.h||n.pr.sp||!n.pr.nm)return;
+    G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:''});G.note='';const p=n.pr;H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0;mark()});
+  G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'';if((nm!==p.n||ph!==(p.ph||''))&&idle){p.n=nm;p.ph=ph;mark()}handleInputs(i,n.pr)}});
+  if(G.ph==='pick')(G.pk||[]).forEach(u=>{const i=idxOf(u);if(i>=0&&!G.sp[u]&&P(i).off&&t-P(i).off>20000)pickTeam(u,G.nine[Math.floor(Math.random()*G.nine.length)])});
+  if(G.ph==='rev'&&t>=G.rvEnd)afterReveal();
+  if(G.ph==='ans'&&t>=G.end)endRound(-1,null);
+  if(dirty)publish();
+}
+setInterval(hostTick,1000);
+function handleInputs(i,pr){
+  const u=G.pl[i].u,cur=()=>G.r,gid=G.gid;
+  const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===gid)pickTeam(u,String(k.id));
+  if(pr.ans&&+pr.ans.n>(H.n[u]||0)){H.n[u]=+pr.ans.n;if(pr.ans.r===cur()&&pr.ans.g===gid)answer(idxOf(u),clip(pr.ans.t,60))}
+  if(pr.jk&&+pr.jk.n>(H.j[u]||0)){H.j[u]=+pr.jk.n;if(pr.jk.r===cur()&&pr.jk.g===gid)joker(idxOf(u))}
+  if(pr.ob&&+pr.ob.n>(H.o[u]||0)){H.o[u]=+pr.ob.n;if(pr.ob.r===cur()&&pr.ob.g===gid)objectIt(idxOf(u),clip(pr.ob.t,30))}
+  if(pr.vt&&+pr.vt.n>(H.v[u]||0)){H.v[u]=+pr.vt.n;vote(idxOf(u),+pr.vt.id,!!pr.vt.v)}
+  if(pr.nx&&G.ph==='res'&&pr.nx.r===cur()&&pr.nx.g===gid)nextRound();
+}
+function removePlayer(i){
+  const p=G.pl[i];if(!p||p.u===ME)return;G.pl.splice(i,1);mark();
+  G.note=clean(p.n)+' bağlantısı uzun süre koptuğu için odadan çıkarıldı.';
+  if(G.ob&&G.ob.u===p.u)G.ob=null;
+  if(G.ph!=='wait'&&G.ph!=='end'&&G.pl.length<2){G.ph='wait';G.note+=' Yeni oyuncu bekleniyor.';return}
+  if((G.ph==='pick'||G.ph==='rev')&&Array.isArray(G.pk)&&G.pk.includes(p.u)){setPickers();G.ph='pick';G.sp={};G.pn=(+G.pn||0)+1}
+  if(G.ob)checkVotes();
+}
+const pairOK=(a,b)=>a!==b&&!G.pairs.includes(pkey(a,b))&&shared(a,b).some(p=>!G.used.includes(p.n));
+function nine(){                         // seçimler gizli olduğu için birbirine en çok bağlı 9 takımı ara
+  let best=null,bs=-1;
+  for(let t=0;t<700;t++){const pool=[...IDS].sort(()=>Math.random()-.5).slice(0,9);let sc=0,minD=9;
+    pool.forEach(x=>{const d=pool.filter(y=>pairOK(x,y)).length;sc+=d;minD=Math.min(minD,d)});
+    if(minD>=3&&sc>bs){bs=sc;best=pool}}
+  return best||['GS','FB','BJK','RMA','BAR','MUN','CHE','JUV','MIL'];
+}
+function setPickers(){const N=G.pl.length;G.pk=N<=2?G.pl.map(p=>p.u):[G.pl[(G.r-1)%N].u,G.pl[G.r%N].u]}
+function startGame(){
+  if(G.pl.length<2)return;readSettings();
+  Object.assign(G,{gid:(+G.gid||0)+1,r:0,used:[],pairs:[],note:''});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
+}
+function nextRound(){
+  if(G.r>=G.R){G.ph='end';G.ob=null;mark();return}
+  G.r++;G.note='';setPickers();
+  Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,redo:'',a:null,b:null,ob:null,obr:null,hit:null,wu:null});
+  G.nine=nine();
+  G.pl.forEach(p=>{p.lk=0;p.lr='';p.wr=null;p.h=null;p.obd=0;p.g=0;p.jb='';p.at=[]});mark();
+}
+function pickTeam(u,id){                  // gizli seçim: herkes kendi takımını aynı anda seçer
+  if(G.ph!=='pick'||!G.pk.includes(u)||G.sp[u]||!G.nine.includes(id))return;
+  G.sp[u]=id;mark();
+  if(G.pk.every(x=>G.sp[x])){G.a=G.sp[G.pk[0]];G.b=G.sp[G.pk[1]];G.ph='rev';G.rvEnd=now()+3200;
+    G.rvOK=pairOK(G.a,G.b)?1:0;G.redo=G.a===G.b?'İkiniz de aynı takımı seçtiniz!':!G.rvOK?(G.pairs.includes(pkey(G.a,G.b))?'Bu eşleşme bu maçta zaten oynandı.':'Bu iki takımın ortak oyuncusu yok.'):''}
+}
+function afterReveal(){
+  if(G.rvOK){G.pairs.push(pkey(G.a,G.b));G.ph='ans';G.end=now()+G.T*1000+800;mark();return}
+  Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,a:null,b:null});mark();       // geçersiz eşleşme: tekrar seçim
+}
+function answer(i,t){
+  const p=P(i);if(!p||G.ph!=='ans'||now()<(+p.lk||0)||!t.trim())return;
+  const hit=match(t,shared(G.a,G.b));p.at=Array.isArray(p.at)?p.at:[];
+  if(hit&&!G.used.includes(hit.n)){p.at.push({t:clip(hit.n,30),ok:1});return endRound(i,hit.n)}
+  const known=!!hit||!!match(t,PLAYERS);
+  p.wr={t:clip(t,30),k:(p.wr?+p.wr.k||0:0)+1,unk:known?0:1,used:hit?1:0};
+  if(p.at.length<6)p.at.push({t:clip(t,30),unk:known?0:1,used:hit?1:0});
+  p.lk=now()+(hit?1500:3000);p.lr=hit?'u':'w';mark();
+}
+function joker(i){
+  const p=P(i);if(!p||G.ph!=='ans'||!(+p.j>0)||now()<(+p.lk||0))return;
+  const pool=shared(G.a,G.b).filter(x=>!G.used.includes(x.n));if(!pool.length)return;
+  const stars=pool.filter(x=>STAR.has(x.n)),from=stars.length?stars:pool;
+  p.h=hintOf(from[Math.floor(Math.random()*from.length)].n);p.j--;G.jkS=(+G.jkS||0)+1;
+  G.pl.forEach(q=>{if(q!==p){q.lk=Math.max(+q.lk||0,now()+5000);q.lr='j';q.jb=p.n}});mark();
+}
+/* itiraz: cevaplar tur sonuna kadar gizli olduğu için, kimse bilemeden biten turda sonuç ekranında yapılır */
+function objectIt(i,t){
+  const p=P(i);if(!p||G.ph!=='res'||G.wu||G.ob||p.obd)return;
+  const a=(p.at||[]).find(x=>x.unk&&x.t===t)||(p.at||[]).filter(x=>x.unk).pop();if(!a)return;
+  G.obN=(+G.obN||0)+1;G.ob={id:G.obN,u:p.u,t:a.t,v:{}};p.obd=1;G.obr=null;mark();
+}
+function vote(i,id,v){
+  const p=P(i);if(!p||!G.ob||G.ob.id!==id||p.u===G.ob.u||G.ph!=='res')return;
+  G.ob.v[p.u]=v?1:0;mark();
+  if(!v){G.obr={n:p.n,t:G.ob.t,by:nameOfU(G.ob.u)};G.ob=null;return}
+  checkVotes();
+}
+function checkVotes(){
+  if(!G.ob)return;const voters=G.pl.filter(q=>q.u!==G.ob.u&&!q.off);
+  if(voters.length&&voters.every(q=>G.ob.v[q.u]===1)){const w=idxOf(G.ob.u),t=G.ob.t,p=P(w);G.ob=null;
+    if(p){p.s=(+p.s||0)+2;p.g=3}G.wu=p?p.u:null;G.hit=t+' (itirazla)';G.used.push(t);G.obOK=(+G.obOK||0)+1;mark()}
+}
+function endRound(w,hitName){
+  if(G.ph!=='ans')return;
+  G.ph='res';G.wu=w>=0?G.pl[w].u:null;G.hit=hitName;G.ob=null;
+  G.pl.forEach((p,i)=>{p.g=w<0?1:(i===w?3:0);p.s=(+p.s||0)+p.g});
+  if(hitName)G.used.push(hitName);mark();
+}
+
+/* ---------- misafir: kurucunun yayınladığı durumu izler ---------- */
+function onNet(){
+  if(!code)return;
+  if(isHost){hostTick();renderLive();return}
+  const hosts=Net.list().filter(n=>n.uid!==ME&&n.pr&&n.pr.h&&n.pr.g&&Array.isArray(n.pr.g.pl));
+  const h=hosts.find(n=>n.pr.g.pl.some(x=>x&&x.u===ME))||hosts.sort((a,b)=>(+b.t||0)-(+a.t||0))[0];
+  if(!h){if(G){if(!hostAway)hostAway=now()}return}
+  clearTimeout(searchT);
+  if(alive(h)){if(hostAway){hostAway=0;banner('')}}else if(!hostAway)hostAway=now();
+  const g=h.pr.g;
+  if(!G||g.seq!==G.seq||g.gid!==G.gid){const prev=G;G=g;pending=0;react(prev,G);render()}else renderLive();
+}
+setInterval(()=>{
+  if(!code||isHost||!G)return;
+  if(hostAway){const s=Math.round((now()-hostAway)/1000);banner(`Kurucunun bağlantısı koptu, geri dönmesi bekleniyor… (${s} sn)`);if(s>120)leaveRoom('Oda kapandı: kurucu geri dönmedi.')}
+},1000);
+const send=patch=>Net.set(patch);
+document.addEventListener('pointerdown',()=>audio(),{once:true});
+
+/* ---------- eylemler ---------- */
+let myPick=null;
+$('nine').addEventListener('click',e=>{
+  const b=e.target.closest('.team');if(!b||b.disabled||!G||G.ph!=='pick'||!(G.pk||[]).includes(ME)||G.sp[ME]||(myPick&&myPick.pn===G.pn))return;
+  const id=b.dataset.id;SFX.pick();myPick={pn:G.pn,id};
+  if(isHost)act(()=>pickTeam(ME,id));else{send({pk:{pn:G.pn,g:G.gid,id}});drawPick()}
+});
+$('ansF').addEventListener('submit',e=>{
+  e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()<(+P(i).lk||0))return;
+  if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.r,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
+});
+$('jkB').onclick=()=>{const i=myIdx();if(!G||G.ph!=='ans'||i<0)return;if(isHost)act(()=>joker(i));else{C.jk++;send({jk:{r:G.r,g:G.gid,n:C.jk}})}};
+$('ansI').addEventListener('input',()=>{const v=$('ansI').value&&G?G.r:0;if(v!==C.ty){C.ty=v;send({ty:v})}});
+$('obj').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b||!G)return;const i=myIdx();if(i<0)return;
+  if(b.dataset.a==='ob'){const t=b.dataset.t||'';if(isHost)act(()=>objectIt(i,t));else{C.ob++;send({ob:{r:G.r,g:G.gid,n:C.ob,t}})}$('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
+  if(b.dataset.a==='yes'||b.dataset.a==='no'){const v=b.dataset.a==='yes'?1:0,id=G.ob?G.ob.id:0;if(isHost)act(()=>vote(i,id,v));else{C.v++;send({vt:{n:C.v,id,v}})}
+    $('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
+});
+$('next').onclick=()=>{if(!G)return;if(isHost)act(()=>nextRound());else{send({nx:{r:G.r,g:G.gid}});$('rStatus').textContent='Kurucuya iletildi…'}};
+$('start').onclick=()=>{if(isHost)act(()=>startGame())};
+$('again').onclick=()=>{if(isHost)act(()=>startGame())};
+$('toLobby').onclick=()=>leaveRoom();
+
+/* ---------- konfeti ---------- */
+function confetti(cols,big){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cv=$('fx'),dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth,Hh=cv.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  const N=big?160:70,ps=Array.from({length:N},()=>({x:W/2+(Math.random()-.5)*W*.3,y:Hh*.32,vx:(Math.random()-.5)*11,vy:-Math.random()*13-4,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.4,w:6+Math.random()*6,h:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)]}));
+  const t0=performance.now();const f=t=>{const k=(t-t0)/1000;x.clearRect(0,0,W,Hh);ps.forEach(p=>{p.vy+=.38;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-k/2.2);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
+    if(k<2.2)requestAnimationFrame(f);else x.clearRect(0,0,W,Hh)};requestAnimationFrame(f);
+}
+/* ---------- sesler ---------- */
+function react(p,g){
+  if(!g)return;const i=idxOf(ME),me=i>=0?g.pl[i]:null,pm=p&&i>=0&&Array.isArray(p.pl)?p.pl.find(x=>x.u===ME):null;
+  if(!p||p.ph!==g.ph||p.r!==g.r||p.gid!==g.gid){
+    if(g.ph==='ans'){SFX.whistle();$('ansI').value='';C.ty=0;send({ty:0});lastSec=-1;$('aMsg').textContent='';$('ansI').dataset.l='';setTimeout(()=>{if(i>=0)$('ansI').focus()},60)}
+    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)();if(g.wu){const sa=STY[g.a]||[],sb=STY[g.b]||[];confetti([sa[1],sa[2],sb[1],sb[2],'#f6d33f'].filter(Boolean),g.wu===ME)}}
+    if(g.ph==='end')SFX.final();
+    if(g.ph==='rev')SFX.joker();
+    if(g.ph==='pick'&&p&&p.ph==='rev'&&p.r===g.r)SFX.timeup();
+    return;
+  }
+  if(g.ph==='pick'&&Object.keys(g.sp||{}).length>Object.keys(p.sp||{}).length&&!(g.sp||{})[ME])SFX.tick(false);
+  if(g.ph==='res'&&(+g.obOK||0)>(+p.obOK||0)){SFX.goal();confetti(['#f6d33f','#59e08b','#fff'],g.wu===ME)}
+  if(g.ph==='res'&&g.ob&&(!p.ob||p.ob.id!==g.ob.id))SFX.tick(true);
+  if(g.ph==='ans'){
+    const wk=x=>x&&x.wr?+x.wr.k||0:0;
+    if(me&&wk(me)>wk(pm)){SFX.boo();const f=$('ansF');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake')}
+    if((+g.jkS||0)>(+p.jkS||0))SFX.joker();
+  }
+}
+
+/* ---------- çizim ---------- */
+function render(){try{draw()}catch(e){console.error(e)}}
+function specs(){return Net.list().filter(n=>alive(n)&&n.pr&&n.pr.sp&&!(G&&idxOf(n.uid)>=0))}
+function renderLive(){try{drawSpecs();if(G&&G.ph==='wait')drawWait();if(G&&G.ph==='ans')drawOpps();drawBoard()}catch(e){console.error(e)}}
+const shownSc={};
+function drawSpecs(){
+  if(!G)return;const sp=specs(),n=sp.length;$('specN').textContent=n?`${n} izleyici`:'';
+  $('specL').textContent=n?'İzleyiciler: '+sp.map(x=>clean(x.pr.nm)).join(', '):'';
+  const amSpec=!!(Net.mine&&Net.mine.sp),b=$('specB');b.hidden=isHost||!(G.ph==='wait'||G.ph==='end');
+  b.textContent=amSpec?(G.pl.length<MAXP?'Oyuncu olarak katıl':'Oda dolu'):'İzleyici ol';if(amSpec&&G.pl.length>=MAXP)b.disabled=true;
+}
+function drawBoard(){
+  if(!G)return;const mi=myIdx();
+  $('chips').innerHTML=G.pl.map((p,i)=>`<div class="chip${i===mi?' me':''}${p.off?' off':''}" data-u="${esc(p.u)}" style="--pc:${pCol(i)}">${avI(i)}<span class="sc">${shownSc[p.u]!=null?shownSc[p.u]:+p.s||0}</span><span class="nm">${esc(pName(i))}${i===mi?'<small>sen</small>':''}</span></div>`).join('');
+  G.pl.forEach(p=>{const to=+p.s||0,from=shownSc[p.u]!=null?shownSc[p.u]:to;shownSc[p.u]=to;if(to===from)return;
+    const el=$('chips').querySelector(`[data-u="${CSS.escape(p.u)}"]`);if(!el)return;const sc=el.querySelector('.sc');el.classList.add('pop');
+    if(to<from){sc.textContent=to;return}let v=from;const step=()=>{v++;sc.textContent=v;if(v<to)setTimeout(step,170)};setTimeout(step,250)});
+  $('rd').textContent=G.r?`${G.r}/${G.R}`:'–';
+}
+function draw(){
+  if(!G)return;drawBoard();drawSpecs();
+  if(!hostAway)banner(G.ph!=='wait'&&G.note?G.note:'');
+  ({wait:drawWait,pick:drawPick,rev:drawRev,ans:drawAns,res:drawRes,end:drawEnd}[G.ph]||(()=>{}))();
+}
+function drawWait(){
+  show('wait');$('wCode').textContent=code;const mi=myIdx(),n=G.pl.length;
+  const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${p.u===G.host?'Kurucu':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div></div>`);
+  if(n<MAXP)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
+  $('slots').innerHTML=slots.join('');
+  $('wNote').textContent=isHost?(n>1?`${n} oyuncu hazır. Ayarları seç ve maçı başlat. En fazla ${MAXP} kişi.`:'“Davet et” ile linki arkadaşlarına gönder. Katılan herkes burada görünür.'):'';
+  $('hostCtl').hidden=!isHost;$('start').disabled=n<2;
+  $('wStatus').textContent=G.note?clip(G.note,160):isHost?'':(mi<0?(Net.mine&&Net.mine.sp?'İzleyici olarak buradasın. Maç başlayınca her şeyi canlı göreceksin.':n>=MAXP?'Oda dolu. İzleyici olarak bakabilirsin.':'Odaya ekleniyorsun…'):`Ayarlar: ${G.R} tur, ${G.T} sn, ${G.J} joker. Kurucunun başlatması bekleniyor…`);
+}
+function drawPick(){
+  show('pick');const pk=G.pk||[],sp=G.sp||{},amP=pk.includes(ME),mine=myPick&&myPick.pn===G.pn?myPick.id:sp[ME]||null,can=amP&&!mine;
+  const names=pk.map(u=>esc(nameOfU(u)));
+  $('pTitle').innerHTML=can?'Bir takım seç':amP?'Seçimin kilitlendi':`${names.join(' ve ')} seçiyor<span class="dots"></span>`;
+  const others=pk.filter(u=>u!==ME),wait=others.filter(u=>!sp[u]).map(u=>nameOfU(u));
+  const sub=can?'Rakibin ne seçtiğini görmeyecek, sen de onunkini görmeyeceksin. İkiniz de seçince 3 saniye sonra açılıyor.':amP?(wait.length?`Rakibin bekleniyor: ${wait.join(', ')}`:'Seçimler açılıyor…'):'Seçimler gizli, ikisi de seçince ekranda açılacak.';
+  $('pSub').innerHTML=(G.redo?`<b style="color:var(--bad)">${esc(G.redo)} Tekrar seçin.</b><br>`:'')+esc(sub)+`<span class="pickers">${pk.map(u=>{const i=idxOf(u);return`<span class="${sp[u]?'done':''}" style="--pc:${pCol(i)}">${avI(i,26)}${esc(pName(i))} · ${sp[u]?'seçti':P(i)&&P(i).off?'bağlantı koptu':'seçiyor'}</span>`}).join('')}</span>`;
+  const nine=(Array.isArray(G.nine)?G.nine:[]).filter(has);
+  $('nine').classList.toggle('mine',can);
+  $('nine').innerHTML=nine.map(id=>`<button class="team${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join('');
+}
+let rvT=null;
+function drawRev(){
+  const first=screen!=='rev';show('rev');const box=document.querySelector('.rv');
+  const pk=G.pk||[],a=pk[0],b=pk[1];
+  $('rvA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0])+`<small>${esc(nameOfU(a))}</small>`;$('rvB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0])+`<small>${esc(nameOfU(b))}</small>`;
+  $('rvTitle').textContent='Seçimler açılıyor';$('rvMsg').innerHTML='';
+  if(first){box.classList.remove('go');void box.offsetWidth;box.classList.add('go')}
+  clearInterval(rvT);const tick=()=>{if(!G||G.ph!=='rev'){clearInterval(rvT);return}const l=Math.max(0,Math.ceil(((+G.rvEnd||0)-now())/1000));$('rvSec').textContent=G.rvOK?(l||'Başla'):'✕';
+    if(!G.rvOK){$('rvTitle').textContent='Eşleşme geçersiz';$('rvMsg').innerHTML=`<b style="color:var(--bad)">${esc(G.redo||'')}</b> Birazdan tekrar seçeceksiniz.`}
+    else $('rvMsg').textContent=`İki takımda da oynamış bir futbolcu bul. Sayaç ${l?l+' sn içinde':'şimdi'} başlıyor.`};
+  tick();rvT=setInterval(tick,200);
+}
+function drawAns(){
+  show('ans');const i=myIdx();
+  if($('tA').dataset.id!==G.a+G.b+G.r){$('tA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0]);$('tB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0]);$('tA').dataset.id=G.a+G.b+G.r}
+  $('ansF').hidden=i<0;$('jkB').hidden=i<0||!(+G.J>0);
+  if(i>=0){$('jkB').textContent=`Joker (${+P(i).j||0})`;$('hint').textContent=P(i).h?clip(P(i).h,60):''}else $('aMsg').textContent='İzleyici olarak bakıyorsun.';
+  tickUI(true);drawOpps();
+}
+function drawObj(){
+  const i=myIdx(),me=P(i),o=G.ob;let h='';
+  if(o){const by=nameOfU(o.u),t=esc(clip(o.t,30));
+    if(o.u===ME)h=`<div><b>İtirazın oylanıyor:</b> “${t}”. Herkes kabul ederse 3 puan senin.</div>`;
+    else if(i<0)h=`<div>${esc(by)} itiraz etti: “${t}”</div>`;
+    else if(o.v&&o.v[ME]!=null)h=`<div>Oyunu verdin. Diğerleri bekleniyor…</div>`;
+    else h=`<div><b>${esc(by)}</b> “${t}” yazmıştı. Bu oyuncu ${esc(TEAMS[G.a][0])} ve ${esc(TEAMS[G.b][0])} formasını giydi mi?</div><div class="btns"><button class="btn sm" data-a="yes">Evet, kabul</button><button class="btn ghost sm" data-a="no">Hayır</button></div>`}
+  else if(G.obr)h=`<div>${esc(G.obr.n)}, ${esc(G.obr.by)} adlı oyuncunun “${esc(clip(G.obr.t,30))}” itirazını reddetti.</div>`;
+  else if(!G.wu&&me&&!me.obd){const u=(me.at||[]).filter(x=>x.unk);if(u.length){const t=u[u.length-1].t;
+    h=`<div>“${esc(t)}” listemizde yoktu. Doğru olduğuna eminsen itiraz et, diğerleri onaylarsa 1 yerine 3 puan alırsın.</div><div class="btns"><button class="btn sm" data-a="ob" data-t="${esc(t)}">İtiraz et</button></div>`}}
+  const box=$('obj');if(box.dataset.h!==h){box.dataset.h=h;box.innerHTML=h}
+}
+function drawOpps(){
+  if(!G||G.ph!=='ans')return;const mi=myIdx(),t=now();
+  $('opps').innerHTML=G.pl.map((p,i)=>{if(i===mi)return'';const n=Net.node(p.u),typing=n&&n.pr&&n.pr.ty===G.r;
+    const st=p.off?'bağlantı koptu':t<(+p.lk||0)?(p.lr==='j'?'donduruldu':'bekliyor'):typing?'yazıyor…':'düşünüyor';
+    const k=(p.at||[]).length;return`<div class="opp" style="--pc:${pCol(i)}"><span class="who2">${avI(i,28)}<strong>${esc(pName(i))}</strong></span><span class="st">${st}${k?` · ${k} deneme`:''}</span></div>`}).join('');
+}
+function tickUI(force){
+  if(!G||G.ph!=='ans'||screen!=='ans')return;
+  const left=Math.max(0,(+G.end||0)-now()),s=Math.ceil(left/1000),tot=(+G.T||30)*1000;
+  document.body.classList.toggle('hurry',left>0&&left<5000);
+  $('aSec').textContent=s;$('ring').style.strokeDashoffset=276.5*(1-Math.min(1,left/tot));$('clock').classList.toggle('low',left<6000);
+  if(s!==lastSec){if(lastSec>0&&s<=5&&s>0)SFX.tick(s<=3);lastSec=s}
+  const i=myIdx();if(i<0)return;const me=P(i);
+  const lk=(+me.lk||0)-now(),locked=lk>0,inp=$('ansI'),m=$('aMsg');
+  $('ansF').classList.toggle('locked',locked);inp.disabled=locked;$('ansGo').disabled=locked;$('jkB').disabled=locked||!(+me.j>0);
+  if(locked){pending=0;m.className='msg bad';const sec=Math.ceil(lk/1000);
+    m.textContent=me.lr==='j'?`${clean(me.jb)} joker kullandı! ${sec} sn donduruldun.`:me.lr==='u'?'Bu oyuncu bu maçta zaten kullanıldı, başkasını yaz.':`Yanlış ya da tanınmadı. ${sec} sn bekle.`;inp.dataset.l='1'}
+  else if(inp.dataset.l){inp.dataset.l='';inp.value='';m.className='msg';m.textContent='Tekrar dene.';inp.focus()}
+  else if(pending&&Date.now()-pending>4000){pending=0;m.className='msg';m.textContent='Cevap ulaşmadı, tekrar gönder.'}
+  else if(force&&!m.textContent){m.className='msg';m.textContent='İki takımda da oynamış birini yaz.'}
+}
+setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%1000<200)drawOpps()},200);
+function drawRes(){
+  show('res');const mi=myIdx(),wi=idxOf(G.wu);
+  $('rPair').innerHTML=crest(G.a)+'<i>×</i>'+crest(G.b);
+  if(!G.wu){$('rBig').textContent='Süre doldu';$('rTxt').textContent='Kimse bilemedi, herkese 1 puan.'}
+  else{$('rBig').textContent=wi===mi?'Bildin!':pName(wi)+' bildi';$('rTxt').textContent=`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`}
+  $('rPts').innerHTML=G.pl.map((p,i)=>`<div style="--pc:${pCol(i)}">${avI(i,30)}${esc(pName(i))} +${+p.g||0}</div>`).join('');
+  const v=shared(G.a,G.b),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rMore').open=false;
+  $('rList').innerHTML=[...v].sort((x,y)=>(y.n===hit)-(x.n===hit)).map(p=>`<li class="${p.n===hit?'hit':G.used.includes(p.n)?'used':''}">${esc(p.n)}</li>`).join('');
+  $('rTries').innerHTML=G.pl.map((p,i)=>{const at=p.at||[];return`<div class="try" style="--pc:${pCol(i)}">${avI(i,26)}<strong>${esc(pName(i))}</strong><span class="g">${at.length?at.map(x=>`<span class="${x.ok?'ok':x.unk?'no unk':'no'}">${esc(clip(x.t,30))}</span>`).join(''):'<span style="opacity:.6">cevap yazmadı</span>'}</span></div>`}).join('');
+  drawObj();
+  $('next').hidden=mi<0;$('next').textContent=G.r>=G.R?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';
+}
+function drawEnd(){
+  show('end');const mi=myIdx(),ord=G.pl.map((p,i)=>({i,s:+p.s||0})).sort((a,b)=>b.s-a.s);
+  const top=ord[0]?ord[0].s:0,winners=ord.filter(x=>x.s===top);
+  $('eBig').textContent=winners.length>1?'Berabere!':winners[0].i===mi?'Kazandın!':pName(winners[0].i)+' kazandı';
+  $('eTxt').innerHTML=`<ol class="rank">${ord.map(x=>`<li style="--pc:${pCol(x.i)}"><span>${avI(x.i,34)}${esc(pName(x.i))}${x.i===mi?' (sen)':''}</span><b>${x.s}</b></li>`).join('')}</ol>`;
+  $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';
+}
+
+/* ---------- Firebase ve Google girişi ---------- */
+const firebaseConfig={
+  apiKey:"AIzaSyDhS2E8qlblhfItjsKCiKNeGGQrFMwH8OQ",
+  authDomain:"futbolik-bbd9e.firebaseapp.com",
+  databaseURL:"https://futbolik-bbd9e-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"futbolik-bbd9e",
+  appId:"1:529672661613:web:151936359f12521068ad64"
+};
+(()=>{
+  const hashCode=()=>{const c=(location.hash||'').slice(1).toUpperCase();return/^[A-Z0-9]{4}$/.test(c)?c:''};
+  if(!window.firebase){lStatus('Firebase yüklenemedi. İnternet bağlantını kontrol et.',true);return}
+  firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const prov=new firebase.auth.GoogleAuthProvider();
+  $('gIn').onclick=()=>{auth.signInWithPopup(prov).catch(e=>{const c=e&&e.code||'';if(/popup-blocked|operation-not-supported/.test(c))auth.signInWithRedirect(prov);else if(!/popup-closed|cancelled/.test(c))lStatus('Giriş yapılamadı: '+clip(e&&e.message,160),true)})};
+  $('gOut').onclick=()=>{leaveRoom();auth.signOut()};
+  auth.getRedirectResult().catch(()=>{});
+  Net.on(onNet);
+  if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
+  auth.onAuthStateChanged(u=>{
+    $('authBox').hidden=!!u;$('cards').hidden=!u;$('who').hidden=!u;
+    if(!u){ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
+    ME=u.uid;myPhoto=u.photoURL||'';$('whoName').textContent=u.displayName||u.email||'Oyuncu';
+    if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
+    if(!Net.db)Net.init(firebase.database(),u.uid);
+    $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
+    let c=hashCode();if(!c)try{c=localStorage.getItem('oo-room')||''}catch(e){}
+    if(c&&!code){saveName();enterRoom(c,false)}
+  });
+  window.addEventListener('hashchange',()=>{const c=hashCode();if(c&&c!==code&&ME){saveName();enterRoom(c,false)}});
+})();
+}
+</script>
+</body>
+</html>

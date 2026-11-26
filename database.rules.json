@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+        "$peer": {
+          ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
+          ".validate": "newData.child('uid').val() === auth.uid && newData.child('j').isString() && newData.child('j').val().length < 6000"
+        }
+      }
+    }
+  }
+}
