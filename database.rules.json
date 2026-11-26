@@ -8,6 +8,13 @@
           ".validate": "newData.child('uid').val() === auth.uid && newData.child('j').isString() && newData.child('j').val().length < 6000"
         }
       }
+    },
+    "stats": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.child('g').isNumber() && newData.child('n').isString() && newData.child('n').val().length < 40"
+      }
     }
   }
 }
