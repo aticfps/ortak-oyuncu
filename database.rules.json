@@ -15,6 +15,13 @@
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.child('g').isNumber() && newData.child('n').isString() && newData.child('n').val().length < 40"
       }
+    },
+    "sug": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.child('u').val() === auth.uid && newData.child('t').isString() && newData.child('t').val().length < 41 && newData.child('a').isString() && newData.child('a').val().length < 5 && newData.child('b').isString() && newData.child('b').val().length < 5"
+      }
     }
   }
 }
