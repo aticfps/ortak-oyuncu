@@ -2859,30 +2859,35 @@ $('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar
 /* ---------- ağ katmanı: Firebase Realtime Database ---------- */
 /* Her oyuncu odada kendi Google kimliğiyle tek bir kayıt tutar. Kayıt bağlantı kopunca silinmez,
    "çevrimdışı" işaretlenir; böylece sayfayı yenileyen ya da uygulamadan çıkıp dönen oyuncu kaldığı yerden devam eder. */
-const Net={db:null,uid:null,code:null,ref:null,mine:{},raw:{},off:0,conn:false,cbs:[]};
+const Net={db:null,uid:null,code:null,ref:null,mine:{},raw:{},off:0,conn:false,cbs:[],ready:false};
 const now=()=>Date.now()+Net.off;
-const alive=n=>!!n&&n.o===1&&now()-(+n.t||0)<45000;
+const alive=n=>!!n&&n.o===1&&Number.isFinite(n.t)&&now()-n.t>=-10000&&now()-n.t<45000;
 Net.init=(db,uid)=>{
   Net.db=db;Net.uid=uid;
   db.ref('.info/serverTimeOffset').on('value',s=>{Net.off=+s.val()||0});
-  db.ref('.info/connected').on('value',s=>{Net.conn=!!s.val();if(Net.conn&&Net.ref)Net.write();Net.emit()});
-  setInterval(()=>{if(Net.ref&&Net.conn)Net.ref.child(uid).update({o:1,t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})},10000);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Net.ref)Net.write()});
+  db.ref('.info/connected').on('value',s=>{Net.conn=!!s.val();if(Net.conn&&Net.ready)Net.write();if(Net.ready)Net.emit()});
+  setInterval(()=>{if(Net.ref&&Net.ready&&Net.conn)Net.ref.child(uid).update({o:1,t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})},10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Net.ready)Net.write()});
 };
-Net.parse=v=>{const out={};Object.keys(v||{}).forEach(k=>{const x=v[k]||{};let pr={};try{pr=JSON.parse(x.j)||{}}catch(e){}out[k]={uid:k,o:x.o,t:x.t,pr:k===Net.uid?Net.mine:pr}});return out};
+// A room key is the authenticated UID, not an alias supplied by a client.
+const parsePresence=(j)=>{if(typeof j!=='string'||j.length>=6000)return null;try{const p=JSON.parse(j);return p&&typeof p==='object'&&!Array.isArray(p)?p:null}catch(e){return null}};
+const parseRoomNodes=(v)=>{const out=Object.create(null);if(!v||typeof v!=='object'||Array.isArray(v))return out;Object.keys(v).forEach(k=>{const x=v[k];if(!x||x.uid!==k||(x.o!==0&&x.o!==1)||!Number.isFinite(x.t))return;const pr=parsePresence(x.j);if(pr)out[k]={uid:k,o:x.o,t:x.t,pr}});return out};
+Net.parse=v=>{const out=parseRoomNodes(v);if(out[Net.uid])out[Net.uid].pr=Net.mine;return out};
 Net.peek=async c=>{const s=await Net.db.ref('rooms/'+c).once('value');return Net.parse(s.val())};
 Net.enter=async c=>{
-  Net.leave(true);Net.code=c;Net.ref=Net.db.ref('rooms/'+c);
-  const s=await Net.ref.once('value');Net.raw=Net.parse(s.val());
-  const m=Net.raw[Net.uid];if(m){try{Net.mine=JSON.parse((s.val()[Net.uid]||{}).j)||{}}catch(e){Net.mine={}}m.pr=Net.mine}
-  Net.ref.on('value',x=>{Net.raw=Net.parse(x.val());Net.emit()},e=>{console.error(e);lStatus('Veritabanına erişilemedi. Kuralları kontrol et.',true)});
+  Net.leave();Net.code=c;const ref=Net.ref=Net.db.ref('rooms/'+c);
+  // Read the saved presence before any reconnect or heartbeat can write.
+  const s=await ref.once('value');if(Net.ref!==ref)throw Error('Room changed');
+  Net.raw=parseRoomNodes(s.val());
+  const m=Net.raw[Net.uid];Net.mine=m?m.pr:{};
+  ref.on('value',x=>{if(Net.ref!==ref||!Net.ready)return;Net.raw=Net.parse(x.val());Net.emit()},e=>{if(Net.ref!==ref)return;console.error(e);lStatus('Veritabanına erişilemedi. Kuralları kontrol et.',true)});
   return Net.raw;
 };
-Net.write=()=>{if(!Net.ref)return;const r=Net.ref.child(Net.uid);r.onDisconnect().update({o:0});
+Net.write=()=>{if(!Net.ref||!Net.ready)return;const r=Net.ref.child(Net.uid);r.onDisconnect().update({o:0});
   return r.set({uid:Net.uid,o:1,t:firebase.database.ServerValue.TIMESTAMP,j:JSON.stringify(Net.mine)}).catch(e=>console.error(e))};
 Net.set=patch=>{Net.mine={...Net.mine};for(const k in patch){if(patch[k]===null)delete Net.mine[k];else Net.mine[k]=patch[k]}
-  if(Net.raw[Net.uid])Net.raw[Net.uid].pr=Net.mine;return Net.write()};
-Net.leave=keepNothing=>{if(Net.ref){Net.ref.off();const r=Net.ref.child(Net.uid);r.onDisconnect().cancel();r.remove().catch(()=>{})}Net.ref=null;Net.code=null;Net.mine={};Net.raw={}};
+  if(Net.raw[Net.uid])Net.raw[Net.uid].pr=Net.mine;Net.ready=true;return Net.write()};
+Net.leave=()=>{Net.ready=false;if(Net.ref){Net.ref.off();const r=Net.ref.child(Net.uid);r.onDisconnect().cancel();r.remove().catch(()=>{})}Net.ref=null;Net.code=null;Net.mine={};Net.raw={}};
 Net.list=()=>Object.values(Net.raw);
 Net.node=u=>Net.raw[u];
 Net.on=f=>Net.cbs.push(f);
@@ -2911,7 +2916,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='18';
+const APPV='19.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3127,12 +3132,14 @@ $('joinF').addEventListener('submit',e=>{e.preventDefault();audio();saveName();c
 $('watchB').onclick=()=>{audio();saveName();const c=$('code').value.trim().toUpperCase();if(!/^[A-Z0-9]{4}$/.test(c))return lStatus('İzlemek için önce oda kodunu yaz.',true);if(ME)enterRoom(c,false,true)};
 $('specB').onclick=()=>{if(!G||isHost)return;const sp=!(Net.mine&&Net.mine.sp);send({sp:sp?1:null});$('specB').disabled=true;setTimeout(()=>{$('specB').disabled=false},1500)};
 async function enterRoom(c,create,spec){
+  if(code===c)return;
   code=c;isHost=false;G=null;prevG=null;hostAway=0;banner('');
   try{history.replaceState(null,'','#'+c)}catch(e){}try{localStorage.setItem('oo-room',c)}catch(e){}
   show('wait');$('wCode').textContent=c;$('slots').innerHTML='';$('hostCtl').hidden=true;$('wNote').textContent='';$('wStatus').innerHTML='Odaya bağlanılıyor<span class="dots"></span>';
-  let nodes;try{nodes=await Net.enter(c)}catch(e){console.error(e);return leaveRoom('Odaya bağlanılamadı. İnternetini kontrol et.')}
+  let nodes;try{nodes=await Net.enter(c)}catch(e){console.error(e);if(code===c)return leaveRoom('Odaya bağlanılamadı. İnternetini kontrol et.');return}
+  if(code!==c)return;
   const mine=nodes[ME];
-  if(mine&&mine.pr&&mine.pr.h&&mine.pr.g&&Array.isArray(mine.pr.g.pl)){            // sayfayı yenileyen kurucu: oyunu geri yükle
+  if(mine&&validHost(mine)){            // sayfayı yenileyen kurucu: oyunu geri yükle
     isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>{const p=n.pr||{};H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0});
     publish();return;
   }
@@ -3158,7 +3165,7 @@ $('copy').onclick=copyLink;
 
 /* ---------- emoji tepkileri: herkes kendi düğümüne yazar ---------- */
 const RXE=['😂','🔥','😱','👏','😤'],RX={seen:{},last:0};
-function rxShow(e,nm){const d=document.createElement('div');d.className='rxf';d.innerHTML=`<span>${e}</span><small>${esc(clip(nm,14))}</small>`;d.style.left=(8+Math.random()*68)+'%';document.body.appendChild(d);setTimeout(()=>d.remove(),2700)}
+function rxShow(e,nm){if(!RXE.includes(e))return;const d=document.createElement('div');d.className='rxf';d.innerHTML=`<span>${e}</span><small>${esc(clip(nm,14))}</small>`;d.style.left=(8+Math.random()*68)+'%';document.body.appendChild(d);setTimeout(()=>d.remove(),2700)}
 function rxPoll(){if(!code)return;Net.list().forEach(n=>{if(n.uid===ME||!n.pr||!n.pr.rx)return;const r=n.pr.rx;if(+r.n>(RX.seen[n.uid]||0)){const first=RX.seen[n.uid]==null;RX.seen[n.uid]=+r.n;if((!first||Math.abs(Date.now()-r.n)<8000)&&RXE.includes(r.e))rxShow(r.e,clean(n.pr.nm||''))}})}
 /* ---------- takım sohbeti: herkes kendi düğümüne yazar, takım arkadaşı okur ---------- */
 const TC={log:[],seen:{}};
@@ -3362,12 +3369,15 @@ function endRound(w,hitName){
 }
 
 /* ---------- misafir: kurucunun yayınladığı durumu izler ---------- */
+// Validate identity and basic shape; this is not a server-authoritative anti-cheat system.
+const validHost=n=>{const p=n&&n.pr,g=p&&p.g;return !!(p&&p.h===1&&g&&g.host===n.uid&&['wait','pick','rev','ans','res','end'].includes(g.ph)&&Array.isArray(g.pl)&&g.pl.length<=MAXP&&g.pl.every(x=>x&&typeof x.u==='string')&&g.pl.some(x=>x.u===n.uid))};
+const selectRoomHost=(hosts,known,me)=>{if(known)return hosts.find(n=>n.uid===known);const active=hosts.filter(alive);const pool=active.length?active:hosts;return pool.find(n=>n.pr.g.pl.some(x=>x.u===me))||[...pool].sort((a,b)=>b.t-a.t)[0]};
 function onNet(){
-  if(!code)return;
+  if(!code||!Net.ready)return;
   setTimeout(()=>{try{teamChat();rxPoll();roomChat()}catch(e){}},0);
   if(isHost){hostTick();renderLive();return}
-  const hosts=Net.list().filter(n=>n.uid!==ME&&n.pr&&n.pr.h&&n.pr.g&&Array.isArray(n.pr.g.pl));
-  const h=hosts.find(n=>n.pr.g.pl.some(x=>x&&x.u===ME))||hosts.sort((a,b)=>(+b.t||0)-(+a.t||0))[0];
+  const hosts=Net.list().filter(n=>n.uid!==ME&&validHost(n));
+  const h=selectRoomHost(hosts,G&&G.host,ME);
   if(!h){if(G){if(!hostAway)hostAway=now()}return}
   clearTimeout(searchT);
   if(alive(h)){if(hostAway){hostAway=0;banner('')}}else if(!hostAway)hostAway=now();
