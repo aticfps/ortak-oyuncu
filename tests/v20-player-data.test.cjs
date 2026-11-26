@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const from=html.indexOf('const TEAMS='),to=html.indexOf('const STY=',from);
-const {TEAMS,PLAYERS,norm,shared}=new Function(html.slice(from,to)+';return {TEAMS,PLAYERS,norm,shared}')();
+const {TEAMS,PLAYERS,norm,shared,match}=new Function(html.slice(from,to)+';return {TEAMS,PLAYERS,norm,shared,match}')();
 const player=n=>PLAYERS.find(p=>p.n===n);
 test('all 114 clubs have at least one cross-club player',()=>{
   assert.equal(Object.keys(TEAMS).length,114);
@@ -40,4 +40,28 @@ test('career pool never substitutes unordered memberships and honors theme and u
   assert.deepEqual(pool(players,[],'t').map(p=>p.n),['Turk']);
   assert.deepEqual(pool(players,[],'e').map(p=>p.n),['Legend']);
   assert.deepEqual(pool(players,['Turk','Legend'],'').map(p=>p.n),[]);
+});
+
+test('V20b separates same-name players and keeps their club records distinct',()=>{
+  const brazil=player('João Pedro Junqueira de Jesus'),galvao=player('João Pedro Galvão'),diarra=player('Adama Traoré Diarra'),noss=player('Adama Noss Traoré');
+  assert.equal(match('Joao Pedro',shared('BHA','CHE')),brazil);
+  assert.equal(match('Joao Pedro',shared('FB','HUL')),galvao);
+  assert.equal(match('Adama Traore',shared('BAR','AVL')),diarra);
+  assert.equal(match('Adama Traore',shared('AMD','MON')),noss);
+  assert.equal(match('Adama Traore Diarra',shared('AMD','MON')),null);
+  assert.equal(match('Joao Pedro',[brazil,galvao]),null);
+  assert.equal(shared('BAR','AMD').includes(diarra),false);
+  assert.equal(shared('BAR','AMD').includes(noss),false);
+});
+test('V20b does not turn wrong exact names into eligible near matches',()=>{
+  const p={n:'David Silva',keys:['david silva','davidsilva','silva']},q={n:'Davis Silva',keys:['davis silva','davissilva','silva']};
+  assert.equal(match('David Silva',[q],[p,q]),null);
+  assert.equal(match('Silva',[p,q],[p,q]),null);
+  assert.equal(match('Silva',[q],[p,q]),q);
+  assert.equal(match('Davi Silva',[p,q],[p,q]),null);
+  assert.equal(match('David Silv',[p,q],[p,q]),p);
+  assert.equal(match('Dvd Sva',[p],[p,q]),null);
+});
+test('V20b verified club connections resolve',()=>{
+  for(const [n,a,b] of [['Maxime Lopez','PFC','OM'],['Kevin Trapp','PFC','SGE'],['Jonathan Ikoné','PFC','COM'],['Paul Wanner','ELV','BAY'],['Adama Noss Traoré','AMD','LIL'],['João Pedro Galvão','HUL','CAG']])assert.ok(shared(a,b).some(p=>p.n===n),n);
 });
