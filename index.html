@@ -2931,8 +2931,13 @@ Net.emit=()=>Net.cbs.forEach(f=>{try{f()}catch(e){console.error(e)}});
 
 /* ---------- durum ---------- */
 let G=null,isHost=false,code=null,ME=null,myName='',screen='lobby',lastSec=-1,prevG=null,pending=0,hostAway=0,searchT=null,dirty=false;
-const H={n:{},j:{},o:{},v:{},i:{}};
+const H={n:Object.create(null),j:Object.create(null),o:Object.create(null),v:Object.create(null),i:Object.create(null)};
 const C={ans:0,jk:0,ob:0,v:0,ty:0,ip:0};
+const commandSeq=n=>Number.isSafeInteger(n)&&n>0?n:0;
+const commandFresh=(cmd,g,seen)=>!!(cmd&&g&&commandSeq(cmd.n)>seen&&cmd.g===g.gid&&cmd.r===g.pn);
+const seedCommands=(uid,pr)=>{for(const [k,key] of [['n','ans'],['j','jk'],['o','ob'],['v','vt'],['i','ip']])H[k][uid]=commandSeq(pr&&pr[key]&&pr[key].n)};
+const resetCommands=()=>{for(const k of Object.keys(H))H[k]=Object.create(null);for(const k of Object.keys(C))C[k]=0};
+const snapshotFresh=(incoming,current)=>!!(incoming&&Number.isSafeInteger(incoming.seq)&&incoming.seq>=0&&Number.isSafeInteger(incoming.gid)&&incoming.gid>=0&&(!current||(incoming.seq>current.seq&&incoming.gid>=current.gid)));
 try{myName=localStorage.getItem('oo-name')||''}catch(e){}
 $('myName').value=myName;
 const idxOf=u=>G&&Array.isArray(G.pl)?G.pl.findIndex(x=>x&&x.u===u):-1;
@@ -2952,7 +2957,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='20.2';
+const APPV='21';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3169,18 +3174,18 @@ $('watchB').onclick=()=>{audio();saveName();const c=$('code').value.trim().toUpp
 $('specB').onclick=()=>{if(!G||isHost)return;const sp=!(Net.mine&&Net.mine.sp);send({sp:sp?1:null});$('specB').disabled=true;setTimeout(()=>{$('specB').disabled=false},1500)};
 async function enterRoom(c,create,spec){
   if(code===c)return;
-  code=c;isHost=false;G=null;prevG=null;hostAway=0;banner('');
+  code=c;isHost=false;G=null;prevG=null;hostAway=0;pending=0;myPick=null;resetCommands();banner('');
   try{history.replaceState(null,'','#'+c)}catch(e){}try{localStorage.setItem('oo-room',c)}catch(e){}
   show('wait');$('wCode').textContent=c;$('slots').innerHTML='';$('hostCtl').hidden=true;$('wNote').textContent='';$('wStatus').innerHTML='Odaya bağlanılıyor<span class="dots"></span>';
   let nodes;try{nodes=await Net.enter(c)}catch(e){console.error(e);if(code===c)return leaveRoom('Odaya bağlanılamadı. İnternetini kontrol et.');return}
   if(code!==c)return;
   const mine=nodes[ME];
   if(mine&&validHost(mine)){            // sayfayı yenileyen kurucu: oyunu geri yükle
-    isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>{const p=n.pr||{};H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0});
+    isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>seedCommands(n.uid,n.pr));
     publish();return;
   }
   if(create){[['sM','c'],['sTh',''],['sL','a'],['sR','6'],['sT','30'],['sJ','1']].forEach(([k,v])=>{$(k).value=v});isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:'',fm:myFrame}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
-  const p=mine&&mine.pr||{};C.ans=Math.max(C.ans,p.ans?+p.ans.n||0:0);C.jk=Math.max(C.jk,p.jk?+p.jk.n||0:0);C.ob=Math.max(C.ob,p.ob?+p.ob.n||0:0);C.v=Math.max(C.v,p.vt?+p.vt.n||0:0);
+  const p=mine&&mine.pr||{};for(const [k,key] of [['ans','ans'],['jk','jk'],['ob','ob'],['v','vt'],['ip','ip']])C[k]=commandSeq(p[key]&&p[key].n);
   Net.set({nm:myName,ph:okPh(myPhoto)?myPhoto:null,fm:myFrame||null,h:null,g:null,ty:0,sp:spec?1:null});
   clearTimeout(searchT);searchT=setTimeout(()=>{if(code===c&&!G){$('wStatus').textContent='Bu kodla açık bir oda bulunamadı. Kodu kontrol et ya da kurucunun sayfayı açık tuttuğundan emin ol.';try{localStorage.removeItem('oo-room')}catch(e){}}},9000);
   onNet();
@@ -3244,8 +3249,8 @@ function hostTick(){
     if(p.off&&t-p.off>(idle?15000:60000))removePlayer(i);
     else if(idle&&p.u!==ME&&n&&n.pr&&n.pr.sp){G.pl.splice(i,1);mark()}}          // izleyiciye geçen oyuncu
   if(idle&&G.pl.length<MAXP)Net.list().forEach(n=>{if(G.pl.length>=MAXP||n.uid===ME||idxOf(n.uid)>=0||!alive(n)||!n.pr||n.pr.h||n.pr.sp||!n.pr.nm)return;
-    G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:'',fm:okFm(n.pr.fm)});G.note='';const p=n.pr;H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0;mark()});
-  G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'',fm=okFm(n.pr.fm);if((nm!==p.n||ph!==(p.ph||'')||fm!==(p.fm||''))&&idle){p.n=nm;p.ph=ph;p.fm=fm;mark()}handleInputs(i,n.pr)}});
+    G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:'',fm:okFm(n.pr.fm)});G.note='';seedCommands(n.uid,n.pr);mark()});
+  G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'',fm=okFm(n.pr.fm);if((nm!==p.n||ph!==(p.ph||'')||fm!==(p.fm||''))&&idle){p.n=nm;p.ph=ph;p.fm=fm;mark()}if(alive(n))handleInputs(i,n.pr)}});
   if(G.ph==='pick')(G.pk||[]).forEach(u=>{const i=idxOf(u);if(i>=0&&!G.sp[u]&&P(i).off&&t-P(i).off>20000)pickTeam(u,G.nine[Math.floor(Math.random()*G.nine.length)])});
   try{botTick(t)}catch(e){console.error(e)}
   if(G.ph==='ans'&&t>=(+G.end||0)-G.T*1000-800+5000)snapPreds();
@@ -3255,14 +3260,15 @@ function hostTick(){
 }
 setInterval(hostTick,500);
 function handleInputs(i,pr){
-  const u=G.pl[i].u,cur=()=>G.pn,gid=G.gid,okR=r=>r===G.pn||r===G.r;
-  const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===gid)pickTeam(u,String(k.id));
-  if(pr.ans&&+pr.ans.n>(H.n[u]||0)){H.n[u]=+pr.ans.n;if(okR(pr.ans.r)&&pr.ans.g===gid)answer(idxOf(u),clip(pr.ans.t,60))}
-  if(pr.jk&&+pr.jk.n>(H.j[u]||0)){H.j[u]=+pr.jk.n;if(okR(pr.jk.r)&&pr.jk.g===gid)joker(idxOf(u))}
-  if(pr.ob&&+pr.ob.n>(H.o[u]||0)){H.o[u]=+pr.ob.n;if(okR(pr.ob.r)&&pr.ob.g===gid)objectIt(idxOf(u),clip(pr.ob.t,30))}
-  if(pr.ip&&+pr.ip.n>(H.i[u]||0)){H.i[u]=+pr.ip.n;if(pr.ip.r===cur()&&pr.ip.g===gid)hintIt(idxOf(u))}
-  if(pr.vt&&+pr.vt.n>(H.v[u]||0)){H.v[u]=+pr.vt.n;vote(idxOf(u),+pr.vt.id,!!pr.vt.v)}
-  if(pr.nx&&G.ph==='res'&&pr.nx.r===cur()&&pr.nx.g===gid)nextRound();
+  const player=G.pl[i];if(!player||!pr)return;const u=player.u;
+  const take=(key,cmd,phase,valid,apply)=>{if(G.ph!==phase||!commandFresh(cmd,G,H[key][u]||0)||!valid(cmd))return;H[key][u]=cmd.n;apply(cmd)};
+  const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===G.gid&&typeof k.id==='string')pickTeam(u,k.id);
+  take('n',pr.ans,'ans',x=>typeof x.t==='string'&&x.t.trim().length>0&&x.t.length<=60,x=>answer(idxOf(u),x.t));
+  take('j',pr.jk,'ans',()=>true,()=>joker(idxOf(u)));
+  take('o',pr.ob,'res',x=>typeof x.t==='string'&&x.t.trim().length>0&&x.t.length<=30,x=>objectIt(idxOf(u),x.t));
+  take('i',pr.ip,'ans',()=>true,()=>hintIt(idxOf(u)));
+  take('v',pr.vt,'res',x=>Number.isSafeInteger(x.id)&&(x.v===0||x.v===1)&&G.ob&&x.id===G.ob.id,x=>vote(idxOf(u),x.id,x.v===1));
+  if(pr.nx&&G.ph==='res'&&pr.nx.r===G.pn&&pr.nx.g===G.gid)nextRound();
 }
 function removePlayer(i){
   const p=G.pl[i];if(!p||p.u===ME)return;G.pl.splice(i,1);mark();
@@ -3327,7 +3333,7 @@ function afterReveal(){
   Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,a:null,b:null});mark();       // geçersiz eşleşme: tekrar seçim
 }
 function answer(i,t){
-  const p=P(i);if(!p||G.ph!=='ans'||now()<(+p.lk||0)||!t.trim()||!isDuel(p.u))return;
+  const p=P(i);if(!p||G.ph!=='ans'||now()>=G.end||now()<(+p.lk||0)||typeof t!=='string'||!t.trim()||!isDuel(p.u))return;
   const hit=match(t,cands());if(hit&&G.md==='k')G.pts=kPts();p.at=Array.isArray(p.at)?p.at:[];
   if(hit&&!G.used.includes(hit.n)){p.at.push({t:clip(hit.n,30),ok:1});return endRound(i,hit.n)}
   if(!hit&&G.th&&G.th!=='d'&&G.md!=='k'&&match(t,shared(G.a,G.b))){p.at.push({t:clip(t,30)});p.wr={t:clip(t,30),k:(p.wr?+p.wr.k||0:0)+1,unk:0,used:0};p.lk=now()+1500;p.lr='th';mark();return}
@@ -3418,7 +3424,7 @@ function onNet(){
   clearTimeout(searchT);
   if(alive(h)){if(hostAway){hostAway=0;banner('')}}else if(!hostAway)hostAway=now();
   const g=h.pr.g;verCheck(g);
-  if(!G||g.seq!==G.seq||g.gid!==G.gid){const prev=G;G=g;pending=0;react(prev,G);render()}else renderLive();
+  if(snapshotFresh(g,G)){const prev=G;G=g;if(!prev||prev.pn!==G.pn||prev.gid!==G.gid||prev.ph!==G.ph||JSON.stringify(prev.pl.find(p=>p.u===ME)?.wr)!==JSON.stringify(G.pl.find(p=>p.u===ME)?.wr))pending=0;react(prev,G);render()}else renderLive();
 }
 setInterval(()=>{
   if(!code||isHost||!G)return;
@@ -3435,7 +3441,7 @@ $('nine').addEventListener('click',e=>{
   if(isHost)act(()=>pickTeam(ME,id));else{send({pk:{pn:G.pn,g:G.gid,id}});drawPick()}
 });
 $('ansF').addEventListener('submit',e=>{
-  e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()<(+P(i).lk||0))return;
+  e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()>=G.end||now()<(+P(i).lk||0)||(!isHost&&pending&&Date.now()-pending<=4000))return;
   if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.pn,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
 });
 $('rxb').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='rxT'){const o=$('rxb').classList.toggle('open');b.setAttribute('aria-expanded',o);return}if(!code||!RXE.includes(b.dataset.e))return;if(Date.now()-RX.last<1100)return;RX.last=Date.now();send({rx:{e:b.dataset.e,n:Date.now()}});rxShow(b.dataset.e,'Sen')};
@@ -3468,8 +3474,8 @@ $('jkB').onclick=()=>{const i=myIdx();if(!G||G.ph!=='ans'||i<0)return;if(isHost)
 $('ansI').addEventListener('input',()=>{const v=$('ansI').value&&G?G.r:0;if(v!==C.ty){C.ty=v;send({ty:v})}});
 $('obj').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||!G)return;const i=myIdx();if(i<0)return;
-  if(b.dataset.a==='ob'){const t=b.dataset.t||'';if(isHost)act(()=>objectIt(i,t));else{C.ob++;send({ob:{r:G.pn,g:G.gid,n:C.ob,t}})}$('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
-  if(b.dataset.a==='yes'||b.dataset.a==='no'){const v=b.dataset.a==='yes'?1:0,id=G.ob?G.ob.id:0;if(isHost)act(()=>vote(i,id,v));else{C.v++;send({vt:{n:C.v,id,v}})}
+  if(b.dataset.a==='ob'){const t=b.dataset.t||'';if(isHost)act(()=>objectIt(i,t));else{C.ob++;send({ob:{r:G.pn,g:G.gid,n:C.ob,t:clip(t,30)}})}$('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
+  if(b.dataset.a==='yes'||b.dataset.a==='no'){const v=b.dataset.a==='yes'?1:0,id=G.ob?G.ob.id:0;if(isHost)act(()=>vote(i,id,v));else{C.v++;send({vt:{r:G.pn,g:G.gid,n:C.v,id,v}})}
     $('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
 });
 $('next').onclick=()=>{if(!G)return;if(isHost)act(()=>nextRound());else{send({nx:{r:G.pn,g:G.gid}});$('rStatus').textContent='Kurucuya iletildi…'}};
