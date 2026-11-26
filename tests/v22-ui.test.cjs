@@ -53,3 +53,28 @@ test('V22.2 uses readable normal fonts and mobile match layout',()=>{
   const v=html.slice(html.indexOf('/* V22.2:'),html.indexOf('</style>'));
   assert.ok(v.includes('--ui:system-ui'));assert.ok(v.includes('#ans .clock::after'));assert.ok(v.includes('@media(max-width:600px)'));assert.ok(v.includes('#ans .tools .jk:disabled'));
 });
+
+test('V22.3 maps every club to a distinct pinned crest file',()=>{
+  const t=html.slice(html.indexOf('const TEAMS='),html.indexOf('const STY='));
+  const teams=new Function(t+';return TEAMS')();
+  const src=html.slice(html.indexOf('const LOGO_BASE='),html.indexOf('const crestFallback='));
+  const {CLUB_LOGOS,LOGO_BASE}=new Function(src+';return {CLUB_LOGOS,LOGO_BASE}')();
+  assert.equal(Object.keys(CLUB_LOGOS).length,114);
+  assert.deepEqual(Object.keys(CLUB_LOGOS).sort(),Object.keys(teams).sort());
+  assert.equal(new Set(Object.values(CLUB_LOGOS)).size,114);
+  for(const p of Object.values(CLUB_LOGOS))assert.match(p,/^logos\/[^/]+\/[^/]+\.png$/);
+  assert.match(LOGO_BASE,/\/[0-9a-f]{40}\/$/);
+  assert.match(CLUB_LOGOS.IPS,/Ipswich Town\.png$/);assert.match(CLUB_LOGOS.EVE,/Everton FC\.png$/);
+  assert.match(CLUB_LOGOS.BVB,/Borussia Dortmund\.png$/);
+});
+test('V22.3 logo output retains fallback and uses encoded, pinned URLs',()=>{
+  const src=html.slice(html.indexOf('const LOGO_BASE='),html.indexOf('const crestFallback='));
+  const funcs=html.slice(html.indexOf('const logoURL='),html.indexOf('const esc=s=>'));
+  const {crest,logoURL}=new Function(src+';const has=id=>Object.prototype.hasOwnProperty.call(CLUB_LOGOS,id);const crestFallback=id=>\'<svg class="crest"></svg>\';'+funcs+';return {crest,logoURL}')();
+  assert.match(logoURL('GS'),/T%C3%BCrkiye%20-%20S%C3%BCper%20Lig/);assert.equal(logoURL('unknown'),null);
+  const h=crest('EVE');assert.match(h,/crest-image/);assert.match(h,/crest-fallback/);assert.match(h,/onerror=/);assert.equal(crest('unknown'),'');
+});
+test('V22.3 includes compact tournament panel and crest styles across screens',()=>{
+  const v=html.slice(html.indexOf('/* V22.3:'),html.indexOf('</style>'));
+  for(const key of ['#brk{max-width:none','#nine .team .crest-real','.hero .fan .crest-real','.kc .k .crest-real','.crest-real.loaded .crest-fallback'])assert.ok(v.includes(key),key);
+});
