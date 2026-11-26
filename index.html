@@ -183,6 +183,7 @@ label{display:grid;gap:6px;font-weight:700;font-size:14px;color:var(--mute)}
 .rank li>span{display:flex;align-items:center;gap:10px}.rank .av{--s:34px}
 .pair{gap:6px}.pair .crest{width:64px}.pair i{font:800 22px var(--cond);color:var(--mute);font-style:normal}
 .big{animation:pop .55s cubic-bezier(.2,1.7,.4,1)}
+#rBig.pop{animation:pop .7s cubic-bezier(.2,1.7,.4,1)}
 @keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 .more{margin:6px auto 0;max-width:640px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
 .more summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--mute)}
@@ -2231,7 +2232,12 @@ Mattia Aramu|TOR VEN GNO
 Ridgeciano Haps|VEN GNO
 Filip Stanković|INT VEN
 Álvaro Recoba|INT VEN|recoba`;
-const RAW4=`Romelu Lukaku|EVE
+const RAW4=`Ryan Babel|KAS
+Olivier Ntcham|GNO OM SAM|ntcham
+Vedat Muriqi|RIZ FB LAZ MAL|muriqi
+Stéphane Bahoken|NIC
+Romain Del Castillo|OL
+Romelu Lukaku|EVE
 Wesley Sneijder|NIC
 Mesut Özil|S04 SVW
 Radamel Falcao|RAY
@@ -2613,17 +2619,16 @@ function removePlayer(i){
   if(G.ob)checkVotes();
 }
 const pairOK=(a,b)=>a!==b&&!G.pairs.includes(pkey(a,b))&&shared(a,b).some(p=>!G.used.includes(p.n));
-function nine(){                         // birbirine bağlı 9 takım: rastgele bir takımdan başla, ortak oyuncusu olanları ekle
-  for(let t=0;t<80;t++){
+function nine(){                         // 9 takımın HER ikilisinin ortak oyuncusu var: hangi iki takım seçilirse seçilsin tur oynanır
+  const wpick=c=>{const w=c.map(x=>Math.pow(starOf(x),2.2));let r=Math.random()*w.reduce((p,q)=>p+q,0);for(let i=0;i<c.length;i++){r-=w[i];if(r<=0)return c[i]}return c[c.length-1]};
+  for(let t=0;t<300;t++){
     const pool=[IDS[Math.floor(Math.random()*IDS.length)]];
-    while(pool.length<9){
-      const cand=IDS.filter(x=>!pool.includes(x)).map(x=>[x,pool.filter(y=>pairOK(x,y)).length]).filter(z=>z[1]>0);
-      if(!cand.length)break;const need=Math.min(2,pool.length);let c=cand.filter(z=>z[1]>=need);if(!c.length)c=cand;
-      pool.push(c[Math.floor(Math.random()*c.length)][0]);
-    }
-    if(pool.length===9&&pool.every(x=>pool.filter(y=>pairOK(x,y)).length>=2))return pool.sort(()=>Math.random()-.5);
+    while(pool.length<9){const c=IDS.filter(x=>!pool.includes(x)&&pool.every(y=>pairOK(x,y)));if(!c.length)break;pool.push(wpick(c))}
+    if(pool.length===9)return pool.sort(()=>Math.random()-.5);
   }
-  return['GS','FB','BJK','RMA','BAR','MUN','CHE','JUV','MIL'];
+  const big=['RMA','BAR','ATM','MUN','MCI','CHE','ARS','LIV','JUV','INT','MIL','PSG','BAY','GS','FB','BJK'];
+  for(let t=0;t<200;t++){const pool=[];for(const x of big.slice().sort(()=>Math.random()-.5))if(pool.length<9&&pool.every(y=>pairOK(x,y)))pool.push(x);if(pool.length===9)return pool}
+  return big.slice(0,9);
 }
 function setPickers(){const N=G.pl.length,o=(G.r-1+(+G.vc||0));G.pk=N<=2?G.pl.map(p=>p.u):[G.pl[o%N].u,G.pl[(o+1)%N].u]}
 function startGame(){
@@ -2733,18 +2738,23 @@ $('toLobby').onclick=()=>leaveRoom();
 
 /* ---------- konfeti ---------- */
 function confetti(cols,big){
-  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)big=false;
   const cv=$('fx'),dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth,Hh=cv.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
   const N=big?160:70,ps=Array.from({length:N},()=>({x:W/2+(Math.random()-.5)*W*.3,y:Hh*.32,vx:(Math.random()-.5)*11,vy:-Math.random()*13-4,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.4,w:6+Math.random()*6,h:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)]}));
   const t0=performance.now();const f=t=>{const k=(t-t0)/1000;x.clearRect(0,0,W,Hh);ps.forEach(p=>{p.vy+=.38;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-k/2.2);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
     if(k<2.2)requestAnimationFrame(f);else x.clearRect(0,0,W,Hh)};requestAnimationFrame(f);
 }
+let cfKey='';
+function celebrate(g){const k=g.gid+'-'+g.r+'-'+(+g.vc||0);if(!g.wu||cfKey===k)return;cfKey=k;
+  const sa=STY[g.a]||[],sb=STY[g.b]||[];const run=()=>confetti([sa[1],sa[2],sb[1],sb[2],'#f6d33f'].filter(Boolean),g.wu===ME);
+  requestAnimationFrame(run);if(g.wu===ME)setTimeout(()=>confetti(['#f6d33f','#59e08b','#fff'],false),700);
+  const r=$('rBig');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');$('next').disabled=true;setTimeout(()=>$('next').disabled=false,2500)}
 /* ---------- sesler ---------- */
 function react(p,g){
   if(!g)return;const i=idxOf(ME),me=i>=0?g.pl[i]:null,pm=p&&i>=0&&Array.isArray(p.pl)?p.pl.find(x=>x.u===ME):null;
   if(!p||p.ph!==g.ph||p.r!==g.r||p.gid!==g.gid){
     if(g.ph==='ans'){SFX.whistle();$('ansI').value='';C.ty=0;send({ty:0});lastSec=-1;$('aMsg').textContent='';$('ansI').dataset.l='';setTimeout(()=>{if(i>=0)$('ansI').focus()},60)}
-    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)();if(g.wu){const sa=STY[g.a]||[],sb=STY[g.b]||[];confetti([sa[1],sa[2],sb[1],sb[2],'#f6d33f'].filter(Boolean),g.wu===ME)}}
+    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)();celebrate(g)}
     if(g.ph==='end')SFX.final();
     if(g.ph==='rev')SFX.joker();
     if(g.ph==='pick'&&p&&p.ph==='rev'&&p.r===g.r)SFX.timeup();
@@ -2857,7 +2867,7 @@ function tickUI(force){
   else if(force&&!m.textContent){m.className='msg';m.textContent='İki takımda da oynamış birini yaz.'}
 }
 setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%1000<200)drawOpps()},200);
-function drawRes(){
+function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
   show('res');const mi=myIdx(),wi=idxOf(G.wu);
   $('rPair').innerHTML=crest(G.a)+'<i>×</i>'+crest(G.b);
   if(!G.wu){$('rBig').textContent='Tur geçersiz';$('rTxt').textContent=`Kimse bilemedi, kimse puan almadı. Tur ${G.r} yeni takımlarla tekrar oynanacak.`}
