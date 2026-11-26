@@ -2704,11 +2704,15 @@ Teddy Sheringham|NFO
 Lilian Thuram|PAR
 Claude Makélélé|CEL
 Stephen Appiah|UDI
-Paulo Dybala|ROM`;
+Paulo Dybala|ROM
+Serdar Topraktepe|BJK KOC
+Emrah Başsan|GS RIZ ERZ
+Ömer Bayram|GS EYP AMD
+Murat Yıldırım|SAM GFK GNC COR`;
 
 const norm=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const PLAYERS0=(RAW+'\n'+RAW2+'\n'+RAW3+'\n'+RAW4).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
-const KCH=`Zlatan Ibrahimović|JUV INT BAR MIL PSG MUN
+const KCH=`Zlatan Ibrahimović|JUV INT BAR MIL PSG MUN MIL
 Cristiano Ronaldo|MUN RMA JUV
 Nicolas Anelka|PSG ARS RMA LIV MCI FB CHE JUV
 Romelu Lukaku|CHE EVE MUN INT ROM NAP
@@ -2716,7 +2720,7 @@ Romelu Lukaku|CHE EVE MUN INT ROM NAP
 Gonzalo Higuaín|RMA NAP JUV MIL CHE
 Fernando Torres|ATM LIV CHE MIL
 Cesc Fàbregas|ARS BAR CHE MON COM
-Arda Turan|GS ATM BAR
+Arda Turan|GS ATM BAR IBF GS
 Wesley Sneijder|RMA INT GS NIC
 Radamel Falcao|ATM MON MUN CHE GS RAY
 Mesut Özil|S04 SVW RMA ARS FB IBF
@@ -2744,7 +2748,7 @@ Xabi Alonso|RSO LIV RMA BAY
 Raheem Sterling|LIV MCI CHE ARS
 Luis Suárez|LIV BAR ATM
 Robert Lewandowski|BVB BAY BAR
-Antoine Griezmann|RSO ATM BAR
+Antoine Griezmann|RSO ATM BAR ATM
 Cengiz Ünder|IBF ROM OM FB
 Burak Yılmaz|BJK FB TS GS LIL
 Hakan Çalhanoğlu|HSV B04 MIL INT
@@ -2755,7 +2759,7 @@ Merih Demiral|ALA SAS JUV ATA
 Cenk Tosun|BJK EVE CRY FB
 Mario Gómez|VFB BAY FIO BJK`;
 const PLAYERS=(()=>{const m=new Map();PLAYERS0.forEach(p=>{const q=m.get(norm(p.n));if(q){q.c=[...new Set([...q.c,...p.c])];q.keys=[...new Set([...q.keys,...p.keys])]}else m.set(norm(p.n),{n:p.n,c:[...p.c],keys:[...p.keys]})});return[...m.values()].map(p=>({...p,c:p.c.filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x))}))})();
-KCH.split('\n').forEach(l=>{const[n,c]=l.split('|'),k=c.split(' ').filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x));const p=PLAYERS.find(x=>x.n===n);if(!p)return;k.forEach(x=>{if(!p.c.includes(x))p.c.push(x)});p.k=[...new Set(k)]});
+KCH.split('\n').forEach(l=>{const[n,c]=l.split('|'),k=c.split(' ').filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x));const p=PLAYERS.find(x=>x.n===n);if(!p)return;k.forEach(x=>{if(!p.c.includes(x))p.c.push(x)});p.k=k});
 const lev=(a,b)=>{const m=a.length,n=b.length;let d=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){let p=d[0];d[0]=i;for(let j=1;j<=n;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[n]};
 const match=(input,list)=>{const q=norm(input);if(q.length<2)return null;for(const p of list)if(p.keys.includes(q))return p;for(const p of list)for(const k of p.keys){const tol=k.length>=9?2:k.length>=5?1:0;if(tol&&Math.abs(k.length-q.length)<=tol&&lev(q,k)<=tol)return p}return null};
 
@@ -2916,7 +2920,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='19.1';
+const APPV='20';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
