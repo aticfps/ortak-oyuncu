@@ -253,6 +253,52 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
 @keyframes beat{50%{transform:scale(1.08)}}
 @media(prefers-reduced-motion:reduce){.big,.team.flip .crest,.vs .crest,.chip.pop .sc,body.hurry::after,body.hurry .clock{animation:none!important}}
 @media(prefers-reduced-motion:reduce){.screen.on,.shake,.dots::after{animation:none!important}}
+
+/* ---------- tasarım: maç günü çıkartma albümü ---------- */
+:root{--sticker:#fbf8ec;--sticker2:#ece6cf;--ink2:#14261b;--amber:#b7860b}
+body{background:radial-gradient(120% 70% at 50% -10%,rgba(255,246,200,.16),transparent 60%),repeating-linear-gradient(180deg,#0c4429 0 88px,#0a3b24 88px 176px)}
+h1{letter-spacing:-.02em;text-shadow:0 3px 0 rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.35)}
+.card{border-radius:16px;border-color:rgba(255,255,255,.1);background:rgba(3,20,12,.66)}
+.cards>.card:nth-of-type(1),.cards>.card:nth-of-type(2){border-color:rgba(246,211,63,.35);background:linear-gradient(180deg,rgba(246,211,63,.09),rgba(3,20,12,.7) 60%)}
+.cards>.card:nth-of-type(1) h3,.cards>.card:nth-of-type(2) h3{font-size:30px;font-style:italic}
+/* çıkartma: armalar albüm çıkartması gibi */
+.nine{gap:14px}
+.team{background:linear-gradient(165deg,var(--sticker),var(--sticker2));color:var(--ink2);border:0;border-radius:12px;padding:16px 6px 10px;
+  box-shadow:0 0 0 4px #fff,0 1px 0 5px rgba(0,0,0,.08),0 10px 18px rgba(0,0,0,.38);transform:rotate(var(--r,0deg));transition:transform .18s cubic-bezier(.2,1.4,.4,1),box-shadow .18s}
+.team:nth-child(3n+1){--r:-1.6deg}.team:nth-child(3n+2){--r:.9deg}.team:nth-child(3n){--r:-.5deg}.team:nth-child(4n){--r:1.7deg}
+.team span{font:800 17px/1.05 var(--cond);letter-spacing:.01em}
+.team .stars{color:var(--amber)}.team .stars .off{opacity:.25}
+.team .crest{filter:drop-shadow(0 5px 6px rgba(0,0,0,.3))}
+.nine.mine .team:not(:disabled):hover{transform:rotate(0deg) translateY(-5px) scale(1.03);border:0;box-shadow:0 0 0 4px #fff,0 18px 28px rgba(0,0,0,.45)}
+.nine.mine .team:not(:disabled):focus-visible{outline:3px solid var(--flood);outline-offset:6px}
+.team.mypick{transform:rotate(0deg) scale(1.05);background:linear-gradient(165deg,#fff6c7,#f3dc7a);box-shadow:0 0 0 4px #fff,0 0 0 8px var(--flood),0 18px 30px rgba(0,0,0,.5);border:0}
+.team.mypick::after{content:"";position:absolute;inset:0;border-radius:12px;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.75) 46%,rgba(140,220,255,.35) 52%,transparent 66%);background-size:250% 100%;animation:foil 1.1s ease-out 1;pointer-events:none}
+@keyframes foil{from{background-position:120% 0}to{background-position:-60% 0}}
+.team .tag{top:-14px;transform:translateX(-50%) rotate(-3deg);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+/* emoji: tek butondan açılır */
+.rxb{top:auto;bottom:16px;right:12px;flex-direction:row-reverse;align-items:center;gap:6px}
+.rxb button:not(.rxt){display:none}.rxb.open button{display:block}
+.rxb .rxt{width:46px;height:46px;font-size:22px;background:var(--flood);border-color:var(--flood);box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.rxb.open .rxt{background:rgba(4,22,13,.85);border-color:var(--line)}
+/* seyirci tahmini */
+.pred{max-width:640px;margin:8px auto 0;padding:12px 14px;border-radius:14px;background:rgba(246,211,63,.1);border:1px solid rgba(246,211,63,.4)}
+.pred .ph2{font:800 22px var(--cond);color:var(--flood);margin-bottom:8px}.pred .pb{display:flex;flex-wrap:wrap;gap:6px}.pred .btn.on{background:var(--flood);color:#2b2200}.pred p{margin:8px 0 0}
+/* avatar çerçeveleri */
+.av.fm-cim{box-shadow:0 0 0 2px #fff,0 0 0 4px #2fae5c}
+.av.fm-yildiz{box-shadow:0 0 0 3px #fff3b0,0 0 10px 2px rgba(255,230,120,.7)}
+.av.fm-ates{box-shadow:0 0 0 3px #ff7a1a,0 0 12px 3px rgba(255,70,0,.75)}
+.av.fm-simsek{box-shadow:0 0 0 3px #7fe3ff,0 0 12px 2px rgba(80,200,255,.8)}
+.av.fm-var{box-shadow:0 0 0 2px #111,0 0 0 4px #f4f4f4,0 0 0 6px #111}
+.av.fm-gunes{box-shadow:0 0 0 3px #ffb300,0 0 0 6px rgba(255,179,0,.35)}
+.av.fm-kupa{box-shadow:0 0 0 3px #c0c7cf,0 0 0 5px #8a929b,0 0 12px rgba(220,230,240,.6)}
+.av.fm-altin{box-shadow:0 0 0 3px #f6d33f,0 0 0 5px #a8790b,0 0 16px 3px rgba(246,211,63,.7)}
+.av.fm-elmas{box-shadow:0 0 0 3px #b9f2ff,0 0 14px 4px rgba(160,240,255,.8);animation:shine 2.4s ease-in-out infinite}
+@keyframes shine{50%{box-shadow:0 0 0 3px #e9b8ff,0 0 18px 6px rgba(220,160,255,.85)}}
+.frames{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;margin:8px 0 18px}
+.fr{display:grid;justify-items:center;gap:8px;padding:12px 4px 8px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);cursor:pointer}
+.fr.on{border-color:var(--flood);background:rgba(246,211,63,.12)}.fr:disabled{opacity:.4;cursor:not-allowed}.fr small{font-size:11px;color:var(--mute);text-align:center}
+@media(max-width:560px){.how{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.team.mypick::after,.av.fm-elmas{animation:none}.team{transition:none}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -271,22 +317,23 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
 <main>
   <p class="banner" id="banner" role="status"></p>
   <div class="brk" id="brk" hidden></div>
+  <div class="pred" id="pred" hidden><div class="ph2" id="predQ">Bu turu kim bilir?</div><div class="pb" id="predB"></div><p class="tiny" id="predS"></p></div>
   <section class="screen on" id="lobby">
     <div class="hero">
       <div><h1>Ortak<br><span>Oyuncu</span></h1>
-      <p class="lead">İki takım, tek futbolcu. Ekrana gelen 9 armadan sırayla birer takım seçin; iki takımda da forma giymiş oyuncuyu ilk yazan turu alır.</p></div>
+      <p class="lead">İki takım, tek futbolcu. Ekrana gelen 9 armadan herkes gizlice bir takım seçer; iki takımda da forma giymiş oyuncuyu ilk yazan turu alır.</p></div>
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
-    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="admGo" hidden>Yönetici</button> · <button class="link" id="gOut">Çıkış</button></p>
+    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
+      <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
+      <div class="card"><h3>Oda kur</h3><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
+      <div class="card"><h3>Odaya katıl</h3><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
       <div class="card"><h3>Bota karşı oyna</h3><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
       <div class="card"><h3>Günün bulmacası</h3><p>Herkese aynı 5 eşleşme, günde bir kez. Her biri için 30 saniye.</p><button class="btn alt" id="dGo" disabled>Oyna</button></div>
       <div class="card season" id="seasonC" hidden><h3>Sezon tablosu</h3><div id="seasonT"><p class="tiny">Yükleniyor…</p></div></div>
-      <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
-      <div class="card"><h3>Oda kur</h3><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
-      <div class="card"><h3>Odaya katıl</h3><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
     </div>
     <p class="status" id="lStatus" role="status">Bağlanıyor…</p>
     <details class="more" id="comD" hidden><summary>Topluluğun eklediği oyuncular (<span id="comN">0</span>)</summary><p class="tiny">İtirazı herkesçe kabul edilen cevaplar buraya eklenir ve oyunda doğru sayılır.</p><ul class="list" id="comL"></ul></details>
@@ -356,6 +403,8 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
     <div class="badgeNew" id="eBadge" hidden></div>
     <div id="eSeason"></div>
     <details class="more" id="eHist"><summary>Maç özeti: tur tur</summary><div class="hist" id="eHistL"></div></details>
+    <div class="btns"><button class="btn alt" id="cardB" type="button">Maç kartını paylaş</button></div>
+    <div id="eSpec"></div>
     <div class="btns"><button class="btn" id="again">Rövanş</button><button class="btn ghost" id="toLobby">Lobiye dön</button></div>
     <p class="status center" id="eStatus"></p>
   </section>
@@ -375,7 +424,7 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
       <p class="status center" id="dStatus"></p>
     </div>
   </section>
-  <div class="rxb" id="rxb" hidden><button data-e="😂">😂</button><button data-e="🔥">🔥</button><button data-e="😱">😱</button><button data-e="👏">👏</button><button data-e="😤">😤</button></div>
+  <div class="rxb" id="rxb" hidden><button class="rxt" id="rxT" type="button" aria-label="Tepki gönder" aria-expanded="false">😀</button><button data-e="😂">😂</button><button data-e="🔥">🔥</button><button data-e="😱">😱</button><button data-e="👏">👏</button><button data-e="😤">😤</button></div>
   <section class="screen" id="prof">
     <div class="turnline"><h2>Profilim</h2><p class="lead" id="pfSub"></p></div>
     <div id="pfBody"><p class="tiny">Yükleniyor…</p></div>
@@ -2713,10 +2762,10 @@ const colOfU=u=>pCol(idxOf(u));
 let myPhoto='';
 const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googleusercontent|ggpht)\.com\//i.test(u);
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
-  return`<span class="av" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
+  return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='14';
+const APPV='15';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -2776,6 +2825,7 @@ const Season={done:'',busy:false,rows:[],tab:'w',
 const Prof={
   async open(){if(!ME||!Net.db)return;show('prof');$('pfSub').textContent=$('whoName').textContent;$('pfBody').innerHTML='<p class="tiny">Yükleniyor…</p>';
     let s={};try{s=(await Net.db.ref('stats/'+ME).once('value')).val()||{}}catch(e){$('pfBody').innerHTML='<p class="tiny">Profil yüklenemedi. Veritabanı kuralını kontrol et.</p>';return}
+    this.s=s;myFrame=okFm(s.fm);const ini=esc((clean(myName||$('myName').value)||'?')[0].toLocaleUpperCase('tr'));
     const g=+s.g||0,w=+s.w||0,c=+s.c||0,rp=+s.rp||0,K=wkKey(),wk=s.wk&&s.wk.k===K?s.wk:{p:0},d=s.d||null;
     const tms=Object.entries(s.tm||{}).filter(([k])=>has(k)).sort((a,b)=>b[1]-a[1]).slice(0,6),pls=Object.entries(s.pl||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
     $('pfBody').innerHTML=`<div class="pfg"><div><b>${g}</b><span>Maç</span></div><div><b>${w}</b><span>Galibiyet${g?` · %${Math.round(w/g*100)}`:''}</span></div><div><b>${c}</b><span>Doğru cevap</span></div>
@@ -2783,11 +2833,13 @@ const Prof={
       ${d?`<p class="tiny">Son günün bulmacası (${esc(String(d.k).split('-').reverse().join('.'))}): ${String(d.r||'').split('').map(x=>x==='1'?'🟩':'🟥').join('')} ${+d.s||0} puan</p>`:''}
       <h3>En çok bildiğin takımlar</h3><div class="pfl">${tms.length?tms.map(([k,v])=>`<div>${crest(k)}<span>${esc(TEAMS[k][0])}</span><b>${v}</b></div>`).join(''):'<p class="tiny">Henüz yok.</p>'}</div>
       <h3>En çok yazdığın doğru cevaplar</h3><div class="pfl">${pls.length?pls.map(([k,v])=>`<div><span>⚽</span><span>${esc(k)}</span><b>${v}</b></div>`).join(''):'<p class="tiny">Henüz yok.</p>'}</div>
+      <h3>Çerçeven</h3><p class="tiny">Rozet topladıkça yeni çerçeveler açılır. Seçtiğin çerçeveyi maçta herkes görür.</p>
+      <div class="frames">${Object.entries(FRAMES).map(([k,[n,bd]])=>{const ok=!bd||(s.b||{})[bd];return`<button class="fr${k===myFrame?' on':''}" data-fm="${k}" ${ok?'':'disabled'} title="${ok?esc(n):esc(BADGES[bd][0])+' rozetiyle açılır'}"><span class="av${k?' fm-'+k:''}" style="--pc:#46b0ff;--s:44px">${ini}</span><small>${ok?esc(n):'🔒 '+esc(BADGES[bd][0])}</small></button>`}).join('')}</div>
       <h3>Rozet vitrini (${Object.keys(s.b||{}).length}/${Object.keys(BADGES).length})</h3>${badgeRow(s.b)}
       <p class="tiny" style="margin-top:18px">Kullanıcı kimliğin (yönetici kurulumu için):</p><div class="uid">${esc(ME)}</div>`}
 };
 const Admin={on:false,tab:'r',
-  async check(){if(!Net.db||!ME)return;try{this.on=(await Net.db.ref('admins/'+ME).once('value')).val()===true}catch(e){this.on=false}$('admGo').hidden=!this.on;if(this.on)Fixes.load()},
+  async check(){if(!Net.db||!ME)return;try{this.on=(await Net.db.ref('admins/'+ME).once('value')).val()===true}catch(e){this.on=false}$('admW').hidden=!this.on;if(this.on)Fixes.load()},
   open(){if(!this.on)return;show('adm');this.load()},
   async load(){$('admSub').textContent='Yükleniyor…';const t=this.tab;document.querySelectorAll('#admTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
     const path={r:'reports',s:'sug',f:'fix'}[t];let v={};try{v=(await Net.db.ref(path).once('value')).val()||{}}catch(e){$('admSub').textContent='Okunamadı: veritabanı kuralını ve admins kaydını kontrol et.';$('admBody').innerHTML='';return}
@@ -2803,6 +2855,36 @@ const Admin={on:false,tab:'r',
     if(b.dataset.fx){const r=(this.cache||{})[b.dataset.fx];if(!r)return;b.disabled=true;const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
       try{await Net.db.ref('fix/'+id).set({t:r.p,c:b.dataset.c,u:ME,ts:Date.now()});await Net.db.ref('reports/'+b.dataset.fx).remove();Fixes.apply({t:r.p,c:b.dataset.c})}catch(x){alertMsg('Kaydedilemedi.')}return this.load()}}
 };
+const FRAMES={'':['Çerçevesiz',null],cim:['Çim','ilk'],yildiz:['Yıldız','zor'],ates:['Ateş','seri'],simsek:['Şimşek','hiz'],var:['VAR','itiraz'],gunes:['Güneş','gun'],kupa:['Kupa','kupa'],elmas:['Elmas','hafta'],altin:['Altın','kral']};
+let myFrame='';const okFm=x=>typeof x==='string'&&Object.prototype.hasOwnProperty.call(FRAMES,x)?x:'';
+async function setFrame(k,b){if(!FRAMES[k]||(FRAMES[k][1]&&!(b||{})[FRAMES[k][1]]))return;myFrame=k;try{await Net.db.ref('stats/'+ME).update({fm:k,n:clean(myName||$('myName').value)||'Oyuncu',g:+(Prof.s&&Prof.s.g)||0})}catch(e){}Prof.open()}
+async function matchCard(){
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  try{await Promise.all(['italic 800 120px "Barlow Condensed"','800 60px "Barlow Condensed"','600 34px Barlow','700 34px Barlow'].map(f=>document.fonts.load(f)))}catch(e){}
+  const C='"Barlow Condensed",sans-serif',B='Barlow,sans-serif';
+  // çim şeritleri ve saha çizgileri
+  for(let i=0;i<10;i++){x.fillStyle=i%2?'#0b3d25':'#0e4a2d';x.fillRect(0,i*H/10,W,H/10)}
+  const gr=x.createRadialGradient(W/2,-200,100,W/2,-200,1300);gr.addColorStop(0,'rgba(255,248,200,.28)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=6;x.beginPath();x.arc(W/2,H*.62,220,0,Math.PI*2);x.stroke();x.beginPath();x.moveTo(0,H*.62);x.lineTo(W,H*.62);x.stroke();
+  x.textAlign='left';x.fillStyle='#f4f8f3';x.font=`italic 800 112px ${C}`;x.fillText('ORTAK',70,170);x.fillStyle='#f6d33f';x.fillText('OYUNCU',70,280);
+  const md=({t:'Takım 2v2',q:'Hızlı mod',k:'Kariyer zinciri',tr:'Turnuva'})[G.md]||'Klasik',th=({d:'Derbiler',e:'Efsaneler',t:'Türk oyuncular'})[G.th]||'';
+  x.font=`600 34px ${B}`;x.fillStyle='rgba(244,248,243,.75)';x.fillText(`${md}${th?' · '+th:''} · ${new Date().toLocaleDateString('tr-TR')}`,74,340);
+  x.font=`800 84px ${C}`;x.fillStyle='#f4f8f3';x.fillText($('eBig').textContent.toLocaleUpperCase('tr'),70,470);
+  const ord=G.pl.map((p,i)=>({i,s:+p.s||0})).sort((a,b)=>b.s-a.s);let y=540;
+  ord.forEach((o,k)=>{x.fillStyle=k===0?'rgba(246,211,63,.18)':'rgba(0,0,0,.28)';x.beginPath();x.roundRect(70,y,W-140,96,22);x.fill();
+    x.fillStyle=pCol(o.i);x.beginPath();x.arc(126,y+48,28,0,Math.PI*2);x.fill();x.fillStyle='#071a10';x.font=`800 34px ${C}`;x.textAlign='center';x.fillText((pName(o.i)[0]||'?').toLocaleUpperCase('tr'),126,y+60);
+    x.textAlign='left';x.fillStyle='#f4f8f3';x.font=`700 40px ${B}`;x.fillText(clip(pName(o.i),18),180,y+62);
+    x.textAlign='right';x.fillStyle=k===0?'#f6d33f':'#f4f8f3';x.font=`800 64px ${C}`;x.fillText(String(o.s),W-104,y+70);x.textAlign='left';y+=112});
+  const best=(G.hist||[]).filter(h=>h.w).sort((a,b)=>(+b.p||0)-(+a.p||0)).slice(0,3);
+  if(best.length){y+=30;x.fillStyle='#f6d33f';x.font=`800 46px ${C}`;x.fillText('Maçın en değerli cevapları',70,y);y+=20;
+    best.forEach(h=>{y+=66;const wi=idxOf(h.w);x.fillStyle='#f4f8f3';x.font=`700 36px ${B}`;x.fillText(clip(String(h.h).replace(' (itirazla)',''),26)+`  +${+h.p||0}`,70,y);
+      x.fillStyle='rgba(244,248,243,.7)';x.font=`600 28px ${B}`;x.fillText(`${wi>=0?pName(wi):''} · ${h.k?'Kariyer zinciri':(has(h.a)?TEAMS[h.a][0]:'')+' – '+(has(h.b)?TEAMS[h.b][0]:'')}`,70,y+36);y+=36})}
+  x.fillStyle='rgba(0,0,0,.35)';x.fillRect(0,H-110,W,110);x.fillStyle='#f4f8f3';x.font=`600 32px ${B}`;x.textAlign='center';x.fillText('Sen de oyna: '+location.host,W/2,H-46);
+  return new Promise(r=>cv.toBlob(r,'image/png'))}
+$('cardB').onclick=async()=>{const b=$('cardB');b.disabled=true;b.textContent='Hazırlanıyor…';try{const blob=await matchCard(),file=new File([blob],'ortak-oyuncu-mac.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],text:'Ortak Oyuncu maç sonucu'}).catch(()=>{});
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);$('eStatus').textContent='Maç kartı indirildi.'}}
+  catch(e){$('eStatus').textContent='Kart hazırlanamadı.'}b.disabled=false;b.textContent='Maç kartını paylaş'};
 const alertMsg=t=>{$('admSub').textContent=t};
 const Fixes={done:false,apply(f){const p=PLAYERS.find(x=>x.n===f.t);if(!p||!has(f.c))return;p.c=p.c.filter(c=>c!==f.c);if(p.k)p.k=p.k.filter(c=>c!==f.c);for(const z in SHC)delete SHC[z]},
   async load(){if(this.done||!Net.db)return;try{const v=(await Net.db.ref('fix').once('value')).val()||{};this.done=true;Object.values(v).forEach(f=>this.apply(f))}catch(e){}}};
@@ -2880,9 +2962,9 @@ async function enterRoom(c,create,spec){
     isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>{const p=n.pr||{};H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0});
     publish();return;
   }
-  if(create){[['sM','c'],['sTh',''],['sL','a'],['sR','6'],['sT','30'],['sJ','1']].forEach(([k,v])=>{$(k).value=v});isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:''}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
+  if(create){[['sM','c'],['sTh',''],['sL','a'],['sR','6'],['sT','30'],['sJ','1']].forEach(([k,v])=>{$(k).value=v});isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:'',fm:myFrame}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
   const p=mine&&mine.pr||{};C.ans=Math.max(C.ans,p.ans?+p.ans.n||0:0);C.jk=Math.max(C.jk,p.jk?+p.jk.n||0:0);C.ob=Math.max(C.ob,p.ob?+p.ob.n||0:0);C.v=Math.max(C.v,p.vt?+p.vt.n||0:0);
-  Net.set({nm:myName,ph:okPh(myPhoto)?myPhoto:null,h:null,g:null,ty:0,sp:spec?1:null});
+  Net.set({nm:myName,ph:okPh(myPhoto)?myPhoto:null,fm:myFrame||null,h:null,g:null,ty:0,sp:spec?1:null});
   clearTimeout(searchT);searchT=setTimeout(()=>{if(code===c&&!G){$('wStatus').textContent='Bu kodla açık bir oda bulunamadı. Kodu kontrol et ya da kurucunun sayfayı açık tuttuğundan emin ol.';try{localStorage.removeItem('oo-room')}catch(e){}}},9000);
   onNet();
 }
@@ -2945,10 +3027,11 @@ function hostTick(){
     if(p.off&&t-p.off>(idle?15000:60000))removePlayer(i);
     else if(idle&&p.u!==ME&&n&&n.pr&&n.pr.sp){G.pl.splice(i,1);mark()}}          // izleyiciye geçen oyuncu
   if(idle&&G.pl.length<MAXP)Net.list().forEach(n=>{if(G.pl.length>=MAXP||n.uid===ME||idxOf(n.uid)>=0||!alive(n)||!n.pr||n.pr.h||n.pr.sp||!n.pr.nm)return;
-    G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:''});G.note='';const p=n.pr;H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0;mark()});
-  G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'';if((nm!==p.n||ph!==(p.ph||''))&&idle){p.n=nm;p.ph=ph;mark()}handleInputs(i,n.pr)}});
+    G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:'',fm:okFm(n.pr.fm)});G.note='';const p=n.pr;H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0;mark()});
+  G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'',fm=okFm(n.pr.fm);if((nm!==p.n||ph!==(p.ph||'')||fm!==(p.fm||''))&&idle){p.n=nm;p.ph=ph;p.fm=fm;mark()}handleInputs(i,n.pr)}});
   if(G.ph==='pick')(G.pk||[]).forEach(u=>{const i=idxOf(u);if(i>=0&&!G.sp[u]&&P(i).off&&t-P(i).off>20000)pickTeam(u,G.nine[Math.floor(Math.random()*G.nine.length)])});
   try{botTick(t)}catch(e){console.error(e)}
+  if(G.ph==='ans'&&t>=(+G.end||0)-G.T*1000-800+5000)snapPreds();
   if(G.ph==='rev'&&t>=G.rvEnd)afterReveal();
   if(G.ph==='ans'&&t>=G.end)endRound(-1,null);
   if(dirty)publish();
@@ -3002,7 +3085,7 @@ function startGame(){
   G.mt=null;G.ch='';G.du={};G.mi=0;
   if(G.md==='tr'){const u=G.pl.map(p=>p.u).sort(()=>Math.random()-.5);G.mt=u.length===2?[[u[0],u[1]]]:u.length===3?[[u[0],u[1]],[u[2],''],['','']]:[[u[0],u[1]],[u[2],u[3]],['','']];G.R=0}
   G.tm=null;if(G.md==='t'){G.tm={};G.pl.forEach((p,i)=>{G.tm[p.u]=i%2})}
-  Object.assign(G,{gid:(+G.gid||0)+1,st:now(),r:0,vc:0,used:[],pairs:[],hist:[],note:'',ph:'wait',wu:null});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
+  Object.assign(G,{sv:{},pds:{},pdk:'',gid:(+G.gid||0)+1,st:now(),r:0,vc:0,used:[],pairs:[],hist:[],note:'',ph:'wait',wu:null});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
 }
 function nextRound(){
   const replay=G.ph==='res'&&!G.wu;                   // kimse bilemediyse tur geçersiz: aynı tur yeniden
@@ -3083,6 +3166,12 @@ const isDuel=u=>G.md!=='tr'||!G.mt||(G.mt[G.mi]||[]).includes(u);
 function trWin(u,bye){G.mw=Array.isArray(G.mw)?G.mw:[];G.mw[G.mi]=u;G.trMsg=bye?`${G.trMsg||''} ${nameOfU(u)} finale bay geçti.`.trim():`${nameOfU(u)} ${trName(G.mi)} maçını kazandı!`;
   if(G.mi===G.mt.length-1){G.ch=u;return}G.mt[2][G.mi]=u;G.mi++;G.du={};
   const m=G.mt[G.mi];if(G.mi<2&&m&&!m[1])trWin(m[0],1)}
+const rKey=()=>G.gid+'-'+G.r+'-'+(+G.vc||0);
+function snapPreds(){if(G.pdk===rKey())return;G.pdk=rKey();G.pds={};
+  Net.list().forEach(n=>{if(!n.pr||!n.pr.sp||idxOf(n.uid)>=0||!n.pr.pd||n.pr.pd.k!==G.pdk)return;const u=String(n.pr.pd.u||'');if(u==='none'||idxOf(u)>=0)G.pds[n.uid]=u})}
+function scorePreds(){snapPreds();G.sv=G.sv||{};const ok=G.wu||'none';
+  Object.entries(G.pds||{}).forEach(([u,v])=>{const n=Net.node(u),r=G.sv[u]||{n:'',s:0,t:0};r.n=clip(clean(n&&n.pr&&n.pr.nm||r.n||'İzleyici'),16);r.t++;if(v===ok)r.s++;G.sv[u]=r});
+  const ks=Object.keys(G.sv);if(ks.length>8)ks.sort((a,b)=>G.sv[a].s-G.sv[b].s).slice(0,ks.length-8).forEach(k=>delete G.sv[k])}
 function pushHist(){                      // maç özeti için turun kısa kaydı (G 6000 karakter sınırında kalmalı)
   G.hist=Array.isArray(G.hist)?G.hist:[];const wp=P(idxOf(G.wu));
   G.hist.push({k:G.md==='k'?1:0,r:G.r,a:G.a,b:G.b,w:G.wu||'',h:G.hit?clip(G.hit,40):'',p:wp?+wp.g||0:0,i:wp&&wp.ip?1:0,t:G.pl.map(p=>(p.at||[]).slice(0,3).map(x=>clip(x.t,18).replace(/\|/g,'')).join('|'))});
@@ -3091,7 +3180,7 @@ function pushHist(){                      // maç özeti için turun kısa kayd�
 }
 function endRound(w,hitName){
   if(G.ph!=='ans')return;
-  G.ph='res';G.wu=w>=0?G.pl[w].u:null;G.hit=hitName;G.ob=null;
+  G.ph='res';G.wu=w>=0?G.pl[w].u:null;G.hit=hitName;G.ob=null;try{scorePreds()}catch(e){}
   G.pl.forEach((p,i)=>{p.g=w>=0&&i===w?winPts(p):0;p.s=(+p.s||0)+p.g});
   if(hitName)G.used.push(hitName);pushHist();
   G.trMsg='';if(G.md==='tr'&&G.wu&&isDuel(G.wu)){G.du=G.du||{};G.du[G.wu]=(+G.du[G.wu]||0)+1;if(G.du[G.wu]>=2)trWin(G.wu)}
@@ -3129,11 +3218,13 @@ $('ansF').addEventListener('submit',e=>{
   e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()<(+P(i).lk||0))return;
   if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.pn,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
 });
-$('rxb').onclick=e=>{const b=e.target.closest('button');if(!b||!code||!RXE.includes(b.dataset.e))return;if(Date.now()-RX.last<1100)return;RX.last=Date.now();send({rx:{e:b.dataset.e,n:Date.now()}});rxShow(b.dataset.e,'Sen')};
+$('rxb').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='rxT'){const o=$('rxb').classList.toggle('open');b.setAttribute('aria-expanded',o);return}if(!code||!RXE.includes(b.dataset.e))return;if(Date.now()-RX.last<1100)return;RX.last=Date.now();send({rx:{e:b.dataset.e,n:Date.now()}});rxShow(b.dataset.e,'Sen')};
 $('slots').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b||!isHost||!G)return;const i=idxOf(b.dataset.rm);if(i>=0&&isBot(G.pl[i].u)){G.pl.splice(i,1);mark();publish()}};
 $('addBot').onclick=()=>addBot($('bL').value);
 $('botGo').onclick=async()=>{if(code)return;const l=$('botL').value;await $('create').onclick();let k=0;const w=setInterval(()=>{if(isHost&&G){clearInterval(w);addBot(l)}else if(++k>40)clearInterval(w)},150)};
 $('rcF').onsubmit=e=>{e.preventDefault();const t=clip($('rcI').value.trim(),80);if(!t||!code)return;const n=Date.now();send({ch:{n,t}});RC.log.push({w:'Sen',t,n});$('rcI').value='';roomChat()};
+$('predB').onclick=e=>{const b=e.target.closest('[data-pd]');if(!b||!G||b.disabled)return;myPred={k:rKey(),u:b.dataset.pd};send({pd:myPred});drawPred()};
+$('pfBody').onclick=e=>{const b=e.target.closest('[data-fm]');if(b&&!b.disabled)setFrame(b.dataset.fm,Prof.s&&Prof.s.b)};
 $('pfGo').onclick=()=>{if(!code)Prof.open()};$('pfBack').onclick=()=>{show('lobby');Season.load()};
 $('admGo').onclick=()=>{if(!code)Admin.open()};$('admBack').onclick=()=>show('lobby');
 $('admTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;Admin.tab=b.dataset.t;Admin.load()};$('admBody').onclick=e=>Admin.act(e);
@@ -3227,10 +3318,11 @@ function draw(){
   if(!G)return;drawBoard();drawSpecs();
   if(!hostAway)banner(G.ph!=='wait'&&G.note?G.note:'');
   ({wait:drawWait,pick:drawPick,rev:drawRev,ans:drawAns,res:drawRes,end:drawEnd}[G.ph]||(()=>{}))();
-  teamChat();drawBracket();roomChat();$('rxb').hidden=!(code&&['pick','rev','ans','res','end'].includes(G.ph));
+  teamChat();drawBracket();roomChat();drawPred();$('rxb').hidden=!(code&&['pick','rev','ans','res','end'].includes(G.ph));
 }
 function drawWait(){
   show('wait');$('wCode').textContent=code;const mi=myIdx(),n=G.pl.length;
+  if(isHost&&mi>=0&&(G.pl[mi].fm||'')!==myFrame){G.pl[mi].fm=myFrame;mark()}
   const md=isHost?$('sM').value:G.md;
   const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${md==='t'?`<b style="color:${TCOL[i%2]}">${TNAME[i%2]}</b> · `:''}${p.u===G.host?'Kurucu':isBot(p.u)?'Bilgisayar':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div>${isHost&&isBot(p.u)?`<button class="rm" data-rm="${esc(p.u)}">Çıkar</button>`:''}</div>`);
   if(n<MAXP)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
@@ -3279,6 +3371,14 @@ let kLast='';
 function drawChain(force){const n=kShown(),key=G.gid+'-'+G.pn+'-'+n;if(!force&&key===kLast)return;const prevN=kLast.startsWith(G.gid+'-'+G.pn+'-')?+kLast.split('-')[2]:n;kLast=key;
   $('kChain').innerHTML=`<p class="kh" style="flex-basis:100%">Kariyer sırasıyla kulüpleri · ${(G.kc||[]).length} kulüp, şimdi ${kPts()} puan</p>`+(G.kc||[]).map((c,j)=>j<n?`<div class="k${j>=prevN?' new':''}">${crest(c)}${esc(TEAMS[c][0])}</div>`:'<div class="k"><div class="q">?</div>&nbsp;</div>').join('');
   if(n>prevN)SFX.tick(false)}
+let myPred={k:'',u:''};
+function drawPred(){const on=!!(code&&G&&myIdx()<0&&['pick','rev','ans','res'].includes(G.ph));$('pred').hidden=!on;if(!on)return;
+  const k=rKey(),locked=G.pdk===k,mine=myPred.k===k?myPred.u:'',sv=(G.sv||{})[ME];let h,q;
+  if(G.ph==='res'){q='Tahmin sonucu';const ok=G.wu||'none',got=(G.pds||{})[ME];h='';
+    $('predS').textContent=got==null?'Bu tura tahmin yapmadın.':got===ok?'Doğru tahmin! +1':'Tahmin tutmadı.'}
+  else{q=locked?'Tahminler kapandı':'Bu turu kim bilir?';h=[...G.pl.map((p,i)=>[p.u,pName(i)]),['none','Kimse']].map(([u,n])=>`<button class="btn sm${mine===u?' on':' ghost'}" data-pd="${esc(u)}" ${locked?'disabled':''}>${esc(n)}</button>`).join('');
+    $('predS').textContent=(mine?'Tahminin kaydedildi. ':'')+(sv?`Tahmin puanın: ${sv.s}/${sv.t}`:'Doğru tahmin 1 puan. Süre başladıktan 5 sn sonra tahminler kapanır.')}
+  $('predQ').textContent=q;if($('predB').dataset.h!==h){$('predB').dataset.h=h;$('predB').innerHTML=h}}
 function drawBracket(){const on=G&&G.md==='tr'&&G.mt&&['pick','rev','ans','res'].includes(G.ph);$('brk').hidden=!on;if(!on)return;
   const nm=u=>u?esc(nameOfU(u)):'?',mw=G.mw||[];
   const rows=G.mt.map((m,i)=>{const cur=i===G.mi&&!G.ch,w=mw[i];const sc=cur?` ${+(G.du||{})[m[0]]||0}–${+(G.du||{})[m[1]]||0} `:' – ';
@@ -3350,6 +3450,7 @@ function drawEnd(){
     return`<div class="hr"><div class="hp">${crest(h.a)}<i>×</i>${crest(h.b)}</div><div class="hl"><b>Tur ${h.r}</b> · ${h.k?'Kariyer zinciri':esc(TEAMS[h.a][0])+' – '+esc(TEAMS[h.b][0])}<br>${res}${tr?`<br><span class="tr">Yazılanlar: ${tr}</span>`:''}${ms.length?`<br><span class="ms">${h.w?'Diğer cevaplar':'Kaçırılanlar'}: ${esc(ms.join(', '))}</span>`:''}</div></div>`}).join('');
   if($('eHistL').dataset.h!==hh){$('eHistL').dataset.h=hh;$('eHistL').innerHTML=hh}
   Season.record();
+  {const sv=Object.values(G.sv||{}).sort((a,b)=>b.s-a.s);const h=sv.length?`<div class="card" style="max-width:520px;margin:0 auto 16px"><h3>İzleyici tahminleri</h3><table class="stab">${sv.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}/${r.t}</td></tr>`).join('')}</table></div>`:'';if($('eSpec').dataset.h!==h){$('eSpec').dataset.h=h;$('eSpec').innerHTML=h}}
   $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';
 }
 
@@ -3377,6 +3478,7 @@ const firebaseConfig={
     if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
     if(!Net.db)Net.init(firebase.database(),u.uid);
     Season.load();Community.load();Fixes.load();Admin.check();
+    Net.db.ref('stats/'+u.uid+'/fm').once('value').then(v=>{myFrame=okFm(v.val())}).catch(()=>{});
     $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;$('botGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
     let c=hashCode();if(!c)try{c=localStorage.getItem('oo-room')||''}catch(e){}
     if(c&&!code){saveName();enterRoom(c,false)}
