@@ -3343,14 +3343,14 @@ function answer(i,t){
   p.lk=now()+(hit?1500:3000);p.lr=hit?'u':'w';mark();
 }
 function joker(i){
-  const p=P(i);if(!p||G.ph!=='ans'||!(+p.j>0)||now()<(+p.lk||0)||!isDuel(p.u))return;
+  const p=P(i);if(!p||G.ph!=='ans'||now()>=G.end||!(+p.j>0)||now()<(+p.lk||0)||!isDuel(p.u))return;
   const pool=cands().filter(x=>G.md==='k'||!G.used.includes(x.n));if(!pool.length)return;
   const stars=pool.filter(x=>STAR.has(x.n)),from=stars.length?stars:pool;
   p.h=hintOf(from[Math.floor(Math.random()*from.length)].n);p.j--;G.jkS=(+G.jkS||0)+1;
   G.pl.forEach(q=>{if(q!==p&&(!isTeam()||tmOf(q.u)!==tmOf(p.u))){q.lk=Math.max(+q.lk||0,now()+5000);q.lr='j';q.jb=p.n}});mark();
 }
 function hintIt(i){                       // ipucu: süre yarıya inince, bilirsen puanın yarısı
-  const p=P(i);if(!p||G.ph!=='ans'||p.ip||!isDuel(p.u)||now()<(+G.end||0)-G.T*500)return;
+  const p=P(i);if(!p||G.ph!=='ans'||now()>=G.end||p.ip||!isDuel(p.u)||now()<(+G.end||0)-G.T*500)return;
   const pool=cands().filter(x=>G.md==='k'||!G.used.includes(x.n));if(!pool.length)return;
   const oth=x=>x.c.filter(c=>c!==G.a&&c!==G.b&&has(c)),rich=pool.filter(x=>oth(x).length),from=rich.length?rich:pool,x=from[Math.floor(Math.random()*from.length)];
   const o=oth(x).sort(()=>Math.random()-.5).slice(0,2).map(c=>TEAMS[c][0]),w=x.n.split(/\s+/);
@@ -3368,12 +3368,12 @@ function kPick(){const pool=careerPool(PLAYERS,G.used,G.th);return pool.length?p
 const winPts=p=>{const v=+G.pts||1;/*k: pts answer anında hesaplanır*/return p&&p.ip?Math.ceil(v/2):v};
 /* itiraz: cevaplar tur sonuna kadar gizli olduğu için, kimse bilemeden biten turda sonuç ekranında yapılır */
 function objectIt(i,t){
-  const p=P(i);if(!p||G.ph!=='res'||G.wu||G.ob||p.obd||G.md==='k')return;
+  const p=P(i);if(!p||G.ph!=='res'||G.wu||G.ob||p.obd||G.md==='k'||p.off||!isDuel(p.u))return;
   const a=(p.at||[]).find(x=>x.unk&&x.t===t)||(p.at||[]).filter(x=>x.unk).pop();if(!a)return;
   G.obN=(+G.obN||0)+1;G.ob={id:G.obN,u:p.u,t:a.t,v:{}};p.obd=1;G.obr=null;mark();
 }
 function vote(i,id,v){
-  const p=P(i);if(!p||!G.ob||G.ob.id!==id||p.u===G.ob.u||G.ph!=='res')return;
+  const p=P(i);if(!p||!G.ob||G.ob.id!==id||p.u===G.ob.u||G.ph!=='res'||p.off||Object.prototype.hasOwnProperty.call(G.ob.v,p.u))return;
   G.ob.v[p.u]=v?1:0;mark();
   if(!v){G.obr={n:p.n,t:G.ob.t,by:nameOfU(G.ob.u)};G.ob=null;return}
   checkVotes();
@@ -3441,7 +3441,7 @@ $('nine').addEventListener('click',e=>{
   if(isHost)act(()=>pickTeam(ME,id));else{send({pk:{pn:G.pn,g:G.gid,id}});drawPick()}
 });
 $('ansF').addEventListener('submit',e=>{
-  e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()>=G.end||now()<(+P(i).lk||0)||(!isHost&&pending&&Date.now()-pending<=4000))return;
+  e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()>=G.end||now()<(+P(i).lk||0)||!isDuel(ME)||(!isHost&&pending&&Date.now()-pending<=4000))return;
   if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.pn,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
 });
 $('rxb').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='rxT'){const o=$('rxb').classList.toggle('open');b.setAttribute('aria-expanded',o);return}if(!code||!RXE.includes(b.dataset.e))return;if(Date.now()-RX.last<1100)return;RX.last=Date.now();send({rx:{e:b.dataset.e,n:Date.now()}});rxShow(b.dataset.e,'Sen')};
