@@ -151,6 +151,10 @@ label{display:grid;gap:6px;font-weight:700;font-size:14px;color:var(--mute)}
 .banner{margin:0 0 14px;padding:10px 14px;border-radius:12px;background:rgba(255,106,92,.15);color:#ffd0ca;font-weight:600}
 .banner:empty{display:none}
 #quit.sure{color:var(--bad);font-weight:700}
+/* yıldızlar */
+.stars{display:block;font-size:12px;letter-spacing:1px;color:var(--flood);line-height:1;font-style:normal}
+.team .stars{margin-top:-2px}.stars .off{font-style:normal;opacity:.22}.rv .t small.stars{font-size:15px;margin-top:2px;color:var(--flood)}
+.ptsb{display:inline-block;background:var(--flood);color:#2b2200;padding:2px 10px;border-radius:8px;margin-right:6px}
 /* gizli seçim, izleyici, deneme listesi */
 .specn{display:block;font-size:11px;color:var(--mute);min-height:1em}
 .team.mypick{border-color:var(--flood);background:rgba(246,211,63,.16);box-shadow:0 0 0 4px rgba(246,211,63,.18)}
@@ -226,7 +230,7 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
       <div class="card"><h3>Odaya katıl</h3><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
     </div>
     <p class="status" id="lStatus" role="status">Bağlanıyor…</p>
-    <div class="how"><div><b>3</b>İlk doğru cevabı yazan alır, rakip 0.</div><div><b>1</b>Süre biter, kimse bilemezse ikinize de.</div><div><b>J</b>Joker baş harfleri gösterir, rakipleri 5 sn dondurur.</div></div>
+    <div class="how"><div><b>1–5</b>Küçük takım = çok puan. Real Madrid 1, en zor takımlar 5 yıldız; tur puanı iki takımın ortalaması.</div><div><b>0</b>Kimse bilemezse tur geçersiz, puan yok, yeniden oynanır.</div><div><b>J</b>Joker baş harfleri gösterir, rakipleri 5 sn dondurur.</div></div>
     <p class="tiny">iPhone’da ses gelmiyorsa telefonun yanındaki sessiz mod anahtarını kapat.</p>
   </section>
 
@@ -291,14 +295,47 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
 {
 const TEAMS={
 GS:["Galatasaray","GS","#a90432","#fdb912"],FB:["Fenerbahçe","FB","#002d72","#ffed00"],BJK:["Beşiktaş","BJK","#111","#fff"],TS:["Trabzonspor","TS","#6f263d","#87ceeb"],
-RMA:["Real Madrid","RM","#f4f4f4","#c79a1e"],BAR:["Barcelona","FCB","#a50044","#4d8fd6"],ATM:["Atlético Madrid","ATM","#cb3524","#fff"],
-MUN:["Manchester United","MU","#da291c","#fbe122"],MCI:["Manchester City","MC","#6cabdd","#1c2c5b"],LIV:["Liverpool","LFC","#c8102e","#f6eb61"],
-CHE:["Chelsea","CFC","#034694","#fff"],ARS:["Arsenal","AFC","#ef0107","#fff"],JUV:["Juventus","JUV","#111","#fff"],INT:["Inter","INT","#0068a8","#111"],
-MIL:["Milan","ACM","#e3090b","#111"],NAP:["Napoli","NAP","#12a0d7","#fff"],BAY:["Bayern Münih","FCB","#dc052d","#fff"],BVB:["Dortmund","BVB","#fde100","#111"],PSG:["PSG","PSG","#004170","#da291c"],
-IBF:["Başakşehir","İBFK","#e15a0e","#1b2a4a"],TOT:["Tottenham","THFC","#f4f4f4","#132257"],SEV:["Sevilla","SFC","#f4f4f4","#d4021d"],VAL:["Valencia","VCF","#f4f4f4","#ee7f00"],
-ROM:["Roma","ASR","#8e1f2f","#f0bc42"],LAZ:["Lazio","SSL","#87d8f7","#15366b"],OM:["Marseille","OM","#f4f4f4","#2faee0"],MON:["Monaco","ASM","#e51b22","#fff"],
-POR:["Porto","FCP","#003f8a","#fff"],BEN:["Benfica","SLB","#e20e17","#fff"],AJA:["Ajax","AFC","#f4f4f4","#d2122e"]};
-const LEAGUES=[["Türkiye","GS FB BJK TS IBF"],["İngiltere","MUN MCI LIV CHE ARS TOT"],["İspanya","RMA BAR ATM SEV VAL"],["İtalya","JUV INT MIL NAP ROM LAZ"],["Almanya ve Fransa","BAY BVB PSG OM MON"],["Portekiz ve Hollanda","POR BEN AJA"]];
+IBF:["Başakşehir","İBFK","#e15a0e","#1b2a4a"],SAM:["Samsunspor","SAM","#e30613","#fff"],GOZ:["Göztepe","GÖZ","#f6c900","#d0021b"],EYP:["Eyüpspor","EYP","#6b2c91","#f5d000"],
+KAS:["Kasımpaşa","KAS","#002b5c","#fff"],ALA:["Alanyaspor","ALY","#f18a00","#0a7a3d"],KON:["Konyaspor","KON","#0a7a3d","#fff"],GFK:["Gaziantep FK","GFK","#c8102e","#111"],
+RIZ:["Çaykur Rizespor","RİZ","#0a7a3d","#1c63b7"],GNC:["Gençlerbirliği","GB","#e30613","#111"],KOC:["Kocaelispor","KOC","#0a7a3d","#111"],
+ERZ:["Erzurumspor FK","ERZ","#0057b8","#fff"],AMD:["Amedspor","AMD","#0a7a3d","#e30613"],COR:["Çorum FK","ÇOR","#e30613","#111"],
+RMA:["Real Madrid","RM","#f4f4f4","#c79a1e"],BAR:["Barcelona","FCB","#a50044","#4d8fd6"],ATM:["Atlético Madrid","ATM","#cb3524","#fff"],SEV:["Sevilla","SFC","#f4f4f4","#d4021d"],
+VAL:["Valencia","VCF","#f4f4f4","#ee7f00"],ATH:["Athletic Bilbao","ATH","#ee2523","#fff"],RSO:["Real Sociedad","RSO","#0067b1","#fff"],BET:["Real Betis","RBB","#0bb363","#fff"],
+VIL:["Villarreal","VIL","#ffe114","#005187"],CEL:["Celta Vigo","CEL","#8ac3ee","#e30613"],GET:["Getafe","GET","#005999","#fff"],OSA:["Osasuna","OSA","#d91a21","#0a346f"],
+ALV:["Alavés","ALV","#0761af","#fff"],ESY:["Espanyol","RCDE","#007fc8","#fff"],RAY:["Rayo Vallecano","RAY","#fff","#e53027"],LEV:["Levante","LEV","#00529f","#b4053f"],
+ELC:["Elche","ELC","#fff","#05642c"],RAC:["Racing Santander","RAC","#fff","#0a7a3d"],DEP:["Deportivo","DEP","#fff","#0057a8"],MAL:["Málaga","MÁL","#00a3e0","#fff"],
+JUV:["Juventus","JUV","#111","#fff"],INT:["Inter","INT","#0068a8","#111"],MIL:["Milan","ACM","#e3090b","#111"],NAP:["Napoli","NAP","#12a0d7","#fff"],
+ROM:["Roma","ASR","#8e1f2f","#f0bc42"],LAZ:["Lazio","SSL","#87d8f7","#15366b"],ATA:["Atalanta","ATA","#1e71b8","#111"],BOL:["Bologna","BFC","#1a2f48","#a21c26"],
+FIO:["Fiorentina","ACF","#482e92","#fff"],TOR:["Torino","TOR","#8a1e03","#fff"],GNO:["Genoa","GEN","#ad1919","#002350"],UDI:["Udinese","UDI","#111","#fff"],
+CAG:["Cagliari","CAG","#002350","#ad002a"],LEC:["Lecce","LEC","#ffd700","#e30613"],SAS:["Sassuolo","SAS","#00a752","#111"],PAR:["Parma","PAR","#fff","#1b4594"],
+COM:["Como","COM","#1f4e9a","#fff"],VEN:["Venezia","VEN","#111","#f36f21"],FRO:["Frosinone","FRO","#ffd700","#1b4594"],MNZ:["Monza","MNZ","#e30613","#fff"],
+MUN:["Manchester United","MU","#da291c","#fbe122"],MCI:["Manchester City","MC","#6cabdd","#1c2c5b"],LIV:["Liverpool","LFC","#c8102e","#f6eb61"],CHE:["Chelsea","CFC","#034694","#fff"],
+ARS:["Arsenal","AFC","#ef0107","#fff"],TOT:["Tottenham","THFC","#f4f4f4","#132257"],AVL:["Aston Villa","AVL","#670e36","#95bfe5"],BOU:["Bournemouth","BOU","#da291c","#111"],
+BRE:["Brentford","BRE","#e30613","#fff"],BHA:["Brighton","BHA","#0057b8","#fff"],COV:["Coventry City","COV","#59cbe8","#fff"],CRY:["Crystal Palace","CRY","#1b458f","#c4122e"],
+EVE:["Everton","EFC","#003399","#fff"],FUL:["Fulham","FUL","#fff","#111"],HUL:["Hull City","HUL","#f5a12d","#111"],IPS:["Ipswich Town","ITFC","#0044a9","#fff"],
+LEE:["Leeds United","LUFC","#fff","#1d428a"],NEW:["Newcastle","NUFC","#111","#fff"],NFO:["Nottingham Forest","NFFC","#dd0000","#fff"],SUN:["Sunderland","SAFC","#eb172b","#fff"],
+BAY:["Bayern Münih","FCB","#dc052d","#fff"],BVB:["Dortmund","BVB","#fde100","#111"],RBL:["RB Leipzig","RBL","#fff","#dd0741"],B04:["Leverkusen","B04","#e32221","#111"],
+SGE:["Eintracht Frankfurt","SGE","#111","#e1000f"],VFB:["Stuttgart","VFB","#fff","#e32219"],SCF:["Freiburg","SCF","#e2001a","#fff"],TSG:["Hoffenheim","TSG","#1961b5","#fff"],
+M05:["Mainz","M05","#ed1c24","#fff"],BMG:["Gladbach","BMG","#fff","#009b4e"],SVW:["Werder Bremen","SVW","#1d9053","#fff"],FCA:["Augsburg","FCA","#fff","#ba3733"],
+FCU:["Union Berlin","FCU","#eb1923","#fff"],KOE:["Köln","KÖL","#fff","#ed1c24"],HSV:["Hamburg","HSV","#fff","#0a3f86"],S04:["Schalke 04","S04","#004d9d","#fff"],
+ELV:["Elversberg","SVE","#111","#fff"],SCP:["Paderborn","SCP","#0055a5","#111"],
+PSG:["PSG","PSG","#004170","#da291c"],OM:["Marseille","OM","#f4f4f4","#2faee0"],MON:["Monaco","ASM","#e51b22","#fff"],NIC:["Nice","OGCN","#e30613","#111"],
+LIL:["Lille","LOSC","#e01e13","#20325f"],OL:["Lyon","OL","#fff","#d20a2e"],RCS:["Strasbourg","RCSA","#009fe3","#fff"],RCL:["Lens","RCL","#ffe100","#e30613"],
+BRS:["Brest","SB29","#e30613","#fff"],TFC:["Toulouse","TFC","#6a2c91","#fff"],AUX:["Auxerre","AJA","#fff","#003f8a"],REN:["Rennes","SRFC","#e13327","#111"],
+ANG:["Angers","SCO","#111","#fff"],HAC:["Le Havre","HAC","#8ac3ee","#0b2b5e"],LOR:["Lorient","FCL","#f58113","#111"],PFC:["Paris FC","PFC","#1d2c4f","#fff"],
+TRO:["Troyes","ESTAC","#005eb8","#fff"],LMS:["Le Mans","LMFC","#e30613","#ffd200"]};
+const LEAGUES=[["Trendyol Süper Lig","GS FB BJK TS IBF SAM GOZ EYP KAS ALA KON GFK RIZ GNC KOC ERZ AMD COR"],
+["La Liga","RMA BAR ATM SEV VAL ATH RSO BET VIL CEL GET OSA ALV ESY RAY LEV ELC RAC DEP MAL"],
+["Serie A","JUV INT MIL NAP ROM LAZ ATA BOL FIO TOR GNO UDI CAG LEC SAS PAR COM VEN FRO MNZ"],
+["Premier League","MUN MCI LIV CHE ARS TOT AVL BOU BRE BHA COV CRY EVE FUL HUL IPS LEE NEW NFO SUN"],
+["Bundesliga","BAY BVB RBL B04 SGE VFB SCF TSG M05 BMG SVW FCA FCU KOE HSV S04 ELV SCP"],
+["Ligue 1","PSG OM MON NIC LIL OL RCS RCL BRS TFC AUX REN ANG HAC LOR PFC TRO LMS"]];
+/* zorluk: 1 = herkes bilir, 5 = en zor küçük takım */
+const STARS=(()=>{const m={};`1:RMA BAR ATM MUN MCI LIV CHE ARS JUV INT MIL BAY PSG GS FB
+2:BJK TS TOT SEV VAL NAP ROM LAZ BVB OM MON B04 NEW AVL EVE OL
+3:IBF ATA FIO BOL TOR GNO UDI PAR VIL BET RSO ATH CEL ESY DEP MAL SGE VFB RBL BMG SVW S04 HSV LIL NIC REN RCL FUL CRY BHA LEE NFO
+4:SAM GOZ KAS ALA KON GFK RIZ GNC KOC EYP GET OSA ALV RAY LEV ELC RAC CAG LEC SAS COM VEN FRO MNZ SCF TSG M05 FCA FCU KOE RCS TFC BRS AUX ANG HAC LOR TRO BOU BRE SUN IPS HUL COV
+5:ERZ AMD COR ELV SCP PFC LMS`.split('\n').forEach(l=>{const[s,ids]=l.split(':');ids.split(' ').forEach(id=>m[id]=+s)});return m})();
 const RAW=`Arda Turan|GS ATM BAR|arda
 Wesley Sneijder|RMA INT GS
 Didier Drogba|CHE GS
@@ -786,20 +823,1604 @@ Samir Nasri|OM
 Raúl Albiol|VAL
 Ferran Torres|VAL
 Demba Ba|IBF`.split('\n').map(l=>l.split('|')));
+const RAW3=`Eren Derdiyok|B04 TSG KAS GS GOZ|derdiyok
+Kenneth Omeruo|CHE KAS
+Bengali-Fodé Koita|KAS TS|koita
+Yusuf Erdoğan|TS KAS
+Andre Castro|KAS GOZ
+Ryan Donk|KAS GS
+Mahmoud Trézéguet|AVL KAS TS|trezeguet
+Vágner Love|MON ALA BJK|vagner love
+Papiss Cissé|SCF NEW ALA FB|papiss
+Steven Caulker|TOT LIV ALA
+Ianis Hagi|FIO ALV
+Emre Akbaba|ALA GS
+Salih Uçan|FB ROM ALA BJK
+Hwang Ui-jo|NFO ALA
+Merih Demiral|ALA SAS JUV ATA|merih
+Berkan Kutlu|ALA GS
+Amir Hadžiahmetović|KON BJK
+Riad Bajić|KON UDI IBF
+Ciprian Marica|VFB S04 GET KON
+Abdülkerim Bardakcı|KON GS|abdulkerim
+Ahmet Çalık|GNC GS KON
+Volkan Şen|TS FB KON
+Alexandru Maxim|VFB M05 GFK
+Papy Djilobodji|CHE SUN SVW GFK
+Patrick Twumasi|ALV GFK
+Alin Toşca|BET GFK
+Denis Drăguș|GFK TS
+Lazar Marković|LIV FB HUL FUL GFK
+Joel Pohjanpalo|B04 HSV RIZ VEN
+Yahia Fofana|ANG RIZ
+Ümit Karan|GNC GS
+Mustafa Pektemek|BJK GNC IBF
+İrfan Can Kahveci|GNC IBF FB|irfan can
+Bogdan Stancu|GS GNC
+Tümer Metin|SAM BJK FB
+Ertuğrul Sağlam|SAM BJK
+Emre Kılınç|GS SAM
+Okan Kocuk|GS SAM
+Taylan Antalyalı|GS SAM
+Zeki Yavru|TS SAM
+Rick van Drongelen|HSV SAM
+Ahmed Kutucu|S04 IBF EYP
+Berke Özer|EYP LIL
+Halil Akbunar|GOZ EYP
+David Datro Fofana|CHE FCU GOZ RCS|datro fofana
+Celso Borges|DEP GOZ
+Umut Bulut|TS TFC GS
+Mehmet Topuz|FB IBF
+Serdar Aziz|GS FB
+Selçuk İnan|TS GS
+Umut Meraş|HAC BJK
+Mert Günok|FB IBF BJK
+Altay Bayındır|FB MUN
+Dorukhan Toköz|BJK TS
+Adem Ljajić|FIO ROM INT TOR BJK
+Hasan Ali Kaldırım|FB IBF
+Gökhan Zan|BJK GS
+Kerim Frei|FUL BJK
+Halil Dervişoğlu|BRE GS
+Selçuk Şahin|FB KOE
+Yıldıray Baştürk|B04 VFB
+Emre Can|B04 LIV JUV BVB
+Serdar Tasci|VFB BAY
+Orkun Kökçü|BJK
+Joshua King|MUN BOU EVE FB TFC
+Ozan Tufan|FB HUL
+Allahyar Sayyadmanesh|FB HUL
+Abdülkadir Ömür|TS HUL
+Callum Wilson|COV BOU NEW
+Jermain Defoe|TOT BOU SUN
+Ryan Fraser|BOU NEW
+Nathan Aké|CHE BOU MCI
+Jack Wilshere|ARS BOU
+Asmir Begović|CHE BOU EVE
+Dominic Solanke|CHE LIV BOU TOT
+Kieffer Moore|IPS BOU
+Arnaut Danjuma|BOU VIL TOT EVE
+Philip Billing|BOU NAP
+Jordon Ibe|LIV BOU
+Lewis Cook|LEE BOU
+Dango Ouattara|LOR BOU
+Milos Kerkez|BOU LIV
+Dean Huijsen|JUV ROM BOU RMA
+Illia Zabarnyi|BOU PSG
+Justin Kluivert|ROM RBL NIC VAL BOU
+Enes Ünal|VIL GET BOU
+Luis Sinisterra|LEE BOU
+Lloyd Kelly|BOU NEW JUV
+Tyler Adams|RBL LEE BOU
+Neto|FIO JUV VAL BAR BOU ARS
+Kepa Arrizabalaga|ATH CHE RMA BOU ARS|kepa
+Eli Junior Kroupi|LOR BOU|kroupi
+Ivan Toney|NEW BRE
+Bryan Mbeumo|TRO BRE MUN
+Yoane Wissa|LOR BRE NEW
+Christian Nørgaard|FIO BRE ARS
+Mathias Jensen|CEL BRE
+Kevin Schade|SCF BRE
+Keane Lewis-Potter|HUL BRE
+Neal Maupay|BHA BRE EVE OM
+Pontus Jansson|TOR LEE BRE
+Saïd Benrahma|NIC BRE OL
+Ollie Watkins|BRE AVL
+Ezri Konsa|BRE AVL
+Mark Flekken|SCF BRE B04
+Fábio Carvalho|FUL LIV RBL HUL BRE|fabio carvalho
+Sepp van den Berg|LIV M05 BRE
+Alexis Mac Allister|BHA LIV|mac allister
+Moisés Caicedo|BHA CHE
+Marc Cucurella|GET BHA CHE
+Leandro Trossard|BHA ARS
+Ben White|BHA LEE ARS
+Yves Bissouma|LIL BHA TOT
+Robert Sánchez|BHA CHE
+Levi Colwill|CHE BHA
+Danny Welbeck|MUN ARS SUN BHA
+Adam Lallana|LIV BHA
+James Milner|LEE NEW AVL MCI LIV BHA
+Pascal Groß|BHA BVB|pascal gross
+João Pedro|BHA CHE
+Billy Gilmour|CHE BHA NAP
+Ansu Fati|BAR BHA MON
+Georginio Rutter|TSG LEE BHA
+Igor Julio|FIO BHA
+Ferdi Kadıoğlu|FB BHA|ferdi
+Valentín Barco|BHA SEV RCS
+Simon Adingra|BHA SUN
+Julio Enciso|BHA IPS
+Brajan Gruda|M05 BHA
+Viktor Gyökeres|BHA COV ARS|gyokeres
+Ellis Simms|EVE COV
+Dion Dublin|MUN COV AVL
+Gary McAllister|LEE COV LIV
+Darren Huckerby|COV LEE MCI
+Mustapha Hadji|COV AVL
+Gordon Strachan|MUN LEE COV
+Craig Bellamy|COV NEW LIV MCI
+James Maddison|COV TOT
+Stuart Pearce|COV NFO NEW MCI
+Wilfried Zaha|CRY
+Michael Olise|CRY BAY
+Eberechi Eze|CRY ARS
+Jean-Philippe Mateta|M05 CRY|mateta
+Odsonne Édouard|PSG CRY|edouard
+Christian Benteke|AVL LIV CRY
+Yohan Cabaye|LIL NEW PSG CRY
+Andros Townsend|TOT NEW CRY EVE
+Conor Gallagher|CHE CRY ATM
+Patrick van Aanholt|CHE SUN CRY GS
+Joachim Andersen|OL FUL CRY
+Ismaïla Sarr|REN OM CRY
+Eddie Nketiah|ARS CRY
+Chris Richards|BAY TSG CRY
+Jefferson Lerma|LEV BOU CRY
+Cheick Doucouré|RCL CRY
+Dean Henderson|MUN NFO CRY
+Vicente Guaita|VAL GET CRY CEL
+Mamadou Sakho|PSG LIV CRY
+Jordan Ayew|OM LOR AVL CRY
+Max Meyer|S04 CRY
+Yannick Bolasie|CRY EVE
+Yeremy Pino|VIL CRY
+Borna Sosa|VFB TOR CRY
+Ross Barkley|EVE CHE AVL NIC
+Wayne Rooney|EVE MUN
+Richarlison|EVE TOT
+Jordan Pickford|SUN EVE
+Gylfi Sigurdsson|TSG TOT EVE
+Yerry Mina|BAR EVE CAG
+Lucas Digne|LIL PSG ROM BAR EVE AVL
+Allan|UDI NAP EVE
+Abdoulaye Doucouré|REN EVE
+Idrissa Gueye|LIL AVL EVE PSG|gana gueye
+Morgan Schneiderlin|MUN EVE NIC
+Theo Walcott|ARS EVE
+Alex Iwobi|ARS EVE FUL
+Marouane Fellaini|EVE MUN
+Tim Howard|MUN EVE
+Nikica Jelavić|EVE HUL
+Ashley Young|AVL MUN INT EVE
+Amadou Onana|HSV LIL EVE AVL
+Jack Grealish|AVL MCI EVE
+Iliman Ndiaye|OM EVE
+Jake O'Brien|OL EVE
+Kiernan Dewsbury-Hall|CHE EVE
+Thierno Barry|VIL EVE
+Beto|UDI EVE
+Moise Kean|JUV EVE PSG FIO
+Jean-Philippe Gbamin|RCL M05 EVE|gbamin
+Fabian Delph|LEE AVL MCI EVE
+Michael Keane|MUN EVE
+Kurt Zouma|CHE EVE
+Louis Saha|FUL MUN EVE TOT
+Demarai Gray|B04 EVE
+Salomón Rondón|MAL NEW EVE|rondon
+Gareth Barry|AVL MCI EVE
+Aleksandar Mitrović|NEW FUL|mitrovic
+Clint Dempsey|FUL TOT
+Steed Malbranque|OL FUL TOT SUN
+Ryan Sessegnon|FUL TOT
+André Schürrle|M05 B04 CHE BVB FUL|schurrle
+Jean Michaël Seri|NIC FUL GS HUL|seri
+João Palhinha|FUL BAY TOT|palhinha
+Andreas Pereira|MUN VAL LAZ FUL
+Bernd Leno|B04 ARS FUL
+Tosin Adarabioyo|MCI FUL CHE
+Issa Diop|TFC FUL
+Adama Traoré|BAR AVL FUL
+Emile Smith Rowe|ARS FUL
+Saša Lukić|TOR FUL
+Kenny Tete|OL FUL
+Timothy Castagne|ATA FUL
+Shane Long|HUL
+Robert Snodgrass|LEE HUL AVL
+Tom Huddlestone|TOT HUL
+Jake Livermore|TOT HUL
+Michael Dawson|TOT HUL
+Ahmed Elmohamady|SUN HUL AVL
+Andrew Robertson|HUL LIV
+Harry Maguire|HUL MUN
+Hatem Ben Arfa|OL OM NEW HUL NIC PSG REN LIL|ben arfa
+Jarrod Bowen|HUL
+Kamil Grosicki|REN HUL
+Fraizer Campbell|MUN SUN HUL CRY
+Geovanni|BAR MCI HUL
+Jimmy Bullard|FUL HUL
+Kevin Kilbane|SUN EVE HUL
+Jaden Philogene|AVL HUL IPS
+Liam Delap|MCI HUL IPS CHE
+Omari Hutchinson|CHE IPS
+Leif Davis|LEE BOU IPS
+Kalvin Phillips|LEE MCI IPS
+Jacob Greaves|HUL IPS
+Arijanet Muric|MCI IPS
+Jens Cajuste|NAP IPS
+Axel Tuanzebe|MUN AVL IPS
+Kieron Dyer|IPS NEW
+Titus Bramble|IPS NEW SUN
+Richard Wright|IPS ARS EVE
+Darren Bent|IPS TOT SUN AVL FUL
+Tyrone Mings|IPS BOU AVL
+Alan Smith|LEE MUN NEW
+Rio Ferdinand|LEE MUN
+Mark Viduka|LEE NEW
+Harry Kewell|LEE LIV GS
+Jonathan Woodgate|LEE NEW RMA TOT
+Robbie Fowler|LIV LEE MCI
+Jimmy Floyd Hasselbaink|LEE ATM CHE|hasselbaink
+Raphinha|REN LEE BAR
+Jack Harrison|MCI LEE EVE
+Brenden Aaronson|LEE FCU
+Daniel James|MUN LEE FUL
+Ethan Ampadu|CHE RBL VEN LEE
+Illan Meslier|LOR LEE
+Joe Rodon|TOT REN LEE
+Junior Firpo|BET BAR LEE
+Lukas Nmecha|MCI LEE
+Anton Stach|M05 TSG LEE
+Noah Okafor|RBL MIL NAP LEE
+Dominic Calvert-Lewin|EVE LEE|calvert lewin
+Lucas Perri|OL LEE
+Eric Cantona|AUX OM LEE MUN|cantona
+Nigel Martyn|CRY LEE EVE
+Olivier Dacourt|EVE RCL LEE ROM INT FUL
+Lee Bowyer|LEE NEW
+Michael Duberry|CHE LEE
+Danny Mills|LEE MCI
+Paul Robinson|LEE TOT
+Ian Harte|LEE LEV
+David Batty|LEE NEW
+Alan Shearer|NEW
+Bruno Guimarães|OL NEW|bruno guimaraes
+Sandro Tonali|MIL NEW
+Alexander Isak|BVB RSO NEW LIV|isak
+Nick Pope|NEW
+Sven Botman|LIL NEW
+Joelinton|TSG NEW
+Anthony Gordon|EVE NEW
+Allan Saint-Maximin|MON NIC NEW FB|saint maximin
+Jonjo Shelvey|LIV NEW NFO
+Georginio Wijnaldum|NEW LIV PSG ROM
+Moussa Sissoko|TFC NEW TOT
+Chris Wood|LEE NEW NFO
+Fabian Schär|TSG DEP NEW|schar
+Matt Targett|AVL NEW
+Dan Burn|FUL BHA NEW
+Lewis Hall|CHE NEW
+Elliot Anderson|NEW NFO
+Joe Willock|ARS NEW
+Florian Lejeune|NEW ALV RAY
+Ayoze Pérez|NEW BET VIL|ayoze
+DeAndre Yedlin|TOT SUN NEW GS
+Emmanuel Rivière|TFC MON NEW
+Rémy Cabella|NEW OM LIL|cabella
+Obafemi Martins|INT NEW
+Nolberto Solano|NEW AVL
+Laurent Robert|PSG NEW
+Shay Given|NEW MCI AVL
+Fabricio Coloccini|MIL DEP NEW
+Sylvain Marveaux|REN NEW
+Mathieu Debuchy|LIL NEW ARS
+Loïc Rémy|NIC OM NEW CHE LIL|remy
+Davide Santon|INT NEW ROM
+Joey Barton|MCI NEW OM
+Nicky Butt|MUN NEW
+Scott Parker|CHE NEW TOT FUL
+Jermaine Jenas|NFO NEW TOT
+Damien Duff|CHE NEW FUL
+Andy Carroll|NEW LIV
+Anthony Elanga|MUN NFO NEW
+Jacob Ramsey|AVL NEW
+Nick Woltemade|VFB NEW
+Malick Thiaw|S04 MIL NEW
+Taiwo Awoniyi|FCU M05 NFO
+Callum Hudson-Odoi|CHE B04 NFO
+Nikola Milenković|FIO NFO
+Ola Aina|CHE TOR FUL NFO
+Matz Sels|NEW RCS NFO
+Neco Williams|LIV FUL NFO
+Moussa Niakhaté|M05 NFO OL
+Divock Origi|LIL LIV MIL NFO
+Jesse Lingard|MUN NFO
+Brennan Johnson|NFO TOT
+Serge Aurier|TFC PSG TOT VIL NFO GS
+Gonzalo Montiel|SEV NFO
+Keylor Navas|RMA PSG NFO
+Felipe|ATM NFO
+Orel Mangala|VFB NFO OL EVE
+Nuno Tavares|NFO
+Ibrahim Sangaré|TFC NFO
+Dan Ndoye|NIC BOL NFO
+Arnaud Kalimuendo|PSG RCL REN NFO
+James McAtee|MCI NFO
+Douglas Luiz|AVL JUV NFO
+Roy Keane|NFO MUN
+Stan Collymore|NFO LIV AVL
+Jordan Henderson|SUN LIV
+Kevin Phillips|SUN AVL
+Asamoah Gyan|REN SUN
+Lamine Koné|LOR SUN RCS
+Fabio Borini|CHE ROM LIV SUN MIL
+John O'Shea|MUN SUN
+Wes Brown|MUN SUN
+Jozy Altidore|VIL HUL SUN
+Adam Johnson|MCI SUN
+Stéphane Sessègnon|LMS PSG SUN|sessegnon
+Younès Kaboul|AUX TOT SUN
+Jack Rodwell|EVE MCI SUN
+Vito Mannone|ARS SUN
+Didier Ndong|LOR SUN
+Wahbi Khazri|SUN REN
+Victor Anichebe|EVE SUN
+Granit Xhaka|BMG ARS B04 SUN|xhaka
+Habib Diarra|RCS SUN
+Enzo Le Fée|LOR REN ROM SUN|le fee
+Omar Alderete|VAL GET SUN
+Reinildo|ATM SUN
+Nordi Mukiele|RBL PSG B04 SUN
+Jobe Bellingham|SUN BVB
+Wilson Isidor|MON SUN
+Brian Brobbey|RBL SUN
+Lutsharel Geertruida|RBL SUN
+Arthur Masuaku|BJK RCL SUN
+Emiliano Martínez|ARS AVL|dibu
+John McGinn|AVL
+Youri Tielemans|MON AVL
+Leon Bailey|B04 AVL ROM
+Pau Torres|VIL AVL
+Jhon Durán|AVL FB|duran
+Diego Carlos|SEV AVL FB
+Matty Cash|NFO AVL
+Boubacar Kamara|OM AVL
+Marcus Rashford|MUN AVL BAR|rashford
+Axel Disasi|MON CHE AVL
+Danny Ings|LIV AVL
+Emiliano Buendía|GET AVL|buendia
+Gabriel Agbonlahor|AVL
+John Carew|VAL ROM OL AVL
+Ian Maatsen|CHE BVB AVL
+Evann Guessand|NIC AVL
+Alex Moreno|BET AVL NFO
+Bertrand Traoré|OL AVL
+Nicolò Zaniolo|ROM GS AVL ATA FIO UDI|zaniolo
+Vincenzo Grifo|TSG BMG SCF
+Nico Schlotterbeck|SCF FCU BVB
+Matthias Ginter|SCF BVB BMG
+Ritsu Doan|SCF SGE
+Michael Gregoritsch|TSG HSV FCA S04 SCF
+Nils Petersen|BAY SVW SCF
+Robin Koch|SCF LEE SGE
+Maximilian Philipp|SCF BVB
+Luca Waldschmidt|SGE HSV SCF KOE
+Ömer Toprak|SCF B04 BVB SVW
+Çağlar Söyüncü|SCF ATM FB|caglar
+Igor Matanović|SGE SCF
+Janik Haberer|TSG SCF FCU
+Admir Mehmedi|SCF B04
+Jonathan Schmid|SCF TSG FCA
+Ermedin Demirović|SCF FCA VFB
+Roberto Firmino|TSG LIV|firmino
+Kevin Volland|TSG B04 MON FCU
+Niklas Süle|TSG BAY BVB
+Sebastian Rudy|VFB TSG BAY S04
+Andrej Kramarić|TSG
+Kerem Demirbay|HSV TSG B04 GS
+Ishak Belfodil|OL PAR INT BOL SVW TSG
+Oliver Baumann|SCF TSG
+Christoph Baumgartner|TSG RBL
+Florian Grillitsch|SVW TSG
+Stefan Posch|TSG BOL COM
+Tom Bischof|TSG BAY
+Marius Bülter|FCU S04 TSG
+Grischa Prömel|FCU TSG
+Nadiem Amiri|TSG B04 GNO M05
+Steven Zuber|TSG VFB SGE
+Jacob Bruun Larsen|BVB VFB TSG
+Ozan Kabak|GS VFB S04 LIV TSG
+Mergim Berisha|FCA TSG
+Leo Østigård|NAP REN TSG
+Jonathan Burkardt|M05 SGE
+Jhon Córdoba|M05 KOE
+Yunus Mallı|M05 TS FCU|yunus malli
+Levin Öztunalı|B04 SVW M05 FCU
+Shinji Okazaki|VFB M05
+Abdou Diallo|MON M05 BVB PSG RBL
+Ludovic Ajorque|RCS M05 BRS
+Anthony Caci|RCS M05
+Danny da Costa|B04 SGE M05
+Marcus Ingvartsen|FCU M05
+Ádám Szalai|M05 S04 TSG|szalai
+Dominik Kohr|B04 FCA SGE M05
+Edimilson Fernandes|FIO M05
+Ji Dong-won|SUN FCA BVB M05
+Halil Altıntop|S04 SGE TS FCA
+Philipp Max|FCA SGE
+Ruben Vargas|FCA SEV
+Daniel Caligiuri|S04 FCA
+Florian Niederlechner|SCF FCA
+Marius Wolf|SGE BVB KOE FCA
+Chrislain Matsima|MON FCA
+Kristijan Jakić|SGE FCA
+André Hahn|FCA BMG HSV
+Rani Khedira|VFB RBL FCA FCU
+Martin Hinteregger|BMG FCA SGE
+Takashi Usami|BAY TSG FCA
+Kevin Mbabu|FUL FCA
+Max Kruse|SVW BMG FB FCU
+Robin Gosens|ATA INT FCU FIO
+Jordan Siebatcheu|REN FCU SCF
+Marvin Friedrich|FCA FCU BMG
+Lucas Tousart|OL FCU
+Kevin Vogt|KOE TSG SVW FCU
+Robert Andrich|FCU B04
+Alex Král|S04 FCU ESY|kral
+Sheraldo Becker|FCU RSO
+Anthony Modeste|TSG KOE BVB
+Ellyes Skhiri|KOE SGE
+Mark Uth|TSG S04 KOE
+Florian Kainz|SVW KOE
+Davie Selke|RBL SVW KOE HSV
+Simon Terodde|KOE VFB HSV S04
+Yuya Osako|KOE SVW
+Ismail Jakobs|KOE MON GS
+Salih Özcan|KOE BVB
+Steffen Tigges|BVB KOE
+Mladen Petrić|BVB HSV FUL
+Ivica Olić|HSV BAY
+Paolo Guerrero|BAY HSV
+Heung-min Son|HSV B04 TOT|son
+Pierre-Michel Lasogga|HSV LEE
+Lewis Holtby|S04 TOT FUL HSV
+Aaron Hunt|SVW HSV
+Nicolai Müller|M05 HSV SGE
+Filip Kostić|VFB HSV SGE JUV FB|kostic
+Albin Ekdal|JUV BOL CAG HSV
+Bobby Wood|FCU HSV
+Kyriakos Papadopoulos|S04 B04 HSV
+Johan Djourou|ARS HSV
+Emir Spahić|SEV B04 HSV
+Zé Roberto|RMA B04 BAY HSV|ze roberto
+Jérôme Boateng|HSV MCI BAY OL
+Dennis Aogo|SCF HSV S04 VFB
+Marcell Jansen|BMG BAY HSV
+Piotr Trochowski|BAY HSV SEV
+Tolgay Arslan|HSV BJK UDI
+Gökhan Töre|HSV BJK
+Mohamed Zidan|SVW M05 HSV BVB
+Albert Sambi Lokonga|ARS HSV|lokonga
+Luka Vušković|TOT HSV
+Josha Vagnoman|HSV VFB
+Raúl González|RMA S04|raul
+Manuel Neuer|S04 BAY
+Julian Draxler|S04 PSG
+Benedikt Höwedes|S04 JUV
+Joël Matip|S04 LIV
+Weston McKennie|S04 JUV LEE
+Amine Harit|S04 OM IBF
+Nabil Bentaleb|TOT S04 NEW ANG LIL
+Breel Embolo|S04 BMG MON
+Suat Serdar|M05 S04
+Rafinha Alcântara|BAR INT CEL PSG RSO|rafinha
+Christian Fuchs|M05 S04
+Jermaine Jones|SGE S04 BJK
+Sidney Sam|B04 S04
+Eric Maxim Choupo-Moting|HSV M05 S04 PSG BAY|choupo moting
+Kaan Ayhan|S04 SAS GS
+Thilo Kehrer|S04 PSG MON
+Kenan Karaman|TSG BJK S04
+Dominick Drexler|KOE S04
+Ron Schallenberg|SCP S04
+Paul Wanner|BAY ELV
+Fisnik Asllani|TSG ELV
+Marvin Ducksch|BVB SCP SVW
+Mohamed Dräger|SCP NFO
+Nick Proschwitz|SCP HUL
+Mario Vrančić|M05 SCP
+Philipp Klement|SCP VFB
+Chris Führich|SCP VFB
+Marco Reus|BMG BVB
+Thorgan Hazard|BMG BVB
+Christoph Kramer|B04 BMG
+Yann Sommer|BMG BAY INT
+Marcus Thuram|BMG INT
+Alassane Pléa|OL NIC BMG
+Denis Zakaria|BMG JUV CHE MON
+Jonas Hofmann|BVB BMG B04
+Ramy Bensebaini|REN BMG BVB
+Ko Itakura|MCI S04 BMG
+Dante|BMG BAY NIC
+Mahmoud Dahoud|BMG BVB BHA SGE
+Andreas Christensen|CHE BMG BAR
+Havard Nordtveit|BMG TSG FUL
+Franck Honorat|BRS BMG
+Haris Tabaković|TSG BMG
+Nathan Ngoumou|TFC BMG
+Julian Weigl|BVB BMG
+Giovanni Reyna|BVB NFO BMG
+Kevin Stöger|VFB M05 BMG
+Claudio Pizarro|SVW BAY CHE KOE
+Per Mertesacker|SVW ARS
+Torsten Frings|SVW BVB BAY
+Johan Micoud|PAR SVW
+Ailton|SVW S04 BJK HSV
+Naldo|SVW S04 MON
+Hugo Almeida|SVW BJK
+Marko Arnautović|INT SVW BOL|arnautovic
+Davy Klaassen|EVE SVW INT
+Milot Rashica|SVW GS BJK
+Niclas Füllkrug|SVW BVB|fullkrug
+Mitchell Weiser|BAY B04 SVW
+Leonardo Bittencourt|BVB KOE TSG SVW
+Ludwig Augustinsson|SVW SEV AVL
+Miloš Veljković|TOT SVW
+Eren Dinkçi|SVW SCF
+Victor Boniface|B04 SVW
+Samuel Mbangula|JUV SVW
+Naby Keïta|RBL LIV SVW
+Dayot Upamecano|RBL BAY
+Ibrahima Konaté|RBL LIV
+Joško Gvardiol|RBL MCI|gvardiol
+Dominik Szoboszlai|RBL LIV
+Christopher Nkunku|PSG RBL CHE MIL
+Dani Olmo|RBL BAR
+Benjamin Šeško|RBL MUN|sesko
+Xavi Simons|PSG RBL TOT
+Loïs Openda|RCL RBL JUV|openda
+Kevin Kampl|B04 BVB RBL
+Marcel Sabitzer|RBL BAY MUN BVB
+Konrad Laimer|RBL BAY
+Peter Gulácsi|LIV RBL
+Amadou Haidara|RBL RCL
+Mohamed Simakan|RCS RBL
+Angeliño|MCI RBL ROM GS
+Ademola Lookman|EVE RBL FUL ATA
+Castello Lukeba|OL RBL
+Benjamin Henrichs|B04 MON RBL
+David Raum|TSG RBL
+Diego Demme|RBL NAP
+Kosta Nedeljković|AVL RBL
+Ridle Baku|M05 RBL
+Florian Wirtz|B04 LIV
+Jeremie Frimpong|B04 LIV
+Patrik Schick|ROM RBL B04
+Jonathan Tah|HSV B04 BAY
+Piero Hincapié|B04 ARS
+Lukáš Hrádecký|SGE B04
+Amine Adli|TFC B04 BOU
+Julian Brandt|B04 BVB
+Javier Hernández|MUN RMA B04 SEV|chicharito
+Lucas Alario|B04 SGE
+Odilon Kossounou|B04 ATA
+Josip Stanišić|BAY B04
+Martin Terrier|OL RCS REN B04
+Aleix García|MCI B04
+Malik Tillman|BAY B04
+Jarell Quansah|LIV B04
+Randal Kolo Muani|SGE PSG JUV TOT|kolo muani
+Omar Marmoush|SGE MCI
+Hugo Ekitiké|PSG SGE LIV|ekitike
+Luka Jović|SGE RMA FIO MIL
+Ante Rebić|FIO RBL SGE MIL BJK LEC
+Daichi Kamada|SGE LAZ CRY
+Evan Ndicka|SGE ROM
+Kevin Trapp|SGE PSG PFC
+Jesper Lindstrøm|SGE NAP EVE
+Djibril Sow|BMG SGE SEV
+Rafael Borré|SGE SVW
+Ansgar Knauff|BVB SGE
+Eric Dina Ebimbe|PSG SGE
+Willian Pacho|SGE PSG
+Fares Chaibi|TFC SGE
+Lucas Torró|OSA SGE
+Jens Petter Hauge|MIL SGE
+Arthur Theate|BOL REN SGE
+Rasmus Kristensen|LEE ROM SGE
+Elye Wahi|RCL SGE NIC
+Sami Khedira|VFB RMA JUV
+Kevin Kurányi|VFB S04
+Serhou Guirassy|LIL KOE REN VFB BVB
+Deniz Undav|BHA VFB
+Enzo Millot|MON VFB
+Hiroki Ito|VFB BAY
+Waldemar Anton|VFB BVB
+Angelo Stiller|TSG VFB
+Wataru Endo|VFB LIV
+Gonzalo Castro|B04 BVB VFB
+Holger Badstuber|BAY S04 VFB
+Fernando Meira|VFB GS
+Jeremy Toljan|TSG BVB SAS
+Alexander Nübel|S04 BAY MON VFB
+Jeff Chabot|KOE VFB
+Lorenz Assignon|REN VFB
+Mario Mandžukić|BAY ATM JUV MIL|mandzukic
+Bastian Schweinsteiger|BAY MUN
+Renato Sanches|BAY LIL PSG ROM
+Corentin Tolisso|OL BAY
+Michaël Cuisance|BMG BAY OM VEN
+Joshua Zirkzee|BAY PAR BOL MUN
+Bryan Zaragoza|BAY OSA CEL
+Sacha Boey|GS BAY
+Mathys Tel|REN BAY TOT
+Marc Roca|ESY BAY LEE BET
+Tanguy Nianzou|PSG BAY SEV
+Bouna Sarr|OM BAY
+Omar Richards|BAY NFO
+Juan Bernat|VAL BAY PSG VIL
+Luca Toni|FIO BAY ROM GNO JUV
+Lúcio|B04 BAY INT JUV|lucio
+Mark van Bommel|BAR BAY MIL
+Hasan Salihamidžić|HSV BAY JUV
+Roque Santa Cruz|BAY MCI BET MAL
+Martín Demichelis|BAY MAL MCI ESY
+Sebastian Rode|SGE BAY BVB
+Xherdan Shaqiri|BAY INT LIV OL
+Sven Ulreich|VFB BAY HSV
+Leon Goretzka|S04 BAY
+Joshua Kimmich|RBL BAY
+Serge Gnabry|ARS SVW TSG BAY
+Raphaël Guerreiro|LOR BVB BAY
+Eric Dier|TOT BAY MON
+Kim Min-jae|FB NAP BAY|kim min jae
+Nicolas Jackson|VIL CHE BAY
+Sofiane Boufal|LIL CEL ANG
+Angelo Fulgini|ANG M05 RCL
+Baptiste Santamaria|ANG SCF REN NIC
+Stéphane Bahoken|RCS ANG
+Esteban Lepaul|ANG REN
+Jimmy Cabot|ANG RCL
+El Bilal Touré|ATA VFB BJK
+Philippe Mexès|AUX ROM MIL|mexes
+Benoît Pedretti|OM OL AUX LIL
+Jean-Alain Boumsong|AUX NEW JUV OL
+Olivier Kapo|AUX JUV MON LEV
+Stéphane Guivarc'h|AUX NEW
+Basile Boli|AUX OM MON
+Romain Del Castillo|REN BRS
+Steve Mounié|BRS FCA
+Pierre Lees-Melou|NIC BRS
+Martín Satriano|INT BRS RCL
+Kenny Lala|RCL RCS BRS
+Lilian Brassier|REN BRS
+Abdallah Sima|BHA ANG BRS
+Romain Faivre|BRS OL LOR BOU
+Riyad Mahrez|HAC MCI|mahrez
+Lassana Diarra|HAC CHE ARS RMA OM PSG
+Steve Mandanda|HAC OM CRY REN
+Ferland Mendy|HAC OL RMA
+Guillaume Hoarau|HAC PSG
+Samuel Grandsir|TRO MON RCS BRS HAC
+Gautier Lloris|NIC HAC
+André Ayew|OM FB NFO HAC
+Oussama Targhalline|OM HAC
+Josué Casimir|HAC AUX
+Seko Fofana|UDI RCL REN
+Florian Sotoca|RCL
+Kevin Danso|FCA RCL TOT
+Facundo Medina|RCL OM
+Jonathan Clauss|RCL OM NIC
+Gaël Kakuta|CHE FUL RAY SEV RCL
+Ignatius Ganago|NIC RCL
+Brice Samba|NFO RCL REN
+Neil El Aynaoui|RCL ROM
+Andy Diouf|REN RCL INT
+Przemysław Frankowski|RCL GS|frankowski
+Wesley Saïd|REN TFC RCL
+Jean Onana|RCL BJK
+Abdukodir Khusanov|RCL MCI|khusanov
+Benjamin Bourigeaud|RCL REN
+Hilton|RCL OM
+El-Hadji Diouf|REN RCL LIV
+Vladimír Šmicer|RCL LIV|smicer
+Tony Vairelles|RCL OL
+Daniel Cousin|RCL HUL
+John Utaka|RCL REN
+Zeki Çelik|LIL ROM
+Yusuf Yazıcı|TS LIL|yusuf yazici
+Jonathan David|LIL JUV
+Tiago Djaló|LIL JUV
+Leny Yoro|LIL MUN
+Angel Gomes|MUN LIL
+Benjamin André|REN LIL
+Mike Maignan|LIL MIL
+Boubakary Soumaré|LIL SEV
+Gabriel Magalhães|LIL ARS|gabriel
+Rafael Leão|LIL MIL|leao
+Thiago Mendes|LIL OL
+Jonathan Bamba|LIL CEL
+Moussa Sow|REN LIL FB
+Adil Rami|LIL VAL MIL SEV OM TRO
+Dimitri Payet|LIL OM
+Kevin Mirallas|LIL EVE FIO
+Salomon Kalou|CHE LIL
+Jonathan Ikoné|PSG LIL FIO
+Ethan Mbappé|PSG LIL
+Lucas Chevalier|LIL PSG
+Romain Perraud|BRS BET LIL
+Thomas Meunier|PSG BVB TS LIL
+Aïssa Mandi|BET VIL LIL
+Terem Moffi|LOR NIC
+Laurent Koscielny|LOR ARS
+Jérémie Aliadière|ARS LOR
+Armand Laurienté|REN LOR SAS
+Alexis Claude-Maurice|NIC LOR
+Bamba Dieng|OM LOR
+André-Pierre Gignac|LOR TFC OM|gignac
+Aaron Ramsey|ARS JUV NIC
+Khéphren Thuram|NIC JUV
+Jean-Clair Todibo|TFC BAR S04 NIC
+Amine Gouiri|OL NIC REN OM
+Morgan Sanson|OM AVL RCS NIC
+Andy Delort|TFC NIC
+Gaëtan Laborde|REN NIC
+Jérémie Boga|CHE SAS ATA NIC
+Mohamed-Ali Cho|ANG RSO NIC
+Sofiane Diop|MON NIC
+Melvin Bard|OL NIC
+Youssouf Ndayishimiye|IBF NIC
+Tanguy Ndombele|OL TOT NAP GS NIC
+Wylan Cyprien|RCL NIC PAR
+Adrien Tameze|NIC TOR
+Myziane Maolida|OL NIC
+Maxime Le Marchand|NIC FUL RCS
+Malang Sarr|NIC CHE RCL
+Dalbert|NIC INT FIO REN
+Valentin Eysseric|NIC FIO
+Willem Geubbels|OL MON PFC
+Wilson Odobert|TRO TOT
+Mama Baldé|TRO OL
+Savio|TRO MCI|savinho
+Corentin Jean|TRO MON TFC RCL
+Romaric|SEV ESY LMS
+Anthony Le Tallec|LIV SUN LMS
+Ismaël Bangoura|LMS REN
+Marko Baša|LMS LIL
+Tulio de Melo|LMS LIL
+Mathieu Coutadeur|LMS MON LOR
+Eduardo Camavinga|REN RMA
+Jérémy Doku|REN MCI
+Nayef Aguerd|REN RSO OM
+Désiré Doué|REN PSG
+Lesley Ugochukwu|REN CHE
+Jeanuël Belocian|REN B04
+Hamari Traoré|REN RSO
+Glen Kamara|LEE REN
+Yann M'Vila|REN INT SUN
+Jimmy Briand|REN OL HSV
+Sylvain Wiltord|REN ARS OL
+Alexander Frei|REN BVB
+Kim Källström|REN OL ARS
+Yoann Gourcuff|REN MIL OL
+Stéphane Mbia|REN OM SEV TS
+Clément Grenier|OL REN
+Mbaye Niang|MIL GNO TOR REN AUX
+Rafik Guitane|HAC REN
+Flavien Tait|ANG REN
+Dilane Bakwa|RCS NFO
+Andrey Santos|CHE NFO RCS
+Đorđe Petrović|CHE RCS BOU|petrovic
+Adrien Thomasson|RCS RCL
+Lebo Mothiba|LIL RCS
+Alexander Djiku|RCS FB
+Jean-Ricner Bellegarde|RCL RCS
+Ibrahima Sissoko|BRS RCS
+Lucas Perrin|OM RCS
+Frédéric Guilbert|AVL RCS
+Sanjin Prcić|REN RCS LEV
+Guéla Doué|REN RCS
+Félix Lemaréchal|MON RCS
+Thijs Dallinga|TFC BOL
+Logan Costa|TFC VIL
+Moussa Diarra|TFC ALV
+Yann Gboho|REN TFC
+Yaya Sanogo|ARS TFC
+Max-Alain Gradel|BOU TFC
+Martin Braithwaite|TFC BAR ESY
+Ola Toivonen|REN SUN TFC
+Óscar Trejo|TFC RAY
+Jimmy Durmaz|TFC GS
+Issiaga Sylla|TFC RCL
+Achille Emana|TFC BET
+Johan Elmander|TFC GS
+Étienne Capoue|TFC TOT VIL
+Aymen Abdennour|TFC MON VAL OM
+Folarin Balogun|ARS MON
+Caio Henrique|ATM MON
+Wilfried Singo|TOR MON GS
+Guillermo Maripán|ALV MON TOR
+Gelson Martins|ATM MON
+Stevan Jovetić|FIO MCI INT SEV MON
+Islam Slimani|NEW FB MON OL
+Djibril Sidibé|LIL MON EVE
+Benoît Badiashile|MON CHE
+Kamil Glik|TOR MON
+Fabinho|MON LIV
+Rony Lopes|MON LIL SEV
+Adama Diakhaby|REN MON
+Pietro Pellegri|GNO MON MIL TOR
+Mattéo Guendouzi|LOR ARS OM LAZ
+Valentin Rongier|OM REN
+Leonardo Balerdi|BVB OM
+Jordan Veretout|AVL FIO ROM OM OL
+Pol Lirola|SAS FIO OM ELC FRO
+Duje Ćaleta-Car|OM OL RSO
+Sead Kolašinac|S04 ARS OM ATA|kolasinac
+Azzedine Ounahi|ANG OM
+Luis Henrique|OM INT
+Pau López|ESY TOT BET ROM OM
+Rubén Blanco|CEL OM
+Jonathan Rowe|OM BOL
+Timothy Weah|PSG LIL JUV OM
+Florian Thauvin|NEW OM UDI RCL
+Luiz Gustavo|TSG BAY OM FB
+Nicolas N'Koulou|MON OM OL TOR
+Souleymane Diawara|OM NIC
+Benoît Cheyrou|AUX OM
+Mamadou Niang|TRO RCS OM FB
+Djimi Traoré|LIV RCL OM
+Lorik Cana|PSG OM SUN GS LAZ
+Habib Beye|RCS OM NEW AVL
+Bixente Lizarazu|ATH BAY OM
+Christophe Dugarry|MIL BAR OM
+Abedi Pele|OM OL TOR
+Rudi Völler|SVW ROM OM B04|voller
+Alen Bokšić|OM LAZ JUV
+Enzo Francescoli|OM CAG TOR
+Klaus Allofs|KOE OM
+Alexandre Lacazette|OL ARS
+Nabil Fekir|OL BET
+Karim Benzema|OL RMA
+Rachid Ghezzal|OL MON FIO BJK
+Houssem Aouar|OL ROM
+Moussa Dembélé|FUL OL ATM
+Jason Denayer|MCI GS SUN OL
+Marcelo Guedes|BJK OL
+Rafael da Silva|MUN OL IBF
+Léo Dubois|OL GS IBF
+Malo Gusto|OL CHE
+Rayan Cherki|OL MCI
+Thiago Almada|OL ATM
+Maxence Caqueret|OL COM
+Georges Mikautadze|OL VIL
+Skelly Alvero|OL SVW
+Bradley Barcola|OL PSG
+Ainsley Maitland-Niles|ARS OL
+Paul Akouokou|BET OL
+Abner Vinícius|BET OL
+Aymeric Laporte|ATH MCI
+Ander Herrera|ATH MUN PSG
+Javi Martínez|ATH BAY
+Iñigo Martínez|RSO ATH BAR
+Raúl García|OSA ATM ATH
+Aritz Aduriz|ATH VAL
+Dani García|RSO ATH
+Óscar de Marcos|ALV ATH
+Álex Berenguer|OSA TOR ATH
+Yuri Berchiche|RSO PSG ATH
+Unai López|ATH RAY
+Robert Navarro|RSO ATH
+Joseba Etxeberria|RSO ATH
+Beñat Etxebarria|BET ATH
+Mikel San José|ATH ESY
+Unai Núñez|ATH CEL
+Jesús Areso|OSA ATH
+Martin Ødegaard|RMA RSO ARS|odegaard
+Mikel Merino|OSA BVB NEW RSO ARS
+Takefusa Kubo|RMA GET VIL RSO|kubo
+Martín Zubimendi|RSO ARS
+Robin Le Normand|RSO ATM
+Carlos Vela|ARS RSO
+Asier Illarramendi|RSO RMA
+Claudio Bravo|RSO BAR MCI BET
+Nihat Kahveci|BJK RSO VIL|nihat
+Darko Kovačević|RSO JUV LAZ
+Héctor Moreno|ESY ROM RSO
+Adnan Januzaj|MUN BVB SUN RSO SEV
+Willian José|RSO BET
+Brais Méndez|CEL RSO
+Umar Sadiq|RSO VAL
+Carlos Fernández|SEV RSO
+Kieran Tierney|ARS RSO
+Álvaro Odriozola|RSO RMA BAY FIO
+Esteban Granero|RMA GET RSO ESY
+Sergio Canales|RAC RMA VAL RSO BET
+Diego Reyes|RSO FB
+Joaquín|BET VAL MAL FIO
+Isco|VAL MAL RMA SEV BET
+Marc Bartra|BAR BVB BET TS
+William Carvalho|BET
+Borja Iglesias|CEL ESY BET B04
+Juanmi|MAL RSO BET
+Abde Ezzalzouli|BAR OSA BET|abde
+Chimy Ávila|OSA BET
+Cédric Bakambu|VIL BET GS OM
+Vitor Roque|BAR BET
+Pablo Fornals|MAL VIL BET
+Diego Llorente|RMA RAY RSO LEE ROM BET
+Natan|NAP BET
+Germán Pezzella|FIO BET
+Juan Miranda|BAR S04 BET BOL
+Andrés Guardado|DEP VAL B04 BET
+Dani Ceballos|BET RMA ARS
+Fabián Ruiz|BET NAP PSG
+Joel Campbell|ARS VIL BET
+Ryad Boudebouz|BET CEL
+Rodrigo Riquelme|ATM BET
+Ricardo Oliveira|BET MIL
+Juan Román Riquelme|BAR VIL
+Santi Cazorla|VIL MAL ARS
+Giuseppe Rossi|MUN PAR VIL FIO CEL LEV
+Robert Pirès|ARS VIL AVL
+Joan Capdevila|ESY ATM DEP VIL
+Gerard Moreno|ESY VIL
+Samuel Chukwueze|VIL MIL FUL
+Juan Foyth|TOT VIL
+Santi Comesaña|RAY VIL
+Tajon Buchanan|INT VIL
+Kiko Femenía|ALV VIL
+Pape Gueye|OM SEV VIL
+Renato Veiga|CHE JUV VIL
+Rafa Marín|RMA ALV NAP VIL
+Ilias Akhomach|BAR VIL
+Roberto Soldado|RMA OSA GET VAL TOT VIL FB LEV
+Jonathan dos Santos|BAR VIL
+Giovani dos Santos|BAR TOT GS RAC VIL
+Borja Valero|VIL FIO INT
+Nilmar|OL VIL
+Mateo Musacchio|VIL MIL LAZ
+Eric Bailly|ESY VIL MUN OM BJK
+Leo Baptistão|RAY ATM ESY BET VIL
+Luciano Vietto|VIL ATM SEV FUL
+Alberto Moreno|SEV LIV VIL COM
+Paco Alcácer|VAL BAR BVB VIL
+Gerónimo Rulli|RSO VIL OM
+Sergio Asenjo|ATM MAL VIL
+Moi Gómez|VIL GET OSA
+Alfonso Pedraza|LEE VIL ALV BET
+Manu Morlanes|VIL ESY
+Iago Aspas|CEL LIV SEV
+Denis Suárez|MCI BAR SEV VIL CEL ARS ESY
+Fran Beltrán|RAY CEL
+Nolito|BAR CEL MCI SEV
+Maxi Gómez|CEL VAL TS
+Santi Mina|CEL VAL
+Stanislav Lobotka|CEL NAP
+Jeison Murillo|INT VAL BAR CEL
+Fabián Orellana|CEL VAL
+John Guidetti|MCI CEL ALV
+Okay Yokuşlu|TS CEL GET|okay
+Haim Revivo|CEL FB GS
+Juan Carlos Valerón|ATM DEP|valeron
+Óscar Mingueza|BAR CEL
+Ilaix Moriba|BAR RBL VAL GET CEL
+Marcos Alonso|FIO CHE BAR CEL
+Ferran Jutglà|BAR CEL
+Óscar Rodríguez|RMA SEV CEL GET
+Javi Galán|CEL ATM RSO
+Borja Mayoral|RMA LEV ROM GET
+Nemanja Maksimović|VAL GET
+David Soria|SEV GET
+Damián Suárez|ELC GET
+Jorge Molina|BET GET
+Carles Aleñá|BAR BET GET
+Mathías Olivera|GET NAP
+Kenedy|CHE NEW GET
+Vitolo|SEV ATM GET
+Pedro León|RMA LEV GET
+Daniel Güiza|GET FB|guiza
+Ikechukwu Uche|GET VIL
+Diego Rico|BOU RSO GET
+César Azpilicueta|OSA OM CHE ATM|azpilicueta
+Nacho Monreal|OSA MAL ARS RSO
+Juanfran|RMA ESY OSA ATM
+Walter Pandiani|DEP ESY OSA
+Kike Sola|OSA ATH
+Rubén García|LEV OSA
+Nacho Vidal|VAL OSA
+Pervis Estupiñán|OSA VIL BHA MIL
+Darko Brašanac|BET OSA
+Kike García|OSA ALV ESY
+Alejandro Catena|RAY OSA
+Aitor Fernández|LEV OSA
+Joselu|TSG SGE DEP NEW ALV ESY RMA
+Lucas Pérez|DEP ARS ALV ELC
+Rubén Duarte|ESY ALV
+Jon Guridi|RSO ALV
+Ander Guevara|RSO ALV
+Luis Rioja|ALV VAL
+Ibai Gómez|ATH ALV
+Theo Hernández|ALV RMA RSO MIL
+Marcos Llorente|RMA ALV ATM
+Mubarak Wakaso|ALV ESY
+Munir El Haddadi|BAR VAL ALV SEV GET|munir
+Deyverson|LEV ALV GET
+Lucas Boyé|TOR CEL ELC ALV
+Luka Romero|LAZ MIL ALV
+Victor Camarasa|LEV ALV BET CRY
+Mauricio Pochettino|ESY PSG
+Sergio García|BAR BET ESY
+Pablo Daniel Osvaldo|BOL ESY ROM INT JUV|osvaldo
+Kiko Casilla|ESY RMA LEE
+Raúl de Tomás|RMA RAY ESY|rdt
+Sergi Darder|MAL OL ESY
+Leandro Cabrera|GET ESY
+Edu Expósito|DEP ESY
+Joan García|ESY BAR
+Diego López|VIL RMA SEV MIL ESY
+Facundo Ferreyra|NEW ESY
+Adrià Pedrosa|ESY SEV
+Christian Stuani|LEV ESY
+Pablo Piatti|VAL ESY
+Felipe Caicedo|MCI MAL LEV ESY LAZ GNO INT
+Jurado|ATM S04 ESY
+Fran García|RMA RAY
+Sergio Camello|ATM RAY
+Jorge de Frutos|LEV RAY
+Adri Embarba|RAY ESY
+Michu|CEL RAY NAP
+Manucho|MUN HUL RAY
+Jordi Amat|ESY RAY BET
+Mario Suárez|ATM FIO RAY
+Arouna Koné|SEV LEV EVE
+Enis Bardhi|LEV TS
+Dani Gómez|RMA LEV
+Sergio León|BET LEV
+Coke|SEV S04 LEV
+José Campaña|SEV LEV
+Iván Romero|SEV LEV
+Carlos Álvarez|SEV LEV
+Vicente Iborra|LEV SEV VIL
+Pepelu|LEV VAL
+Pere Milla|ELC ESY
+Omar Mascarell|RMA SGE S04 ELC
+Gerard Gumbau|BAR ELC
+Ezequiel Ponce|ROM LIL ELC
+Johan Mojica|ATA ELC OSA VIL
+Rafa Mir|SEV VAL ELC
+Álvaro Rodríguez|RMA ELC
+Héctor Fort|BAR ELC
+Tete Morente|ELC LEC
+Pedro Munitis|RAC RMA DEP
+Nikola Žigić|RAC VAL
+Ezequiel Garay|RAC RMA VAL
+Iván Marcano|RAC VIL ROM
+Lacen|RAC GET
+Iñigo Vicente|ATH RAC
+Roy Makaay|DEP BAY
+Lionel Scaloni|DEP LAZ ATA
+Albert Luque|DEP NEW MAL
+Pauleta|DEP PSG
+Florin Andone|DEP BHA GS
+Emre Çolak|GS DEP
+Fede Cartabia|VAL DEP
+Carles Gil|VAL AVL DEP
+Isaac Cuenca|BAR DEP
+Raúl Albentosa|DEP MAL
+Jonás Gutiérrez|NEW DEP
+Pizzi|DEP ESY
+Nélson Oliveira|DEP REN NFO
+Adrián López|DEP ATM VIL OSA
+Alberto Lopo|ESY DEP GET
+Jérémy Toulalan|OL MAL MON
+Ignacio Camacho|ATM MAL
+Willy Caballero|MAL MCI CHE
+Nordin Amrabat|GS MAL
+Charles|CEL MAL
+Christian Atsu|EVE MAL NEW
+Sandro Ramírez|BAR MAL EVE RSO
+Enzo Maresca|JUV FIO SEV MAL
+Suso|LIV MIL SEV
+Óliver Torres|ATM SEV
+Papu Gómez|ATA SEV MNZ
+Saúl Ñíguez|ATM CHE SEV|saul
+Loïc Badé|RCL REN NFO SEV
+Bryan Gil|SEV TOT VAL
+Thomas Delaney|BVB SEV TSG
+Pablo Sarabia|GET SEV PSG
+Fernando Reges|MCI GS SEV|fernando
+Simon Kjær|ROM LIL FB SEV ATA MIL|kjaer
+Sergio Escudero|S04 GET SEV
+Michael Krohn-Dehli|CEL SEV
+Yevhen Konoplyanka|SEV S04
+Kasper Dolberg|NIC SEV TSG
+Diego Perotti|SEV GNO ROM FB
+Marko Marin|BMG SVW CHE SEV FIO TS
+Jérémy Mathieu|TFC VAL BAR
+Hugo Duro|GET VAL
+Giorgi Mamardashvili|VAL LIV
+Cristhian Mosquera|VAL ARS
+Yunus Musah|VAL MIL
+Mouctar Diakhaby|OL VAL
+Uroš Račić|VAL SAS
+Samuel Lino|ATM VAL
+Rodrigo de Paul|VAL UDI ATM
+Álvaro Negredo|SEV MCI VAL BJK|negredo
+Lee Kang-in|VAL PSG
+Jasper Cillessen|BAR VAL
+Sergi Canós|BRE VAL
+Germán Valera|ATM VAL
+Duván Zapata|NAP UDI ATA TOR
+Josip Iličić|FIO ATA
+Luis Muriel|UDI SEV FIO ATA
+Franck Kessié|ATA MIL BAR
+Andrea Conti|ATA MIL
+Mattia Caldara|ATA MIL VEN
+Rasmus Højlund|ATA MUN NAP|hojlund
+Teun Koopmeiners|ATA JUV
+Gianluca Scamacca|SAS GNO ATA
+Charles De Ketelaere|MIL ATA
+Matteo Pessina|ATA MNZ
+Mario Pašalić|MON MIL ATA
+Rafael Tolói|ROM ATA
+Cristian Romero|ATA TOT
+Ruslan Malinovskyi|ATA OM GNO
+Musa Barrow|ATA BOL
+Aleksei Miranchuk|ATA TOR
+Davide Zappacosta|ATA TOR CHE ROM GNO
+Nicola Zalewski|ROM INT ATA
+Raoul Bellanova|CAG INT TOR ATA
+Nikola Krstović|LEC ATA
+Lazar Samardžić|UDI ATA
+Daniel Maldini|MIL MNZ ATA
+Alessandro Bastoni|ATA PAR INT
+Amad Diallo|ATA MUN SUN
+Germán Denis|NAP UDI ATA
+Riccardo Montolivo|ATA FIO MIL
+Filippo Inzaghi|PAR ATA JUV MIL
+Domenico Morfeo|ATA FIO MIL INT PAR
+Giacomo Bonaventura|ATA MIL FIO
+Simone Zaza|SAS JUV VAL TOR
+Luca Cigarini|ATA NAP SEV
+Roberto Baggio|FIO JUV MIL BOL INT
+Giuseppe Signori|LAZ BOL
+Marco Di Vaio|LAZ PAR JUV VAL MON GNO BOL
+Riccardo Calafiori|ROM BOL ARS
+Remo Freuler|ATA NFO BOL
+Alexis Saelemaekers|MIL BOL ROM
+Federico Bernardeschi|FIO JUV BOL
+Nicolò Casale|LAZ BOL
+Łukasz Skorupski|ROM BOL|skorupski
+Takehiro Tomiyasu|BOL ARS
+Aaron Hickey|BOL BRE
+Andrea Poli|MIL BOL
+Rodrigo Palacio|GNO INT BOL
+Erick Pulgar|BOL FIO
+Blerim Džemaili|TOR PAR NAP GS GNO BOL|dzemaili
+Godfred Donsah|CAG BOL
+Simone Verdi|MIL TOR BOL NAP COM
+Mattia Destro|ROM MIL BOL GNO
+Nicola Sansone|SAS VIL BOL
+Roberto Soriano|VIL TOR BOL
+Lorenzo De Silvestri|LAZ FIO TOR BOL
+Kevin Bonifazi|TOR BOL
+Charalampos Lykogiannis|CAG BOL
+Emil Holm|ATA BOL
+Tommaso Pobega|MIL TOR BOL
+Gianfranco Zola|NAP PAR CHE CAG
+Nicolò Barella|CAG INT
+David Suazo|CAG INT GNO
+Federico Marchetti|CAG LAZ GNO
+Alessandro Matri|CAG JUV MIL FIO GNO SAS
+Diego Godín|VIL ATM INT CAG
+Leonardo Pavoletti|SAS GNO NAP CAG
+João Pedro Galvão|CAG FB|joao pedro
+Simone Padoin|ATA JUV CAG
+Gianluca Lapadula|MIL GNO LEC CAG
+Gianluca Gaetano|NAP CAG
+Nadir Zortea|ATA CAG
+Michel Adopo|TOR ATA CAG
+Sebastiano Esposito|INT CAG
+Elia Caprile|NAP CAG
+Marco Palestra|ATA CAG
+Patrick Cutrone|MIL FIO VAL COM
+Nico Paz|RMA COM
+Gabriel Strefezza|LEC COM
+Sergi Roberto|BAR COM
+Álex Valle|BAR LEV COM
+Jesús Rodríguez|BET COM
+Jacobo Ramón|RMA COM
+Lucas Da Cunha|REN NIC COM
+Assane Diao|BET COM
+Mergim Vojvoda|TOR COM
+Marc Kempf|VFB COM
+Edoardo Goldaniga|SAS GNO CAG COM
+Máximo Perrone|MCI COM
+Anastasios Douvikas|CEL COM
+Ignace Van der Brempt|HSV COM
+Ben Lhassine Kone|TOR COM
+Alberto Gilardino|PAR MIL FIO GNO BOL
+Federico Chiesa|FIO JUV LIV
+Dušan Vlahović|FIO JUV|vlahovic
+Nicolás González|VFB FIO JUV ATM
+Albert Guðmundsson|GNO FIO|gudmundsson
+David de Gea|MUN FIO
+Riccardo Sottil|FIO CAG MIL
+Cher Ndour|PSG BJK FIO
+Rolando Mandragora|GNO JUV UDI TOR FIO
+Giovanni Simeone|GNO FIO CAG NAP TOR
+Riccardo Saponara|MIL FIO
+Gaetano Castrovilli|FIO LAZ
+Alfred Duncan|INT SAS FIO VEN
+Antonín Barák|UDI LEC FIO
+Christian Kouamé|GNO FIO
+Edoardo Bove|ROM FIO
+Marin Pongračić|BVB LEC FIO
+Stefan Savić|MCI FIO ATM TS
+Gonzalo Rodríguez|VIL FIO
+Nenad Tomović|GNO FIO
+Milan Badelj|HSV FIO LAZ GNO
+Cyril Théréau|UDI FIO
+Marko Pjaca|JUV S04 FIO GNO TOR
+Martín Cáceres|BAR JUV SEV FIO CAG
+Arthur Melo|BAR JUV LIV FIO
+Andrea Colpani|MNZ FIO
+Danilo Cataldi|LAZ GNO FIO
+Yacine Adli|MIL FIO
+Simon Sohm|PAR FIO
+Matías Soulé|JUV FRO ROM
+Kaio Jorge|JUV FRO
+Enzo Barrenechea|JUV FRO AVL VAL
+Walid Cheddira|NAP FRO ESY
+Abdou Harroui|SAS FRO
+Arijon Ibrahimović|BAY FRO
+Reinier|RMA BVB FRO
+Marco Brescianini|MIL FRO ATA
+Luca Mazzitelli|SAS FRO COM
+Caleb Okoli|ATA FRO
+Stefano Turati|SAS FRO MNZ
+Gennaro Borrelli|FRO BRE
+Lorenzo Ariaudo|JUV CAG SAS FRO
+Andrea Pinamonti|INT FRO GNO SAS
+Francesco Cassata|SAS FRO GNO
+Raman Chibsah|SAS FRO
+Cristian Molinaro|JUV VFB TOR PAR FRO
+Diego Milito|GNO INT
+Thiago Motta|BAR ATM GNO INT PSG
+Domenico Criscito|GNO JUV
+Mattia Perin|GNO JUV
+Mateo Retegui|GNO ATA
+Vitinha Oliveira|OM GNO
+Koni De Winter|JUV GNO MIL
+Radu Drăgușin|JUV GNO TOT|dragusin
+Junior Messias|MIL GNO
+Caleb Ekuban|TS GNO
+Stefano Sturaro|GNO JUV
+Fabio Miretti|JUV GNO
+Aarón Martín|ESY M05 CEL GNO
+Mattia Bani|BOL GNO
+Maxwel Cornet|OL GNO
+Brooke Norton-Cuffy|ARS GNO
+Lorenzo Colombo|MIL LEC MNZ GNO
+Mohamed Fares|LAZ GNO
+Hernani|PAR GNO
+Iago Falque|TOT GNO ROM TOR
+Andrea Ranocchia|GNO INT HUL MNZ
+Goran Pandev|LAZ INT NAP GS GNO PAR
+Juraj Kucka|GNO MIL TS PAR
+Valter Birsa|GNO MIL TOR
+Diego Laxalt|GNO MIL TOR
+Armando Izzo|NAP GNO TOR MNZ
+Tomás Rincón|HSV GNO JUV TOR
+Francesco Acerbi|GNO MIL SAS LAZ INT
+Sokratis Papastathopoulos|GNO MIL SVW BVB ARS|sokratis
+Raffaele Palladino|JUV GNO PAR
+Patrick Dorgu|LEC MUN
+Juan Cuadrado|LEC
+Ernesto Chevantón|LEC MON SEV ATA|chevanton
+Mirko Vučinić|LEC ROM JUV|vucinic
+Valeri Bojinov|LEC FIO MCI PAR
+Cristian Ledesma|LEC LAZ
+Federico Di Francesco|BOL LEC
+Hamza Rafia|JUV LEC
+Francesco Camarda|MIL LEC
+Carlos Augusto|MNZ INT
+Pablo Marí|ARS UDI MNZ FIO
+Andrea Petagna|MIL ATA NAP MNZ CAG
+Gianluca Caprari|ROM INT MNZ
+Stefano Sensi|SAS INT MNZ
+Luca Caldirola|SVW MNZ
+Valentín Carboni|INT MNZ OM GNO
+Milan Đurić|MNZ PAR
+Warren Bondo|MNZ MIL
+Kevin Zeroli|MIL MNZ
+Omari Forson|MUN MNZ
+Danilo D'Ambrosio|TOR INT MNZ
+Georgios Kyriakopoulos|SAS MNZ BOL
+Roberto Gagliardini|ATA INT MNZ
+Alessandro Bianco|FIO MNZ
+Jean-Daniel Akpa Akpro|TFC LAZ MNZ
+Gianluigi Buffon|PAR JUV PSG|buffon
+Dino Baggio|TOR INT JUV PAR LAZ
+Enrico Chiesa|PAR FIO LAZ
+Hidetoshi Nakata|ROM PAR BOL FIO
+Matías Almeyda|SEV LAZ PAR INT
+Faustino Asprilla|PAR NEW
+Tomas Brolin|PAR LEE CRY
+Mark Bresciano|PAR LAZ
+Rolando Bianchi|ATA MCI LAZ TOR
+Antonio Cassano|ROM RMA MIL INT PAR
+Sebastian Giovinco|JUV PAR
+Amauri|JUV PAR FIO TOR
+Jonathan Biabiany|INT PAR
+Roberto Inglese|NAP PAR
+Yann Karamoh|INT PAR TOR
+Ange-Yoan Bonny|PAR INT
+Adrián Bernabé|MCI PAR
+Matteo Cancellieri|LAZ PAR
+Giacomo Raspadori|SAS NAP ATM
+Davide Frattesi|SAS INT
+Manuel Locatelli|MIL SAS JUV
+Hamed Junior Traorè|SAS NAP BOU
+Grégoire Defrel|ROM SAS
+Lorenzo Pellegrini|ROM SAS
+Matteo Politano|ROM SAS INT NAP
+Vlad Chiricheș|TOT NAP SAS
+Federico Peluso|ATA JUV SAS
+Marlon Santos|BAR NIC SAS MNZ
+Andrea Consigli|ATA SAS
+Cristian Volpato|ROM SAS
+Salvatore Sirigu|PSG SEV OSA TOR GNO FIO
+Gleison Bremer|TOR JUV|bremer
+Alessandro Buongiorno|TOR NAP
+Ricardo Rodríguez|MIL TOR BET
+Nikola Vlašić|EVE TOR
+Samuele Ricci|TOR MIL
+Antonio Sanabria|ROM BET GNO TOR
+Daniele Baselli|ATA TOR COM
+Gianluigi Lentini|TOR MIL ATA
+Valentino Lazaro|INT NEW BMG TOR
+Cesare Casadei|INT CHE TOR
+Niels Nkounkou|EVE SGE TOR
+Cyril Ngonge|NAP TOR
+Tino Anjorin|CHE TOR
+Emirhan İlkhan|BJK TOR|emirhan
+Mehdi Benatia|UDI ROM BAY JUV
+Kwadwo Asamoah|UDI JUV INT
+Samir Handanović|UDI INT
+Nahuel Molina|UDI ATM
+Gerard Deulofeu|BAR EVE SEV MIL UDI
+Destiny Udogie|UDI TOT
+Jaka Bijol|UDI LEE
+Isaac Success|MAL UDI
+Lorenzo Lucca|UDI NAP
+Keinan Davis|AVL UDI
+Jordan Zemura|BOU UDI
+Hassane Kamara|NIC UDI
+Oier Zarraga|ATH UDI
+Fabio Quagliarella|UDI NAP JUV TOR
+Vincenzo Iaquinta|UDI JUV
+David Pizarro|UDI INT ROM MCI FIO
+Simone Pepe|UDI JUV
+Marek Jankulovski|UDI MIL
+Sulley Muntari|UDI INT SUN MIL
+Oliver Bierhoff|UDI MIL MON
+Márcio Amoroso|UDI PAR BVB MAL
+Valon Behrami|FIO NAP UDI GNO
+Bruno Fernandes|UDI MUN
+Roberto Pereyra|UDI JUV
+Stefano Okaka|ROM FUL UDI IBF
+Rodrigo Becão|UDI FB|becao
+Nehuén Pérez|ATM UDI
+Walace|HSV UDI
+Hans Nicolussi Caviglia|JUV VEN
+Gaetano Oristanio|INT CAG VEN
+Sergio Romero|MUN MON VEN
+Mattia Aramu|TOR VEN GNO
+Ridgeciano Haps|VEN GNO
+Filip Stanković|INT VEN
+Álvaro Recoba|INT VEN|recoba`;
+const RAW4=`Romelu Lukaku|EVE
+Wesley Sneijder|NIC
+Mesut Özil|S04 SVW
+Radamel Falcao|RAY
+Cesc Fàbregas|COM
+Alexis Sánchez|UDI
+Philippe Coutinho|AVL ESY
+Mario Götze|SGE
+Mats Hummels|ROM
+Ousmane Dembélé|REN
+Álvaro Morata|COM
+Xabi Alonso|RSO
+Michael Owen|NEW
+Kevin De Bruyne|SVW
+Mohamed Salah|FIO
+Ashley Cole|ROM
+Samir Nasri|SEV
+Edin Džeko|FIO
+Nemanja Matić|REN OL
+Lukas Podolski|KOE
+Hakan Şükür|TOR
+Hamit Altıntop|S04
+Hakan Çalhanoğlu|B04 HSV
+Cenk Tosun|EVE
+Burak Yılmaz|LIL
+Emre Mor|CEL
+Mario Gómez|VFB
+Felipe Melo|FIO
+Ryan Babel|TSG FUL DEP
+Gary Medel|BOL
+Demba Ba|NEW TSG
+Ciro Immobile|TOR GNO BOL
+Leroy Sané|S04
+Sofyan Amrabat|FIO
+Nani|VAL LAZ
+Lucas Torreira|FIO
+Nicolas Pépé|VIL LIL
+Florent Malouda|OL
+Alexander Sørloth|VIL RSO RBL
+Franck Ribéry|FIO
+Diego Ribas|SVW
+Rivaldo|DEP
+Samuel Eto'o|EVE KON
+Patrick Kluivert|NEW
+Fabio Cannavaro|PAR
+Christian Vieri|TOR ATA FIO
+Diego Forlán|VIL
+Antoine Griezmann|RSO
+Filipe Luís|DEP
+Rodri|VIL
+Memphis Depay|OL
+Jadon Sancho|AVL
+Toni Kroos|B04
+Michael Ballack|B04
+Benjamin Pavard|VFB
+Eden Hazard|LIL
+Joe Cole|LIL
+Mario Balotelli|NIC GNO MNZ
+Hernán Crespo|PAR
+Juan Sebastián Verón|PAR
+Adrian Mutu|FIO PAR
+Willian|FUL
+Olivier Giroud|LIL
+Kai Havertz|B04
+Juan Cuadrado|FIO UDI
+Antonio Rüdiger|VFB
+Alexander Hleb|VFB
+Héctor Bellerín|BET
+Mikel Arteta|EVE
+Yaya Touré|MON
+Raphaël Varane|COM RCL
+Jordi Cruyff|ALV
+Bebé|RAY
+Victor Osimhen|LIL
+José Callejón|ESY FIO
+Raúl Albiol|VIL
+Pepe Reina|VIL COM
+Miralem Pjanić|OL
+Gabriel Batistuta|FIO
+Radja Nainggolan|CAG
+Sérgio Conceição|PAR
+Fernando Couto|PAR
+Iván de la Peña|ESY
+Dele Alli|EVE COM
+Dimitar Berbatov|B04 FUL
+Robbie Keane|LEE COV
+Rafael van der Vaart|HSV BET
+Kieran Trippier|NEW
+Fernando Llorente|ATH UDI
+Giovani Lo Celso|BET VIL
+Kevin-Prince Boateng|S04 SGE SAS FIO BJK MNZ
+Jürgen Klinsmann|VFB
+Gary Lineker|EVE
+Sergio Reguilón|BRE
+Dejan Kulusevski|PAR ATA
+Timo Werner|RBL VFB
+Ivan Rakitić|S04
+Frédéric Kanouté|OL
+Júlio Baptista|MAL
+Kevin Gameiro|RCS LOR
+Carlos Bacca|VIL
+Youssef En-Nesyri|MAL
+Mariano Díaz|OL
+Edwin van der Sar|FUL
+Donny van de Beek|EVE
+Antony|BET
+Klaas-Jan Huntelaar|S04
+Steven Pienaar|EVE
+Nigel de Jong|HSV
+James Rodríguez|EVE RAY
+Vincent Aboubakar|LOR
+André Silva|SGE RBL RSO
+Rui Costa|FIO
+Raúl Jiménez|FUL
+Kostas Mitroglou|FUL
+Gökhan İnler|UDI
+Eljero Elia|SVW HSV
+Krzysztof Piątek|GNO FIO
+David Silva|RSO
+Rodrigo Moreno|LEE
+André Gomes|EVE
+Dani Parejo|VIL GET
+Shkodran Mustafi|S04
+Gonçalo Guedes|RSO
+Denis Cheryshev|VIL
+Eliaquim Mangala|EVE
+Francis Coquelin|VIL
+Michy Batshuayi|CRY SGE
+Mathieu Valbuena|OL
+Djibril Cissé|AUX SUN
+Abou Diaby|AUX
+Kevin Strootman|GNO CAG
+Ludovic Giuly|OL
+Bacary Sagna|AUX
+Laurent Blanc|AUX
+Didier Drogba|LMS
+Gervinho|ARS ROM PAR LIL LMS TS
+Paul Pogba|MON
+Christian Eriksen|BRE
+Marco Asensio|AVL
+Leonardo Bonucci|FCU
+Steven N'Zonzi|REN
+Petr Čech|REN
+Wissam Ben Yedder|TFC
+Ruud van Nistelrooy|HSV MAL
+Javier Saviola|MAL
+Miroslav Klose|SVW
+Ricardo Quaresma|KAS
+Seydou Keita|RCL
+Mason Greenwood|GET
+Diego Costa|RAY
+Teddy Sheringham|NFO
+Lilian Thuram|PAR
+Claude Makélélé|CEL
+Stephen Appiah|UDI
+Paulo Dybala|ROM`;
+
 const norm=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-const PLAYERS=(RAW+'\n'+RAW2).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
+const PLAYERS0=(RAW+'\n'+RAW2+'\n'+RAW3+'\n'+RAW4).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
+const PLAYERS=(()=>{const m=new Map();PLAYERS0.forEach(p=>{const q=m.get(p.n);if(q){q.c=[...new Set([...q.c,...p.c])];q.keys=[...new Set([...q.keys,...p.keys])]}else m.set(p.n,{n:p.n,c:[...p.c],keys:[...p.keys]})});return[...m.values()].map(p=>({...p,c:p.c.filter(x=>Object.prototype.hasOwnProperty.call(TEAMS,x))}))})();
 const lev=(a,b)=>{const m=a.length,n=b.length;let d=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){let p=d[0];d[0]=i;for(let j=1;j<=n;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[n]};
 const match=(input,list)=>{const q=norm(input);if(q.length<2)return null;for(const p of list)if(p.keys.includes(q))return p;for(const p of list)for(const k of p.keys){const tol=k.length>=9?2:k.length>=5?1:0;if(tol&&Math.abs(k.length-q.length)<=tol&&lev(q,k)<=tol)return p}return null};
 
 const IDS=Object.keys(TEAMS);
 const has=id=>typeof id==='string'&&Object.prototype.hasOwnProperty.call(TEAMS,id);
-const shared=(a,b)=>has(a)&&has(b)?PLAYERS.filter(p=>p.c.includes(a)&&p.c.includes(b)):[];
+const SHC={};const shared=(a,b)=>{if(!has(a)||!has(b))return[];const k=a<b?a+'|'+b:b+'|'+a;return SHC[k]||(SHC[k]=PLAYERS.filter(p=>p.c.includes(a)&&p.c.includes(b)))};
+const starOf=id=>STARS[id]||3;const ptsOf=(a,b)=>Math.ceil((starOf(a)+starOf(b))/2);const starTxt=n=>'★'.repeat(n)+'<i class="off">'+'★'.repeat(5-n)+'</i>';
 const STY={GS:['h','#fdb912','#c8102e'],FB:['v','#0a2a6b','#ffe000',7],BJK:['h','#111','#f4f4f4'],TS:['v','#7b1d34','#7fc4ea',5],IBF:['s','#e8641b','#16244a'],
  RMA:['s','#f4f4f4','#d4a72c'],BAR:['v','#a50044','#1d4fa3',7],ATM:['v','#d7262b','#f4f4f4',7],SEV:['s','#f4f4f4','#d4021d'],VAL:['b','#f4f4f4','#151515'],
  MUN:['c','#da291c','#151515'],MCI:['b','#6cabdd','#1c2c5b'],LIV:['r','#c8102e','#f6eb61'],CHE:['r','#034694','#f4f4f4'],ARS:['e','#ef0107','#f4f4f4'],TOT:['l','#f4f4f4','#132257'],
  JUV:['v','#151515','#f4f4f4',7],INT:['v','#0068a8','#151515',7],MIL:['v','#e3090b','#151515',7],NAP:['r','#12a0d7','#f4f4f4'],ROM:['s','#8e1f2f','#f0bc42'],LAZ:['r','#87d8f7','#15366b'],
  BAY:['c','#dc052d','#0066b2'],BVB:['b','#fde100','#151515'],PSG:['p','#004170','#da291c'],OM:['b','#f4f4f4','#2faee0'],MON:['dh','#e51b22','#f4f4f4'],POR:['v','#003f8a','#f4f4f4',5],
- BEN:['r','#e20e17','#f4f4f4'],AJA:['m','#f4f4f4','#d2122e']};
+ BEN:['r','#e20e17','#f4f4f4'],AJA:['m','#f4f4f4','#d2122e'],
+ SAM:['r','#e30613','#f4f4f4'],GOZ:['h','#f6c900','#d0021b'],EYP:['h','#6b2c91','#f5d000'],KAS:['r','#002b5c','#f4f4f4'],ALA:['v','#f18a00','#0a7a3d',5],KON:['b','#0a7a3d','#f4f4f4'],
+ GFK:['h','#c8102e','#151515'],RIZ:['h','#0a7a3d','#1c63b7'],GNC:['h','#e30613','#151515'],KOC:['v','#0a7a3d','#151515',5],ERZ:['r','#0057b8','#f4f4f4'],AMD:['h','#0a7a3d','#e30613'],COR:['s','#e30613','#151515'],
+ ATH:['v','#ee2523','#f4f4f4',7],RSO:['v','#0067b1','#f4f4f4',5],BET:['v','#0bb363','#f4f4f4',7],VIL:['r','#ffe114','#005187'],CEL:['r','#8ac3ee','#e30613'],GET:['r','#005999','#f4f4f4'],
+ OSA:['b','#d91a21','#0a346f'],ALV:['v','#0761af','#f4f4f4',7],ESY:['v','#007fc8','#f4f4f4',7],RAY:['s','#f4f4f4','#e53027'],LEV:['v','#00529f','#b4053f',7],ELC:['b','#f4f4f4','#05642c'],
+ RAC:['r','#f4f4f4','#0a7a3d'],DEP:['v','#f4f4f4','#0057a8',7],MAL:['v','#00a3e0','#f4f4f4',7],
+ ATA:['v','#1e71b8','#151515',7],BOL:['h','#1a2f48','#a21c26'],FIO:['r','#482e92','#f4f4f4'],TOR:['r','#8a1e03','#f4f4f4'],GNO:['h','#ad1919','#002350'],UDI:['v','#151515','#f4f4f4',7],
+ CAG:['h','#002350','#ad002a'],LEC:['v','#ffd700','#e30613',7],SAS:['v','#00a752','#151515',7],PAR:['c','#f4f4f4','#1b4594'],COM:['r','#1f4e9a','#f4f4f4'],VEN:['c','#151515','#f36f21'],
+ FRO:['b','#ffd700','#1b4594'],MNZ:['b','#e30613','#f4f4f4'],
+ AVL:['l','#670e36','#95bfe5'],BOU:['v','#da291c','#151515',7],BRE:['v','#e30613','#f4f4f4',7],BHA:['v','#0057b8','#f4f4f4',7],COV:['r','#59cbe8','#f4f4f4'],CRY:['v','#1b458f','#c4122e',5],
+ EVE:['r','#003399','#f4f4f4'],FUL:['b','#f4f4f4','#151515'],HUL:['v','#f5a12d','#151515',7],IPS:['r','#0044a9','#f4f4f4'],LEE:['b','#f4f4f4','#1d428a'],NEW:['v','#151515','#f4f4f4',7],
+ NFO:['r','#dd0000','#f4f4f4'],SUN:['v','#eb172b','#f4f4f4',7],
+ RBL:['c','#f4f4f4','#dd0741'],B04:['b','#e32221','#151515'],SGE:['r','#151515','#e1000f'],VFB:['b','#f4f4f4','#e32219'],SCF:['r','#e2001a','#f4f4f4'],TSG:['r','#1961b5','#f4f4f4'],
+ M05:['r','#ed1c24','#f4f4f4'],BMG:['b','#f4f4f4','#009b4e'],SVW:['c','#1d9053','#f4f4f4'],FCA:['v','#ba3733','#0a7a3d',5],FCU:['r','#eb1923','#f4f4f4'],KOE:['b','#f4f4f4','#ed1c24'],
+ HSV:['c','#f4f4f4','#0a3f86'],S04:['r','#004d9d','#f4f4f4'],ELV:['v','#151515','#f4f4f4',5],SCP:['v','#0055a5','#151515',5],
+ NIC:['v','#e30613','#151515',7],LIL:['h','#e01e13','#20325f'],OL:['s','#f4f4f4','#d20a2e'],RCS:['r','#009fe3','#f4f4f4'],RCL:['v','#ffe100','#e30613',5],BRS:['r','#e30613','#f4f4f4'],
+ TFC:['r','#6a2c91','#f4f4f4'],AUX:['b','#f4f4f4','#003f8a'],REN:['l','#e13327','#151515'],ANG:['v','#151515','#f4f4f4',7],HAC:['h','#8ac3ee','#0b2b5e'],LOR:['r','#f58113','#151515'],
+ PFC:['b','#1d2c4f','#f4f4f4'],TRO:['r','#005eb8','#f4f4f4'],LMS:['h','#e30613','#ffd200']};
 const crest=id=>{if(!has(id))return'';const s=TEAMS[id][1],[k,c1,c2,n]=STY[id]||['r',TEAMS[id][2],TEAMS[id][3]];
   const P='M32 3 59 11v24c0 18-11.5 30-27 36C16.5 65 5 53 5 35V11z';let pat='';
   if(k==='v'){const w=64/n;for(let i=1;i<n;i+=2)pat+=`<rect x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="74" fill="${c2}"/>`}
@@ -992,21 +2613,27 @@ function removePlayer(i){
   if(G.ob)checkVotes();
 }
 const pairOK=(a,b)=>a!==b&&!G.pairs.includes(pkey(a,b))&&shared(a,b).some(p=>!G.used.includes(p.n));
-function nine(){                         // seçimler gizli olduğu için birbirine en çok bağlı 9 takımı ara
-  let best=null,bs=-1;
-  for(let t=0;t<700;t++){const pool=[...IDS].sort(()=>Math.random()-.5).slice(0,9);let sc=0,minD=9;
-    pool.forEach(x=>{const d=pool.filter(y=>pairOK(x,y)).length;sc+=d;minD=Math.min(minD,d)});
-    if(minD>=3&&sc>bs){bs=sc;best=pool}}
-  return best||['GS','FB','BJK','RMA','BAR','MUN','CHE','JUV','MIL'];
+function nine(){                         // birbirine bağlı 9 takım: rastgele bir takımdan başla, ortak oyuncusu olanları ekle
+  for(let t=0;t<80;t++){
+    const pool=[IDS[Math.floor(Math.random()*IDS.length)]];
+    while(pool.length<9){
+      const cand=IDS.filter(x=>!pool.includes(x)).map(x=>[x,pool.filter(y=>pairOK(x,y)).length]).filter(z=>z[1]>0);
+      if(!cand.length)break;const need=Math.min(2,pool.length);let c=cand.filter(z=>z[1]>=need);if(!c.length)c=cand;
+      pool.push(c[Math.floor(Math.random()*c.length)][0]);
+    }
+    if(pool.length===9&&pool.every(x=>pool.filter(y=>pairOK(x,y)).length>=2))return pool.sort(()=>Math.random()-.5);
+  }
+  return['GS','FB','BJK','RMA','BAR','MUN','CHE','JUV','MIL'];
 }
-function setPickers(){const N=G.pl.length;G.pk=N<=2?G.pl.map(p=>p.u):[G.pl[(G.r-1)%N].u,G.pl[G.r%N].u]}
+function setPickers(){const N=G.pl.length,o=(G.r-1+(+G.vc||0));G.pk=N<=2?G.pl.map(p=>p.u):[G.pl[o%N].u,G.pl[(o+1)%N].u]}
 function startGame(){
   if(G.pl.length<2)return;readSettings();
-  Object.assign(G,{gid:(+G.gid||0)+1,r:0,used:[],pairs:[],note:''});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
+  Object.assign(G,{gid:(+G.gid||0)+1,r:0,vc:0,used:[],pairs:[],note:'',ph:'wait',wu:null});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
 }
 function nextRound(){
-  if(G.r>=G.R){G.ph='end';G.ob=null;mark();return}
-  G.r++;G.note='';setPickers();
+  const replay=G.ph==='res'&&!G.wu;                   // kimse bilemediyse tur geçersiz: aynı tur yeniden
+  if(replay)G.vc=(+G.vc||0)+1;else{if(G.r>=G.R){G.ph='end';G.ob=null;mark();return}G.r++}
+  G.note='';setPickers();
   Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,redo:'',a:null,b:null,ob:null,obr:null,hit:null,wu:null});
   G.nine=nine();
   G.pl.forEach(p=>{p.lk=0;p.lr='';p.wr=null;p.h=null;p.obd=0;p.g=0;p.jb='';p.at=[]});mark();
@@ -1015,10 +2642,10 @@ function pickTeam(u,id){                  // gizli seçim: herkes kendi takımı
   if(G.ph!=='pick'||!G.pk.includes(u)||G.sp[u]||!G.nine.includes(id))return;
   G.sp[u]=id;mark();
   if(G.pk.every(x=>G.sp[x])){G.a=G.sp[G.pk[0]];G.b=G.sp[G.pk[1]];G.ph='rev';G.rvEnd=now()+3200;
-    G.rvOK=pairOK(G.a,G.b)?1:0;G.redo=G.a===G.b?'İkiniz de aynı takımı seçtiniz!':!G.rvOK?(G.pairs.includes(pkey(G.a,G.b))?'Bu eşleşme bu maçta zaten oynandı.':'Bu iki takımın ortak oyuncusu yok.'):''}
+    G.rvOK=pairOK(G.a,G.b)?1:0;G.pts=ptsOf(G.a,G.b);G.redo=G.a===G.b?'İkiniz de aynı takımı seçtiniz!':!G.rvOK?(G.pairs.includes(pkey(G.a,G.b))?'Bu eşleşme bu maçta zaten oynandı.':'Bu iki takımın ortak oyuncusu yok.'):''}
 }
 function afterReveal(){
-  if(G.rvOK){G.pairs.push(pkey(G.a,G.b));G.ph='ans';G.end=now()+G.T*1000+800;mark();return}
+  if(G.rvOK){G.pairs.push(pkey(G.a,G.b));G.pts=ptsOf(G.a,G.b);G.ph='ans';G.end=now()+G.T*1000+800;mark();return}
   Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,a:null,b:null});mark();       // geçersiz eşleşme: tekrar seçim
 }
 function answer(i,t){
@@ -1052,12 +2679,12 @@ function vote(i,id,v){
 function checkVotes(){
   if(!G.ob)return;const voters=G.pl.filter(q=>q.u!==G.ob.u&&!q.off);
   if(voters.length&&voters.every(q=>G.ob.v[q.u]===1)){const w=idxOf(G.ob.u),t=G.ob.t,p=P(w);G.ob=null;
-    if(p){p.s=(+p.s||0)+2;p.g=3}G.wu=p?p.u:null;G.hit=t+' (itirazla)';G.used.push(t);G.obOK=(+G.obOK||0)+1;mark()}
+    if(p){const v=+G.pts||1;p.s=(+p.s||0)+v;p.g=v}G.wu=p?p.u:null;G.hit=t+' (itirazla)';G.used.push(t);G.obOK=(+G.obOK||0)+1;mark()}
 }
 function endRound(w,hitName){
   if(G.ph!=='ans')return;
   G.ph='res';G.wu=w>=0?G.pl[w].u:null;G.hit=hitName;G.ob=null;
-  G.pl.forEach((p,i)=>{p.g=w<0?1:(i===w?3:0);p.s=(+p.s||0)+p.g});
+  G.pl.forEach((p,i)=>{p.g=w>=0&&i===w?(+G.pts||1):0;p.s=(+p.s||0)+p.g});
   if(hitName)G.used.push(hitName);mark();
 }
 
@@ -1175,18 +2802,18 @@ function drawPick(){
   $('pSub').innerHTML=(G.redo?`<b style="color:var(--bad)">${esc(G.redo)} Tekrar seçin.</b><br>`:'')+esc(sub)+`<span class="pickers">${pk.map(u=>{const i=idxOf(u);return`<span class="${sp[u]?'done':''}" style="--pc:${pCol(i)}">${avI(i,26)}${esc(pName(i))} · ${sp[u]?'seçti':P(i)&&P(i).off?'bağlantı koptu':'seçiyor'}</span>`}).join('')}</span>`;
   const nine=(Array.isArray(G.nine)?G.nine:[]).filter(has);
   $('nine').classList.toggle('mine',can);
-  $('nine').innerHTML=nine.map(id=>`<button class="team${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join('');
+  $('nine').innerHTML=nine.map(id=>`<button class="team${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span><small class="stars" aria-label="${starOf(id)} yıldız">${starTxt(starOf(id))}</small>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join('');
 }
 let rvT=null;
 function drawRev(){
   const first=screen!=='rev';show('rev');const box=document.querySelector('.rv');
   const pk=G.pk||[],a=pk[0],b=pk[1];
-  $('rvA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0])+`<small>${esc(nameOfU(a))}</small>`;$('rvB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0])+`<small>${esc(nameOfU(b))}</small>`;
+  $('rvA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0])+`<small class="stars">${starTxt(starOf(G.a))}</small><small>${esc(nameOfU(a))}</small>`;$('rvB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0])+`<small class="stars">${starTxt(starOf(G.b))}</small><small>${esc(nameOfU(b))}</small>`;
   $('rvTitle').textContent='Seçimler açılıyor';$('rvMsg').innerHTML='';
   if(first){box.classList.remove('go');void box.offsetWidth;box.classList.add('go')}
   clearInterval(rvT);const tick=()=>{if(!G||G.ph!=='rev'){clearInterval(rvT);return}const l=Math.max(0,Math.ceil(((+G.rvEnd||0)-now())/1000));$('rvSec').textContent=G.rvOK?(l||'Başla'):'✕';
     if(!G.rvOK){$('rvTitle').textContent='Eşleşme geçersiz';$('rvMsg').innerHTML=`<b style="color:var(--bad)">${esc(G.redo||'')}</b> Birazdan tekrar seçeceksiniz.`}
-    else $('rvMsg').textContent=`İki takımda da oynamış bir futbolcu bul. Sayaç ${l?l+' sn içinde':'şimdi'} başlıyor.`};
+    else $('rvMsg').innerHTML=`<b class="ptsb">Bu tur ${+G.pts||1} puan</b> İki takımda da oynamış bir futbolcu bul. Sayaç ${l?l+' sn içinde':'şimdi'} başlıyor.`};
   tick();rvT=setInterval(tick,200);
 }
 function drawAns(){
@@ -1199,13 +2826,13 @@ function drawAns(){
 function drawObj(){
   const i=myIdx(),me=P(i),o=G.ob;let h='';
   if(o){const by=nameOfU(o.u),t=esc(clip(o.t,30));
-    if(o.u===ME)h=`<div><b>İtirazın oylanıyor:</b> “${t}”. Herkes kabul ederse 3 puan senin.</div>`;
+    if(o.u===ME)h=`<div><b>İtirazın oylanıyor:</b> “${t}”. Herkes kabul ederse ${+G.pts||1} puan senin.</div>`;
     else if(i<0)h=`<div>${esc(by)} itiraz etti: “${t}”</div>`;
     else if(o.v&&o.v[ME]!=null)h=`<div>Oyunu verdin. Diğerleri bekleniyor…</div>`;
     else h=`<div><b>${esc(by)}</b> “${t}” yazmıştı. Bu oyuncu ${esc(TEAMS[G.a][0])} ve ${esc(TEAMS[G.b][0])} formasını giydi mi?</div><div class="btns"><button class="btn sm" data-a="yes">Evet, kabul</button><button class="btn ghost sm" data-a="no">Hayır</button></div>`}
   else if(G.obr)h=`<div>${esc(G.obr.n)}, ${esc(G.obr.by)} adlı oyuncunun “${esc(clip(G.obr.t,30))}” itirazını reddetti.</div>`;
   else if(!G.wu&&me&&!me.obd){const u=(me.at||[]).filter(x=>x.unk);if(u.length){const t=u[u.length-1].t;
-    h=`<div>“${esc(t)}” listemizde yoktu. Doğru olduğuna eminsen itiraz et, diğerleri onaylarsa 1 yerine 3 puan alırsın.</div><div class="btns"><button class="btn sm" data-a="ob" data-t="${esc(t)}">İtiraz et</button></div>`}}
+    h=`<div>“${esc(t)}” listemizde yoktu. Doğru olduğuna eminsen itiraz et, diğerleri onaylarsa tur geçerli olur ve ${+G.pts||1} puan senin.</div><div class="btns"><button class="btn sm" data-a="ob" data-t="${esc(t)}">İtiraz et</button></div>`}}
   const box=$('obj');if(box.dataset.h!==h){box.dataset.h=h;box.innerHTML=h}
 }
 function drawOpps(){
@@ -1233,14 +2860,14 @@ setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%10
 function drawRes(){
   show('res');const mi=myIdx(),wi=idxOf(G.wu);
   $('rPair').innerHTML=crest(G.a)+'<i>×</i>'+crest(G.b);
-  if(!G.wu){$('rBig').textContent='Süre doldu';$('rTxt').textContent='Kimse bilemedi, herkese 1 puan.'}
-  else{$('rBig').textContent=wi===mi?'Bildin!':pName(wi)+' bildi';$('rTxt').textContent=`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`}
+  if(!G.wu){$('rBig').textContent='Tur geçersiz';$('rTxt').textContent=`Kimse bilemedi, kimse puan almadı. Tur ${G.r} yeni takımlarla tekrar oynanacak.`}
+  else{$('rBig').textContent=(wi===mi?'Bildin!':pName(wi)+' bildi')+` +${+G.pts||1}`;$('rTxt').textContent=`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`}
   $('rPts').innerHTML=G.pl.map((p,i)=>`<div style="--pc:${pCol(i)}">${avI(i,30)}${esc(pName(i))} +${+p.g||0}</div>`).join('');
   const v=shared(G.a,G.b),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rMore').open=false;
   $('rList').innerHTML=[...v].sort((x,y)=>(y.n===hit)-(x.n===hit)).map(p=>`<li class="${p.n===hit?'hit':G.used.includes(p.n)?'used':''}">${esc(p.n)}</li>`).join('');
   $('rTries').innerHTML=G.pl.map((p,i)=>{const at=p.at||[];return`<div class="try" style="--pc:${pCol(i)}">${avI(i,26)}<strong>${esc(pName(i))}</strong><span class="g">${at.length?at.map(x=>`<span class="${x.ok?'ok':x.unk?'no unk':'no'}">${esc(clip(x.t,30))}</span>`).join(''):'<span style="opacity:.6">cevap yazmadı</span>'}</span></div>`}).join('');
   drawObj();
-  $('next').hidden=mi<0;$('next').textContent=G.r>=G.R?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';
+  $('next').hidden=mi<0;$('next').textContent=!G.wu?'Turu tekrar oyna':G.r>=G.R?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';
 }
 function drawEnd(){
   show('end');const mi=myIdx(),ord=G.pl.map((p,i)=>({i,s:+p.s||0})).sort((a,b)=>b.s-a.s);
