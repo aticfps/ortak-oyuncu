@@ -276,7 +276,7 @@ h1{letter-spacing:-.02em;text-shadow:0 3px 0 rgba(0,0,0,.35),0 18px 40px rgba(0,
 @keyframes foil{from{background-position:120% 0}to{background-position:-60% 0}}
 .team .tag{top:-14px;transform:translateX(-50%) rotate(-3deg);box-shadow:0 3px 0 rgba(0,0,0,.25)}
 /* emoji: tek butondan açılır */
-.rxb{top:auto;bottom:16px;right:12px;flex-direction:row-reverse;align-items:center;gap:6px}
+.rxb{top:auto;bottom:calc(16px + env(safe-area-inset-bottom));left:12px;right:auto;flex-direction:row;align-items:center;gap:6px}
 .rxb button:not(.rxt){display:none}.rxb.open button{display:block}
 .rxb .rxt{width:46px;height:46px;font-size:22px;background:var(--flood);border-color:var(--flood);box-shadow:0 6px 16px rgba(0,0,0,.4)}
 .rxb.open .rxt{background:rgba(4,22,13,.85);border-color:var(--line)}
@@ -2788,7 +2788,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='16';
+const APPV='17';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
