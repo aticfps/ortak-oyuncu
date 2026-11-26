@@ -2602,7 +2602,7 @@ function hostTick(){
 }
 setInterval(hostTick,1000);
 function handleInputs(i,pr){
-  const u=G.pl[i].u,cur=()=>G.r,gid=G.gid;
+  const u=G.pl[i].u,cur=()=>G.pn,gid=G.gid;
   const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===gid)pickTeam(u,String(k.id));
   if(pr.ans&&+pr.ans.n>(H.n[u]||0)){H.n[u]=+pr.ans.n;if(pr.ans.r===cur()&&pr.ans.g===gid)answer(idxOf(u),clip(pr.ans.t,60))}
   if(pr.jk&&+pr.jk.n>(H.j[u]||0)){H.j[u]=+pr.jk.n;if(pr.jk.r===cur()&&pr.jk.g===gid)joker(idxOf(u))}
@@ -2721,17 +2721,17 @@ $('nine').addEventListener('click',e=>{
 });
 $('ansF').addEventListener('submit',e=>{
   e.preventDefault();const i=myIdx(),t=$('ansI').value.trim();if(!G||G.ph!=='ans'||i<0||!t||now()<(+P(i).lk||0))return;
-  if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.r,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
+  if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.pn,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
 });
-$('jkB').onclick=()=>{const i=myIdx();if(!G||G.ph!=='ans'||i<0)return;if(isHost)act(()=>joker(i));else{C.jk++;send({jk:{r:G.r,g:G.gid,n:C.jk}})}};
+$('jkB').onclick=()=>{const i=myIdx();if(!G||G.ph!=='ans'||i<0)return;if(isHost)act(()=>joker(i));else{C.jk++;send({jk:{r:G.pn,g:G.gid,n:C.jk}})}};
 $('ansI').addEventListener('input',()=>{const v=$('ansI').value&&G?G.r:0;if(v!==C.ty){C.ty=v;send({ty:v})}});
 $('obj').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||!G)return;const i=myIdx();if(i<0)return;
-  if(b.dataset.a==='ob'){const t=b.dataset.t||'';if(isHost)act(()=>objectIt(i,t));else{C.ob++;send({ob:{r:G.r,g:G.gid,n:C.ob,t}})}$('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
+  if(b.dataset.a==='ob'){const t=b.dataset.t||'';if(isHost)act(()=>objectIt(i,t));else{C.ob++;send({ob:{r:G.pn,g:G.gid,n:C.ob,t}})}$('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
   if(b.dataset.a==='yes'||b.dataset.a==='no'){const v=b.dataset.a==='yes'?1:0,id=G.ob?G.ob.id:0;if(isHost)act(()=>vote(i,id,v));else{C.v++;send({vt:{n:C.v,id,v}})}
     $('obj').querySelectorAll('button').forEach(x=>x.disabled=true)}
 });
-$('next').onclick=()=>{if(!G)return;if(isHost)act(()=>nextRound());else{send({nx:{r:G.r,g:G.gid}});$('rStatus').textContent='Kurucuya iletildi…'}};
+$('next').onclick=()=>{if(!G)return;if(isHost)act(()=>nextRound());else{send({nx:{r:G.pn,g:G.gid}});$('rStatus').textContent='Kurucuya iletildi…'}};
 $('start').onclick=()=>{if(isHost)act(()=>startGame())};
 $('again').onclick=()=>{if(isHost)act(()=>startGame())};
 $('toLobby').onclick=()=>leaveRoom();
