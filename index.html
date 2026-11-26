@@ -604,6 +604,65 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 @media(max-width:350px){.cards>.card .v22-cardhead h3{font-size:23px}.chips{grid-template-columns:1fr}.chip .nm{font-size:12px}#nine .team span{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.chip.pop .sc,#rBig.pop,.big,.rv.go .t,.screen.on{animation:none!important}}
 
+
+/* V22.2: screenshot-driven match screen, regular type and centered score strip */
+:root{--ui:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.board{display:block;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:#141a29;box-shadow:none}
+.board[hidden]{display:none}
+.v222-scorewrap{max-width:808px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.v222-scorewrap .chips{max-width:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:58px;background:#20283b;border:1px solid #384459;border-left:3px solid var(--pc);border-radius:12px;gap:10px;padding:8px 10px}
+.v222-scorewrap .chip .nm{font:650 13px/1.2 var(--ui);text-overflow:ellipsis}.v222-scorewrap .chip .nm small{font:500 10px/1.1 var(--ui)}
+.v222-scorewrap .chip .sc{font:750 26px/1 var(--ui)!important;min-width:40px;background:#131a29;color:var(--pc);text-align:center;padding:6px 8px}
+.v222-scorewrap .mid{font:600 11px/1.1 var(--ui);min-width:76px}.v222-scorewrap .mid b{font:750 19px/1.2 var(--ui)!important;margin:2px 0 4px}
+.v222-scorewrap .specn:empty{display:none}.v222-scorewrap .mid .sound{width:32px;height:28px;margin-top:0}
+#ans,#rev,#pick,#res,#end,#prof{font-family:var(--ui)}
+#ans h2,#rev h2,#pick h2,#prof h2{font:750 25px/1.2 var(--ui)!important;letter-spacing:-.035em;text-shadow:none}
+.v222-matchhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 14px}
+.v222-overline,.v222-opplabel{font:650 10px/1.3 var(--ui);letter-spacing:.14em;color:var(--mute)}
+.v222-matchhead h2{margin-top:4px}
+.v222-points{flex:none;padding:7px 11px;border:1px solid #b8f5684a;background:#b8f5680d;color:var(--flood);border-radius:8px;font:700 12px/1.2 var(--ui);letter-spacing:.06em}
+#ans .vs,#rev .vs{position:relative;isolation:isolate;overflow:hidden;margin:0 0 14px;min-height:210px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;background:linear-gradient(110deg,#1e3047 0%,#1a2031 48%,#302536 100%);border:1px solid #3a435a;padding:24px 20px;border-radius:18px}
+#ans .vs::before,#rev .vs::before{content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(50% - .5px),#ffffff0e 50%,transparent calc(50% + .5px))}
+#ans .vs .t,#rev .vs .t{font:700 clamp(15px,2.3vw,21px)/1.15 var(--ui)!important;gap:12px;min-height:150px;text-align:center;overflow-wrap:anywhere}
+#ans .vs .t .crest,#rev .vs .t .crest{height:100px;width:94px;max-width:100%;object-fit:contain}
+#ans .clock,#rev .clock{width:106px;background:#131a29;border:none;box-shadow:0 0 0 6px #ffffff08}
+#ans .clock b,#rev .clock b{font:750 35px/1 var(--ui)!important;text-shadow:none}
+#ans .clock b{padding-bottom:13px}
+#ans .clock::after{content:"SANİYE";position:absolute;top:66%;left:0;right:0;text-align:center;color:var(--mute);font:650 9px/1 var(--ui);letter-spacing:.12em}
+.v222-answerpanel{padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+#ansI{font:500 16px/1.3 var(--ui);background:#111725;border:1px solid #586549;min-height:52px}
+#ansGo{font:700 15px/1.2 var(--ui)!important;min-height:52px;min-width:105px}
+#ans .tools .jk,#ans .tools .jk.ip{font:650 13px/1.2 var(--ui)!important;min-height:44px;background:#202b3e}
+#ans .tools .jk:disabled{opacity:1;color:#939db1;background:#1c2435;border-color:#344056}
+#ans .tools .hint{font:700 18px/1.3 var(--ui);padding:10px 12px;background:#b8f5680a;border:1px dashed #b8f56840;border-radius:9px}
+#ans .msg{font:500 13px/1.5 var(--ui);margin:10px 0 0;min-height:20px}
+.v222-opplabel{margin:16px 0 7px}
+#ans .opps{margin-top:0}
+#ans .opp{font:500 13px/1.4 var(--ui);min-height:52px}
+#ans .opp strong{font-weight:650}
+#ans .opp .st{font-size:12px}
+#ans .kmode .vs .t,.kmode .vs .t{visibility:hidden}
+#nine .team span,#res .big,#eBig,#pfBody .pfg b,.rank b{font-family:var(--ui)!important}
+#nine .team span{font-size:14px;font-weight:650!important}
+#quit{color:var(--mute);font:500 13px/1.2 var(--ui)}
+@media(max-width:600px){
+ .board{padding:calc(7px + env(safe-area-inset-top)) 10px 7px}
+ .v222-scorewrap{gap:7px}.v222-scorewrap .chips{gap:5px}
+ .v222-scorewrap .chip,.v222-scorewrap .chip.me{gap:4px;min-height:46px;padding:5px}
+ .v222-scorewrap .chip .nm{font-size:11px}.v222-scorewrap .chip .sc{font-size:20px!important;min-width:26px;padding:4px}
+ .v222-scorewrap .mid{min-width:58px}.v222-scorewrap .mid b{font-size:15px!important}.v222-scorewrap .mid .sound{width:26px;height:26px}
+ #ans h2{font-size:21px!important}.v222-points{font-size:10px;padding:6px 8px}
+ #ans .vs,#rev .vs{min-height:158px;padding:14px 8px;gap:6px}
+ #ans .vs .t,#rev .vs .t{min-height:106px;gap:8px;font-size:14px!important}
+ #ans .vs .t .crest,#rev .vs .t .crest{height:67px;width:62px}
+ #ans .clock,#rev .clock{width:76px;box-shadow:0 0 0 3px #ffffff08}
+ #ans .clock b,#rev .clock b{font-size:26px!important}#ans .clock b{padding-bottom:9px}#ans .clock::after{font-size:7px}
+ .v222-answerpanel{padding:10px}#ansGo{min-width:74px;padding:8px 10px;font-size:13px!important}#ansI{font-size:16px}
+ #nine .team span{font-size:12px}
+}
+@media(max-width:350px){.v222-scorewrap .chips{grid-template-columns:1fr}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:36px}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -616,8 +675,9 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 <div class="pitch" aria-hidden="true"><svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"><line x1="0" y1="520" x2="1000" y2="520"/><circle cx="500" cy="520" r="170"/><circle class="dot" cx="500" cy="520" r="7"/></svg></div>
 
 <header class="board" id="board" hidden aria-live="polite">
-  <div class="chips" id="chips"></div>
+  <div class="v222-scorewrap"><div class="chips" id="chips"></div>
   <div class="mid"><span class="tsc" id="tScore"></span>Tur<b id="rd">–</b><span class="specn" id="specN"></span><button class="sound mic" id="mic" aria-label="Anlatıcıyı aç/kapat" title="Anlatıcı">🎙</button><button class="sound" id="snd" aria-label="Sesi aç/kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="x" d="M16 9l5 6M21 9l-5 6"/></svg></button></div>
+  </div>
 </header>
 
 <main>
@@ -683,15 +743,16 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
   </section>
 
   <section class="screen" id="ans">
+    <div class="v222-matchhead"><div><span class="v222-overline">ORTAK OYUNCU</span><h2>Futbolcuyu bul</h2></div><span class="v222-points" id="v222Pts"></span></div>
     <div class="kc" id="kChain" hidden></div>
     <div class="vs"><div class="t" id="tA"></div>
       <div class="clock" id="clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="9"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="#f6d33f" stroke-width="9" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><b id="aSec"></b></div>
       <div class="t" id="tB"></div></div>
-    <form class="answer" id="ansF"><input id="ansI" placeholder="Futbolcu adı" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Futbolcu adı"><button class="btn" id="ansGo">Gönder</button></form>
+    <div class="v222-answerpanel"><form class="answer" id="ansF"><input id="ansI" placeholder="Futbolcu adı" autocomplete="off" autocapitalize="words" spellcheck="false" aria-label="Futbolcu adı"><button class="btn" id="ansGo">Gönder</button></form>
     <div class="tools"><button type="button" class="jk" id="jkB"></button><button type="button" class="jk ip" id="ipB">İpucu</button><div class="hint" id="hint"></div></div>
     <p class="ipT" id="ipT" hidden></p>
-    <p class="msg" id="aMsg" role="status"></p>
-    <div class="opps" id="opps"></div>
+    <p class="msg" id="aMsg" role="status"></p></div>
+    <div class="v222-opplabel">RAKİPLER</div><div class="opps" id="opps"></div>
   </section>
 
   <section class="screen" id="res">
@@ -3129,7 +3190,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22.1';
+const APPV='22.2';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3785,7 +3846,7 @@ function drawRev(){
   tick();rvT=setInterval(tick,200);
 }
 function drawAns(){
-  show('ans');const i=myIdx();const km=G.md==='k';$('ans').classList.toggle('kmode',km);$('kChain').hidden=!km;if(km)drawChain(true);
+  show('ans');const i=myIdx();const km=G.md==='k';$('v222Pts').textContent=(km?kPts():+G.pts||1)+' PUAN';$('ans').classList.toggle('kmode',km);$('kChain').hidden=!km;if(km)drawChain(true);
   if($('tA').dataset.id!==G.a+G.b+G.r){$('tA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0]);$('tB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0]);$('tA').dataset.id=G.a+G.b+G.r}
   const duel=i>=0&&isDuel(ME);$('ansF').hidden=!duel;$('jkB').hidden=!duel||!(+G.J>0);$('ipB').hidden=!duel;if(i>=0&&!duel)$('aMsg').textContent='Bu düelloyu izliyorsun, sıran gelince oynayacaksın.';{const ip=i>=0?P(i).ip:'';$('ipT').hidden=!ip;$('ipT').textContent=ip?'İpucu: '+ip:''}
   if(i>=0){$('jkB').textContent=`Joker (${+P(i).j||0})`;$('hint').textContent=P(i).h?clip(P(i).h,60):''}else $('aMsg').textContent='İzleyici olarak bakıyorsun.';
@@ -3832,7 +3893,7 @@ function tickUI(force){
   document.body.classList.toggle('hurry',left>0&&left<5000);
   $('aSec').textContent=s;$('ring').style.strokeDashoffset=276.5*(1-Math.min(1,left/tot));$('clock').classList.toggle('low',left<6000);
   if(s!==lastSec){if(lastSec>0&&s<=5&&s>0)SFX.tick(s<=3);lastSec=s}
-  if(G.md==='k')drawChain(false);
+  if(G.md==='k'){drawChain(false);$('v222Pts').textContent=kPts()+' PUAN'}
   const i=myIdx();if(i<0||!isDuel(ME))return;const me=P(i);
   const lk=(+me.lk||0)-gameNow(),locked=lk>0,inp=$('ansI'),m=$('aMsg');
   if(gamePaused()){inp.disabled=true;$('ansGo').disabled=true;$('jkB').disabled=true;$('ipB').disabled=true;inp.dataset.pause='1';m.className='msg';m.textContent='Bağlantı bekleniyor…';return}
