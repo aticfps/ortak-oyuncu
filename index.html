@@ -849,7 +849,7 @@ sBtn.onclick=()=>{muted=!muted;sBtn.classList.toggle('off',muted);try{localStora
 
 const lStatus=(t,bad)=>{const e=$('lStatus');e.textContent=t;e.classList.toggle('bad',!!bad)};
 $('fan').innerHTML=['GS','RMA','LIV','MIL','FB'].map((id,i)=>crest(id).replace('<svg ',`<svg style="transform:translate(-50%,-50%) translateX(${(i-2)*54}px) rotate(${(i-2)*11}deg) translateY(${Math.abs(i-2)*10}px);z-index:${5-Math.abs(i-2)}" `)).join('');
-$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin. Sürüm 1.5`;
+$('note').textContent=`${IDS.length} takım, ${PLAYERS.length} futbolcu. Armalar temsili çizimdir; listede olmayan doğru bir cevap için itiraz edebilirsin. Sürüm 1.6`;
 
 /* ---------- ağ katmanı: Firebase Realtime Database ---------- */
 /* Her oyuncu odada kendi Google kimliğiyle tek bir kayıt tutar. Kayıt bağlantı kopunca silinmez,
