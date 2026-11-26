@@ -2957,42 +2957,57 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='21';
+const APPV='21.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
   temiz:['Tam saha pres','Bir maçın bütün geçerli turlarını sen bildin'],ipsiz:['Ezberci','İpucu almadan maç kazandın'],itiraz:['VAR kararı','İtirazla tur kazandın'],
   hiz:['Şimşek','Hızlı modda maç kazandın'],takim:['Takım oyuncusu','2v2 maç kazandın'],on:['Müdavim','10 maç oynadın'],kral:['Şampiyon','10 maç kazandın'],
   elli:['Ansiklopedi','Toplam 50 doğru cevap'],ay1:['Ay şampiyonu','Aylık sezonu arkadaşların arasında birinci bitirdin'],ay3:['Podyum','Aylık sezonu ilk 3’te bitirdin'],hafta:['Haftanın birincisi','Bir haftayı arkadaşların arasında zirvede bitirdin'],kupa:['Kupa sahibi','Turnuva kazandın'],kariyer:['Kariyer uzmanı','Bir kariyer zinciri maçında 3 tur bildin'],gun:['Günün adamı','Günün bulmacasını 5/5 bitirdin']};
-function earnBadges(s,me,won,hits){const H=G.hist||[],b={},mine=H.filter(h=>h.w===ME);let run=0,best=0;
-  H.forEach(h=>{run=h.w===ME?run+1:0;best=Math.max(best,run)});const valid=H.filter(h=>h.w);
+function earnBadges(s,game,uid,won,hits){const H=game.hist||[],b={},mine=H.filter(h=>h.w===uid);let run=0,best=0;
+  H.forEach(h=>{run=h.w===uid?run+1:0;best=Math.max(best,run)});const valid=H.filter(h=>h.w);
   b.ilk=1;if(mine.some(h=>+h.p>=4))b.zor=1;if(best>=3)b.seri=1;if(valid.length>=3&&valid.every(h=>h.w===ME))b.temiz=1;
-  if(won&&!mine.some(h=>h.i))b.ipsiz=1;if(mine.some(h=>/itirazla/.test(h.h||'')))b.itiraz=1;if(won&&G.md==='q')b.hiz=1;if(won&&isTeam())b.takim=1;if(won&&G.md==='tr')b.kupa=1;if(G.md==='k'&&mine.length>=3)b.kariyer=1;
+  if(won&&!mine.some(h=>h.i))b.ipsiz=1;if(mine.some(h=>/itirazla/.test(h.h||'')))b.itiraz=1;if(won&&game.md==='q')b.hiz=1;if(won&&game.md==='t'&&game.tm)b.takim=1;if(won&&game.md==='tr')b.kupa=1;if(game.md==='k'&&mine.length>=3)b.kariyer=1;
   if((+s.g||0)+1>=10)b.on=1;if((+s.w||0)+(won?1:0)>=10)b.kral=1;if((+s.c||0)+hits>=50)b.elli=1;
   const old=s.b||{},nw=Object.keys(b).filter(k=>!old[k]);return{all:Object.assign({},old,b),nw}}
 function badgeRow(b){b=b||{};return`<div class="badges">${Object.entries(BADGES).map(([k,[n,d]])=>`<span class="bdg${b[k]?'':' no'}" title="${esc(d)}">🏅 ${esc(n)}</span>`).join('')}</div>`}
 const wkKey=(off=0)=>{const[y,m,d]=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date()).split('-').map(Number);const t=new Date(Date.UTC(y,m-1,d));t.setUTCDate(t.getUTCDate()-((t.getUTCDay()+6)%7)+off*7);return t.toISOString().slice(0,10)};
 const moKey=(off=0)=>{const[y,m]=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date()).split('-').map(Number);const d=new Date(Date.UTC(y,m-1+off,1));return d.toISOString().slice(0,7)};
 const moName=k=>{const[y,m]=k.split('-').map(Number);return new Date(Date.UTC(y,m-1,15)).toLocaleDateString('tr-TR',{month:'long',year:'numeric'})};
+const statCount=x=>Number.isSafeInteger(+x)&&+x>=0?+x:0;
+const statAdd=(a,b)=>Math.min(Number.MAX_SAFE_INTEGER,statCount(a)+statCount(b));
+function statMatchUpdate(current,game,uid,k,name,K,M,ts){
+  const s=current&&typeof current==='object'&&!Array.isArray(current)?current:{};
+  const ledger=Object.assign(Object.create(null),s.matchLog||{});
+  if(s.lk===k||Object.prototype.hasOwnProperty.call(ledger,k))return;
+  const me=game.pl.find(p=>p.u===uid);if(!me||game.ph!=='end'||game.pl.some(p=>isBot(p.u)))return;
+  const sc=game.pl.map(p=>statCount(p.s)),top=Math.max(...sc);
+  let won=statCount(me.s)===top&&sc.filter(x=>x===top).length===1;
+  if(game.md==='t'&&game.tm){const mt=game.tm[uid];const team=t=>game.pl.filter(p=>game.tm[p.u]===t).reduce((a,p)=>statAdd(a,p.s),0);won=team(mt)>team(1-mt)}
+  if(game.md==='tr')won=game.ch===uid;
+  const hist=game.hist||[],hits=hist.filter(h=>h.w===uid).length,bd=earnBadges(s,game,uid,won,hits);
+  const pkKey=n=>clip(String(n||'').replace(' (itirazla)','').replace(/[.#$\/\[\]]/g,'_'),40),tm=Object.assign(Object.create(null),s.tm||{}),pm=Object.assign(Object.create(null),s.pl||{});let run=0,best=0;
+  hist.forEach(h=>{run=h.w===uid?run+1:0;best=Math.max(best,run);if(h.w!==uid)return;if(!h.k&&has(h.a)&&has(h.b)){tm[h.a]=statAdd(tm[h.a],1);tm[h.b]=statAdd(tm[h.b],1)}const kk=pkKey(h.h);if(kk)pm[kk]=statAdd(pm[kk],1)});
+  const pmT=Object.fromEntries(Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,40));
+  const ow=s.wk&&s.wk.k===K?s.wk:{k:K,p:0,w:0,g:0},lw=s.wk&&s.wk.k!==K?s.wk:(s.lw||null);
+  const wk={k:K,p:statAdd(ow.p,me.s),w:statAdd(ow.w,won?1:0),g:statAdd(ow.g,1)};
+  const om=s.mo&&s.mo.k===M?s.mo:{k:M,p:0,w:0,g:0},lm=s.mo&&s.mo.k!==M?s.mo:(s.lm||null),mo={k:M,p:statAdd(om.p,me.s),w:statAdd(om.w,won?1:0),g:statAdd(om.g,1)};
+  const fr=Object.assign(Object.create(null),s.fr||{});game.pl.forEach(p=>{if(p.u&&p.u!==uid&&!isBot(p.u))fr[p.u]=1});
+  ledger[k]=ts;const matchLog=Object.fromEntries(Object.entries(ledger).sort((a,b)=>statCount(b[1])-statCount(a[1])).slice(0,128));
+  return {...s,n:name,g:statAdd(s.g,1),w:statAdd(s.w,won?1:0),p:statAdd(s.p,me.s),c:statAdd(s.c,hits),b:bd.all,wk,lw,mo,lm,tm:{...tm},pl:pmT,rp:statAdd(s.rp,hist.length),bs:Math.max(statCount(s.bs),best),lk:k,matchLog,fr:{...fr},t:ts};
+}
 const Season={done:'',busy:false,rows:[],tab:'w',
   async record(){
-    if(!Net.db||!G||G.ph!=='end'||!G.st||myIdx()<0||G.pl.some(p=>isBot(p.u)))return;const k=code+':'+G.gid+':'+G.st;if(this.done===k)return;this.done=k;
-    const ref=Net.db.ref('stats/'+ME);
-    try{const s=(await ref.once('value')).val()||{};if(s.lk===k)return this.load();
-      const me=P(myIdx()),sc=G.pl.map(p=>+p.s||0),top=Math.max(...sc);let won=(+me.s||0)===top&&sc.filter(x=>x===top).length===1;
-      if(isTeam()){const mt=tmOf(ME);won=teamSc(mt)>teamSc(1-mt)}
-      if(G.md==='tr')won=G.ch===ME;
-      const hits=(G.hist||[]).filter(h=>h.w===ME).length,bd=earnBadges(s,me,won,hits);
-      if(bd.nw.length){$('eBadge').hidden=false;$('eBadge').innerHTML='Yeni rozet: '+bd.nw.map(k=>'🏅 '+esc(BADGES[k][0])+' <span style="opacity:.7;font-weight:500">('+esc(BADGES[k][1])+')</span>').join('<br>');SFX.goal()}
-      const pkKey=n=>clip(String(n||'').replace(' (itirazla)','').replace(/[.#$\/\[\]]/g,'_'),40),tm=Object.assign({},s.tm||{}),pm=Object.assign({},s.pl||{});let run=0,best=0;
-      (G.hist||[]).forEach(h=>{run=h.w===ME?run+1:0;best=Math.max(best,run);if(h.w!==ME)return;if(!h.k&&has(h.a)&&has(h.b)){tm[h.a]=(+tm[h.a]||0)+1;tm[h.b]=(+tm[h.b]||0)+1}const kk=pkKey(h.h);if(kk)pm[kk]=(+pm[kk]||0)+1});
-      const pmT=Object.fromEntries(Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,40));
-      const K=wkKey(),ow=s.wk&&s.wk.k===K?s.wk:{k:K,p:0,w:0,g:0},lw=s.wk&&s.wk.k!==K?s.wk:(s.lw||null);
-      const wk={k:K,p:(+ow.p||0)+(+me.s||0),w:(+ow.w||0)+(won?1:0),g:(+ow.g||0)+1};
-      const M=moKey(),om=s.mo&&s.mo.k===M?s.mo:{k:M,p:0,w:0,g:0},lm=s.mo&&s.mo.k!==M?s.mo:(s.lm||null),mo={k:M,p:(+om.p||0)+(+me.s||0),w:(+om.w||0)+(won?1:0),g:(+om.g||0)+1};
-      const fr=Object.assign({},s.fr||{});G.pl.forEach(p=>{if(p.u&&p.u!==ME&&!isBot(p.u))fr[p.u]=1});
-      await ref.update({n:clean(myName)||'Oyuncu',g:(+s.g||0)+1,w:(+s.w||0)+(won?1:0),p:(+s.p||0)+(+me.s||0),c:(+s.c||0)+hits,b:bd.all,wk,lw,mo,lm,tm,pl:pmT,rp:(+s.rp||0)+(G.hist||[]).length,bs:Math.max(+s.bs||0,best),lk:k,fr,t:Date.now()});
-      this.load(true);setTimeout(()=>this.load(true),4000)}catch(e){this.fail(e)}
+    if(!Net.db||!G||G.ph!=='end'||!G.st||myIdx()<0||G.pl.some(p=>isBot(p.u)))return;
+    const room=code,game=JSON.parse(JSON.stringify(G)),uid=ME,k=room+':'+game.gid+':'+game.st;
+    if(this.done===k)return;this.done=k;
+    const ref=Net.db.ref('stats/'+uid),name=clean(myName)||'Oyuncu',K=wkKey(),M=moKey(),ts=Date.now();
+    let newBadges=[];
+    try{const result=await ref.transaction(s=>{const next=statMatchUpdate(s,game,uid,k,name,K,M,ts);newBadges=next?Object.keys(next.b||{}).filter(x=>!(s&&s.b&&s.b[x])):[];return next},undefined,false);
+      if(ME!==uid)return;
+      if(result.committed&&newBadges.length&&code===room&&G&&G.gid===game.gid&&G.st===game.st&&G.ph==='end'){$('eBadge').hidden=false;$('eBadge').innerHTML='Yeni rozet: '+newBadges.filter(x=>BADGES[x]).map(x=>'🏅 '+esc(BADGES[x][0])+' <span style="opacity:.7;font-weight:500">('+esc(BADGES[x][1])+')</span>').join('<br>');SFX.goal()}
+      this.load(true);setTimeout(()=>this.load(true),4000)
+    }catch(e){if(this.done===k)this.done='';this.fail(e)}
   },
   async load(show){
     if(!Net.db||!ME||this.busy)return;this.busy=true;
@@ -3059,7 +3074,7 @@ const Admin={on:false,tab:'r',
 };
 const FRAMES={'':['Çerçevesiz',null],cim:['Çim','ilk'],yildiz:['Yıldız','zor'],ates:['Ateş','seri'],simsek:['Şimşek','hiz'],var:['VAR','itiraz'],gunes:['Güneş','gun'],kupa:['Kupa','kupa'],elmas:['Elmas','hafta'],podyum:['Podyum','ay3'],sampiyon:['Şampiyon','ay1'],altin:['Altın','kral']};
 let myFrame='';const okFm=x=>typeof x==='string'&&Object.prototype.hasOwnProperty.call(FRAMES,x)?x:'';
-async function setFrame(k,b){if(!FRAMES[k]||(FRAMES[k][1]&&!(b||{})[FRAMES[k][1]]))return;myFrame=k;try{await Net.db.ref('stats/'+ME).update({fm:k,n:clean(myName||$('myName').value)||'Oyuncu',g:+(Prof.s&&Prof.s.g)||0})}catch(e){}Prof.open()}
+async function setFrame(k,b){if(!FRAMES[k]||(FRAMES[k][1]&&!(b||{})[FRAMES[k][1]]))return;myFrame=k;try{const n=clean(myName||$('myName').value)||'Oyuncu';await Net.db.ref('stats/'+ME).transaction(s=>({...s,g:statCount(s&&s.g),n,fm:k}),undefined,false)}catch(e){}Prof.open()}
 async function matchCard(){
   const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
   try{await Promise.all(['italic 800 120px "Barlow Condensed"','800 60px "Barlow Condensed"','600 34px Barlow','700 34px Barlow'].map(f=>document.fonts.load(f)))}catch(e){}
