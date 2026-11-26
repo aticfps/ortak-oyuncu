@@ -171,6 +171,7 @@ label{display:grid;gap:6px;font-weight:700;font-size:14px;color:var(--mute)}
 .try .g .ok{background:var(--ok);color:#06321a;font-weight:700}.try .g .no{text-decoration:line-through;opacity:.65}
 .try .g .unk{border:1px dashed var(--flood);text-decoration:none;opacity:1}
 /* tasarım 3: sonuç düzeni, animasyon, avatar */
+#upd{position:fixed;left:10px;right:10px;bottom:14px;z-index:40;background:#f6d33f;color:#2b2200;border-radius:14px;padding:10px 14px;font-weight:700;display:flex;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 8px 30px #0008}#upd .btn{padding:6px 14px;min-height:0}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
 .av img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
 .av{position:relative;overflow:hidden;display:inline-grid;place-items:center;flex:none;width:var(--s,28px);height:var(--s,28px);border-radius:50%;object-fit:cover;background:var(--pc,#345);color:#071a10;font:800 calc(var(--s,28px)*.5) var(--cond);box-shadow:0 0 0 2px var(--pc,#345)}
@@ -2529,7 +2530,9 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=id==='lobby';window.scrollTo(0,0)};
+const APPV='8';
 const banner=t=>{$('banner').textContent=t||''};
+function verCheck(g){if(!g||!g.v||g.v===APPV||$('upd'))return;const d=document.createElement('div');d.id='upd';d.innerHTML='Oyunun yeni sürümü var. <button class="btn">Yenile</button>';d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)}
 const roomUrl=c=>location.origin+location.pathname+'#'+c;
 const saveName=()=>{myName=clean($('myName').value);$('myName').value=myName;try{localStorage.setItem('oo-name',myName)}catch(e){}};
 
@@ -2576,7 +2579,7 @@ $('copy').onclick=copyLink;
 
 /* ---------- kurucu: oyunun tek yöneticisi ---------- */
 function publish(){
-  if(!G)return;dirty=false;G.seq=(+G.seq||0)+1;
+  if(!G)return;dirty=false;G.seq=(+G.seq||0)+1;G.v=APPV;
   Net.set({h:1,nm:myName,g:G});
   react(prevG,G);prevG=JSON.parse(JSON.stringify(G));render();
 }
@@ -2602,11 +2605,11 @@ function hostTick(){
 }
 setInterval(hostTick,1000);
 function handleInputs(i,pr){
-  const u=G.pl[i].u,cur=()=>G.pn,gid=G.gid;
+  const u=G.pl[i].u,cur=()=>G.pn,gid=G.gid,okR=r=>r===G.pn||r===G.r;
   const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===gid)pickTeam(u,String(k.id));
-  if(pr.ans&&+pr.ans.n>(H.n[u]||0)){H.n[u]=+pr.ans.n;if(pr.ans.r===cur()&&pr.ans.g===gid)answer(idxOf(u),clip(pr.ans.t,60))}
-  if(pr.jk&&+pr.jk.n>(H.j[u]||0)){H.j[u]=+pr.jk.n;if(pr.jk.r===cur()&&pr.jk.g===gid)joker(idxOf(u))}
-  if(pr.ob&&+pr.ob.n>(H.o[u]||0)){H.o[u]=+pr.ob.n;if(pr.ob.r===cur()&&pr.ob.g===gid)objectIt(idxOf(u),clip(pr.ob.t,30))}
+  if(pr.ans&&+pr.ans.n>(H.n[u]||0)){H.n[u]=+pr.ans.n;if(okR(pr.ans.r)&&pr.ans.g===gid)answer(idxOf(u),clip(pr.ans.t,60))}
+  if(pr.jk&&+pr.jk.n>(H.j[u]||0)){H.j[u]=+pr.jk.n;if(okR(pr.jk.r)&&pr.jk.g===gid)joker(idxOf(u))}
+  if(pr.ob&&+pr.ob.n>(H.o[u]||0)){H.o[u]=+pr.ob.n;if(okR(pr.ob.r)&&pr.ob.g===gid)objectIt(idxOf(u),clip(pr.ob.t,30))}
   if(pr.vt&&+pr.vt.n>(H.v[u]||0)){H.v[u]=+pr.vt.n;vote(idxOf(u),+pr.vt.id,!!pr.vt.v)}
   if(pr.nx&&G.ph==='res'&&pr.nx.r===cur()&&pr.nx.g===gid)nextRound();
 }
@@ -2702,7 +2705,7 @@ function onNet(){
   if(!h){if(G){if(!hostAway)hostAway=now()}return}
   clearTimeout(searchT);
   if(alive(h)){if(hostAway){hostAway=0;banner('')}}else if(!hostAway)hostAway=now();
-  const g=h.pr.g;
+  const g=h.pr.g;verCheck(g);
   if(!G||g.seq!==G.seq||g.gid!==G.gid){const prev=G;G=g;pending=0;react(prev,G);render()}else renderLive();
 }
 setInterval(()=>{
