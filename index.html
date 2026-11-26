@@ -540,6 +540,70 @@ input:focus,select:focus,button:focus-visible{outline:2px solid var(--flood);out
 @media(max-width:350px){.hero{grid-template-columns:minmax(0,1fr)}.hero .fan{display:none}.cards{grid-template-columns:minmax(0,1fr)}.v22-cardhead{flex-direction:row}}
 @media(prefers-reduced-motion:reduce){.screen.on{animation:none}.btn,.team{transition:none!important}}
 
+
+/* V22.1: match presentation consistency and stable motion */
+.cards>.card.v22-create,.cards>.card.v22-join,.cards>.card.v22-bot,.cards>.card.v22-daily{display:flex;flex-direction:column;align-items:stretch;min-height:170px;gap:10px;background:linear-gradient(145deg,#252e44,#1a2032);border:1px solid var(--line)}
+.cards>.card.v22-create{border-top:2px solid var(--flood)}.cards>.card.v22-join{border-top:2px solid var(--sky)}.cards>.card.v22-bot{border-top:2px solid #c3a6ff}.cards>.card.v22-daily{border-top:2px solid #ffd47e}
+.cards>.card .v22-cardhead{flex-direction:row;align-items:center}
+.cards>.card .v22-cardhead h3{font-size:24px;line-height:1.05}
+.cards>.card.v22-create>.btn,.cards>.card.v22-daily>.btn,.cards>.card.v22-bot>.row,.cards>.card.v22-join>form{margin-top:auto;align-self:stretch}
+.cards>.card.v22-join>form .btn,.cards>.card.v22-bot>.row .btn{margin:0}
+.cards>.card .row{align-items:stretch}
+.cards>.card.v22-join .link{min-height:32px;text-align:left;padding:0;font-size:13px}
+.cards>.card.v22-bot #botL{height:46px}
+.board{grid-template-columns:minmax(0,1fr) auto;padding-block:8px;align-items:center}
+.chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:690px;gap:6px}
+.chip,.chip.me{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"avatar name score";align-items:center;gap:8px;padding:8px;background:#1c2639;border:1px solid #39435a;border-left:3px solid var(--pc);border-radius:11px}
+.chip .av{grid-area:avatar;margin:0;--s:28px}.chip .nm{grid-area:name;max-width:none;line-height:1.1;white-space:nowrap}.chip .sc{grid-area:score;min-width:1.5em;font-size:28px;font-variant-numeric:tabular-nums;padding:4px 8px;line-height:1}
+.chip .nm small{font-size:10px;margin-top:3px}.chip.me{background:#263247}.mid{min-width:92px}.mid .sound{width:38px;height:32px;margin-top:2px}
+#pick .turnline{padding:15px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px}
+#pick .turnline h2{font-size:32px}#pick .lead{font-size:14px;line-height:1.4}
+.pickers{margin:12px 0 0}.pickers span{font-size:12px;padding:4px 8px}
+#nine .team,#nine .team.r5{transform:none;min-height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid #44516b;border-top:3px solid var(--rc);background:#202a3e;box-shadow:none}
+#nine .team.mypick{border:2px solid var(--flood);border-top:3px solid var(--flood);background:#2c3c32;box-shadow:none;opacity:1}
+#nine .team.mypick::after{display:none}#nine .team .tag{transform:translateX(-50%);top:-9px;font-size:12px}
+#nine .team span{overflow-wrap:anywhere;line-height:1.13}#nine .team .crest{width:66px;height:74px;object-fit:contain}
+#nine.mine .team:not(:disabled):hover{border:1px solid var(--flood);border-top:3px solid var(--flood);transform:translateY(-2px)}
+#nine .team .stars{font-size:12px;letter-spacing:1px}
+#ans .vs,#rev .vs{margin:12px 0 16px;min-height:175px;align-items:center;background:linear-gradient(115deg,#213754,#1d2539 48%,#392b42);padding:16px 10px}
+.vs .t{min-height:126px;align-content:center}.vs .t .crest{width:clamp(58px,17vw,100px);height:90px;object-fit:contain;filter:drop-shadow(0 4px 7px #0004)}
+.clock{width:clamp(76px,20vw,112px);flex:none}.clock b{font-variant-numeric:tabular-nums}.clock svg{overflow:visible}
+#ansF{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:stretch}
+#ansI{width:100%;min-height:54px;font-size:18px;padding:12px 14px}#ansGo{margin:0;min-width:94px;padding:10px 16px}
+#ans .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 0}
+#ans .tools .jk{padding:8px 10px;min-height:46px;background:#283246;color:var(--flood);border:1px solid #46536a;white-space:normal;line-height:1.2}
+#ans .tools .jk.ip{color:var(--sky)}#ans .tools .jk:disabled{opacity:.48}
+#ans .tools .hint{grid-column:1/-1;text-align:center;letter-spacing:.08em;font-size:22px}#ans .tools .hint:empty{display:none}
+#ans .msg{font-size:14px;min-height:24px}#ans .opp{padding:10px 12px;font-size:14px}
+#res .res,#end>.res{padding:18px 14px;background:linear-gradient(145deg,#253448,#1a2032);border:1px solid var(--line);border-radius:18px;margin-bottom:12px}
+#res .big,#eBig{font-size:clamp(34px,8vw,56px);line-height:1.1;overflow-wrap:anywhere}
+#rPair{flex-wrap:wrap;gap:10px}#rPair .crest{width:52px;height:60px}
+#rPts{gap:8px;margin:12px 0}#rPts>div{background:#222c40;color:var(--ink);border-left:3px solid var(--pc);font:700 16px Barlow,sans-serif;padding:8px}
+#rMore,#eHist{max-width:none;margin-top:10px}#rMore summary,#eHist summary{font-size:14px;gap:4px}
+.dock{background:linear-gradient(transparent,var(--bg) 30%);padding:12px 0 calc(12px + env(safe-area-inset-bottom))}.dock .btn{width:100%;max-width:420px}
+.rank{max-width:none;gap:7px;margin:12px 0 16px}.rank li{padding:12px;background:#202a3e}.rank li:first-child{border-color:var(--flood)}.rank li>span{overflow-wrap:anywhere}
+.rank b{font-size:30px;font-variant-numeric:tabular-nums}
+#prof .turnline{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px}
+#pfBody h3{font-size:23px;margin:18px 0 8px}#pfBody .pfg{gap:8px}
+#pfBody .pfg>div{padding:14px 6px;border-top:2px solid #53657f}#pfBody .pfg b{font-size:32px;font-variant-numeric:tabular-nums}
+#pfBody .pfg span{font-size:12px;line-height:1.1}
+#pfBody .pfl div{padding:10px 12px}#pfBody .frames{gap:8px}
+.cards .season{grid-column:1/-1;overflow:hidden}
+.stab{font-size:13px;table-layout:auto;font-variant-numeric:tabular-nums}.stab td,.stab th{padding:8px 5px}.stab td:nth-child(2){overflow-wrap:anywhere}
+.stabs{gap:4px;flex-wrap:wrap}.stabs button{min-height:38px;font-size:14px;padding:5px 8px}
+.screen.on{animation:v22-enter .18s ease-out}.rv.go .t{animation:v22-enter .2s ease-out both}.vs .crest{animation:none}
+.chip.pop .sc{animation:v22-score .25s ease-out}@keyframes v22-score{0%{transform:scale(.9);opacity:.75}100%{transform:none;opacity:1}}
+#rBig.pop,.big{animation:v22-enter .24s ease-out}
+body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}body.hurry .clock{animation:none}
+@media(max-width:600px){.cards>.card .v22-cardhead{gap:6px}.cards>.card .v22-cardhead h3{font-size:20px}.cards>.card .v22-modeicon{width:27px;height:27px}.cards>.card .v22-modeicon svg{width:17px;height:17px}.cards>.card.v22-create,.cards>.card.v22-join,.cards>.card.v22-bot,.cards>.card.v22-daily{min-height:164px;padding:10px}
+ .chip,.chip.me{padding:5px;gap:4px}.chip .av{--s:20px}.chip .sc{font-size:21px;padding:4px}.chip .nm{font-size:11px}.mid{min-width:65px}.mid .sound{width:30px;height:28px}.mid b{font-size:22px}
+ #nine .team,#nine .team.r5{min-height:108px;gap:4px;padding:7px 4px}#nine .team .crest{width:50px;height:57px}#nine .team span{font-size:15px}#nine .team .stars{font-size:10px}
+ #ans .vs,#rev .vs{min-height:142px;padding:10px 6px}.vs .t{min-height:100px;font-size:19px}.vs .t .crest{height:67px}.clock{width:clamp(68px,20vw,94px)}
+ #ansGo{min-width:75px;padding:10px 12px}#pfBody .pfg b{font-size:26px}.stab{font-size:12px}.stab td,.stab th{padding:6px 3px}
+}
+@media(max-width:350px){.cards>.card .v22-cardhead h3{font-size:23px}.chips{grid-template-columns:1fr}.chip .nm{font-size:12px}#nine .team span{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.chip.pop .sc,#rBig.pop,.big,.rv.go .t,.screen.on{animation:none!important}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3065,7 +3129,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22';
+const APPV='22.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3664,14 +3728,15 @@ function drawSpecs(){
   const amSpec=!!(Net.mine&&Net.mine.sp),b=$('specB');b.hidden=isHost||!(G.ph==='wait'||G.ph==='end');
   b.textContent=amSpec?(G.pl.length<MAXP?'Oyuncu olarak katıl':'Oda dolu'):'İzleyici ol';if(amSpec&&G.pl.length>=MAXP)b.disabled=true;
 }
+const stableHTML=(el,html)=>{if(el._v22html===html)return false;el._v22html=html;el.innerHTML=html;return true};
 function drawBoard(){
-  if(!G)return;const mi=myIdx();
-  $('chips').innerHTML=G.pl.map((p,i)=>`<div class="chip${i===mi?' me':''}${p.off?' off':''}${isTeam()?' t'+tmOf(p.u):''}" data-u="${esc(p.u)}" style="--pc:${pCol(i)}">${avI(i)}<span class="sc">${shownSc[p.u]!=null?shownSc[p.u]:+p.s||0}</span><span class="nm">${esc(pName(i))}${i===mi?'<small>sen</small>':''}</span></div>`).join('');
-  G.pl.forEach(p=>{const to=+p.s||0,from=shownSc[p.u]!=null?shownSc[p.u]:to;shownSc[p.u]=to;if(to===from)return;
-    const el=$('chips').querySelector(`[data-u="${CSS.escape(p.u)}"]`);if(!el)return;const sc=el.querySelector('.sc');el.classList.add('pop');
-    if(to<from){sc.textContent=to;return}let v=from;const step=()=>{v++;sc.textContent=v;if(v<to)setTimeout(step,170)};setTimeout(step,250)});
+  if(!G)return;const mi=myIdx(),chips=$('chips');
+  const layout=G.pl.map((p,i)=>[p.u,p.n,p.ph,p.fm,p.c,!!p.off,i===mi,isTeam()?tmOf(p.u):null]);
+  const key=JSON.stringify([code,G.gid,layout]);
+  if(chips._v22key!==key){chips._v22key=key;chips.innerHTML=G.pl.map((p,i)=>`<div class="chip${i===mi?' me':''}${p.off?' off':''}${isTeam()?' t'+tmOf(p.u):''}" data-u="${esc(p.u)}" style="--pc:${pCol(i)}">${avI(i)}<span class="sc">${+p.s||0}</span><span class="nm">${esc(pName(i))}${i===mi?'<small>sen</small>':''}</span></div>`).join('')}
+  G.pl.forEach(p=>{const el=chips.querySelector(`[data-u="${CSS.escape(p.u)}"]`);if(!el)return;const sc=el.querySelector('.sc'),to=String(+p.s||0);if(sc.textContent===to)return;sc.textContent=to;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop')});
   $('rd').textContent=G.md==='tr'&&G.mt?(G.ch?'Bitti':trName(G.mi)):G.r?`${G.r}/${G.R}`:'–';
-  $('tScore').innerHTML=isTeam()?`<i style="color:${TCOL[0]}">${teamSc(0)}</i> – <i style="color:${TCOL[1]}">${teamSc(1)}</i>`:'';
+  stableHTML($('tScore'),isTeam()?`<i style="color:${TCOL[0]}">${teamSc(0)}</i> – <i style="color:${TCOL[1]}">${teamSc(1)}</i>`:'');
 }
 function draw(){
   if(!G)return;drawBoard();drawSpecs();
@@ -3705,13 +3770,13 @@ function drawPick(){
   $('pSub').innerHTML=(G.redo?`<b style="color:var(--bad)">${esc(G.redo)} Tekrar seçin.</b><br>`:'')+esc(sub)+`<span class="pickers">${pk.map(u=>{const i=idxOf(u);return`<span class="${sp[u]?'done':''}" style="--pc:${pCol(i)}">${avI(i,26)}${esc(pName(i))} · ${sp[u]?'seçti':P(i)&&P(i).off?'bağlantı koptu':'seçiyor'}</span>`}).join('')}</span>`;
   const nine=(Array.isArray(G.nine)?G.nine:[]).filter(has);
   $('nine').classList.toggle('mine',can);
-  $('nine').innerHTML=nine.map(id=>`<button class="team r${starOf(id)}${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span><small class="stars" aria-label="${starOf(id)} yıldız">${starTxt(starOf(id))}</small>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join('');
+  stableHTML($('nine'),nine.map(id=>`<button class="team r${starOf(id)}${id===mine?' mypick':''}" data-id="${id}" ${can?'':'disabled'} style="${!can&&id!==mine?'opacity:.75':''}">${crest(id)}<span>${esc(TEAMS[id][0])}</span><small class="stars" aria-label="${starOf(id)} yıldız">${starTxt(starOf(id))}</small>${id===mine?'<em class="tag" style="--pc:var(--flood)">Senin seçimin</em>':''}</button>`).join(''));
 }
 let rvT=null;
 function drawRev(){
   const first=screen!=='rev';show('rev');const box=document.querySelector('.rv');
   const pk=G.pk||[],a=pk[0],b=pk[1];
-  $('rvA').innerHTML=crest(G.a)+esc(TEAMS[G.a][0])+`<small class="stars">${starTxt(starOf(G.a))}</small><small>${esc(nameOfU(a))}</small>`;$('rvB').innerHTML=crest(G.b)+esc(TEAMS[G.b][0])+`<small class="stars">${starTxt(starOf(G.b))}</small><small>${esc(nameOfU(b))}</small>`;
+  stableHTML($('rvA'),crest(G.a)+esc(TEAMS[G.a][0])+`<small class="stars">${starTxt(starOf(G.a))}</small><small>${esc(nameOfU(a))}</small>`);stableHTML($('rvB'),crest(G.b)+esc(TEAMS[G.b][0])+`<small class="stars">${starTxt(starOf(G.b))}</small><small>${esc(nameOfU(b))}</small>`);
   $('rvTitle').textContent=G.th==='d'?'Derbi zamanı!':G.th==='t'?'Türk oyuncular turu':G.md==='q'?'Yeni eşleşme':'Seçimler açılıyor';$('rvMsg').innerHTML='';
   if(first){box.classList.remove('go');void box.offsetWidth;box.classList.add('go')}
   clearInterval(rvT);const tick=()=>{if(!G||G.ph!=='rev'){clearInterval(rvT);return}const l=Math.max(0,Math.ceil(((+G.rvEnd||0)-gameNow())/1000));$('rvSec').textContent=G.rvOK?(l||'Başla'):'✕';
@@ -3788,7 +3853,7 @@ function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
   if(!G.wu){$('rBig').textContent='Tur geçersiz';$('rTxt').textContent=G.md==='k'?`Cevap: ${G.kx}. Kimse puan almadı, tur yeniden oynanacak.`:`Kimse bilemedi, kimse puan almadı. Tur ${G.r} yeni takımlarla tekrar oynanacak.`}
   else{const wp=P(wi)||{};$('rBig').textContent=(wi===mi?'Bildin!':pName(wi)+' bildi')+` +${+wp.g||0}`;$('rTxt').textContent=(G.md==='k'?`${clip(G.hit,60)}: ${(G.kc||[]).map(c=>TEAMS[c][0]).join(', ')}.`:`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`)+(wp.ip?' (İpucuyla, puan yarıya indi.)':'')}
   $('rPts').innerHTML=(isTeam()?`<div style="--pc:${TCOL[0]}">Mavi ${teamSc(0)}</div><div style="--pc:${TCOL[1]}">Kırmızı ${teamSc(1)}</div>`:'')+G.pl.map((p,i)=>`<div style="--pc:${pCol(i)}">${avI(i,30)}${esc(pName(i))} +${+p.g||0}</div>`).join('');
-  const v=cands(),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rSum').textContent=G.md==='k'?'Doğru cevap':'Bu eşleşmedeki ortak oyuncular';$('rMore').open=false;
+  const v=cands(),hit=String(G.hit||'');$('rCount').textContent=v.length;$('rSum').textContent=G.md==='k'?'Doğru cevap':'Bu eşleşmedeki ortak oyuncular';const more=$('rMore'),key=G.gid+':'+G.pn;if(more.dataset.round!==key){more.dataset.round=key;more.open=false}
   $('rList').innerHTML=[...v].sort((x,y)=>(y.n===hit)-(x.n===hit)).map(p=>`<li class="${p.n===hit?'hit':G.used.includes(p.n)?'used':''}">${esc(p.n)}</li>`).join('');
   $('rTries').innerHTML=G.pl.map((p,i)=>{const at=p.at||[];return`<div class="try" style="--pc:${pCol(i)}">${avI(i,26)}<strong>${esc(pName(i))}</strong><span class="g">${at.length?at.map(x=>`<span class="${x.ok?'ok':x.unk?'no unk':'no'}">${esc(clip(x.t,30))}</span>`).join(''):'<span style="opacity:.6">cevap yazmadı</span>'}</span></div>`}).join('');
   drawObj();
