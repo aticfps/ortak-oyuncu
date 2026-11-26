@@ -23,3 +23,21 @@ test('career chains preserve return spells without duplicating memberships',()=>
   assert.deepEqual(player('Antoine Griezmann').k,['RSO','ATM','BAR','ATM']);
   for(const p of PLAYERS.filter(p=>p.k))for(const c of p.k)assert.ok(p.c.includes(c),p.n);
 });
+
+test('V20a additions improve seven low-coverage clubs',()=>{
+  for(const [id,min] of [['KOC',3],['ERZ',3],['AMD',2],['COR',3],['EYP',6],['RIZ',9],['GNC',9]])assert.ok(PLAYERS.filter(p=>p.c.includes(id)&&p.c.length>1).length>=min,id);
+  for(const [name,a,b] of [['Oğulcan Çağlayan','KOC','GS'],['Ahmet Oğuz','KOC','KON'],['Mame Thiam','EYP','FB'],['Mustafa Yumlu','ERZ','TS'],['Orhan Ovacıklı','ERZ','RIZ'],['Kerem Kalafat','COR','BJK'],['Ahmet İlhan Özek','COR','GNC'],['Max Gradel','AMD','GFK'],['Gökhan Gönül','GNC','RIZ'],['Caner Erkin','EYP','FB']])assert.ok(shared(a,b).some(p=>p.n===name),name);
+});
+test('corrected career returns include PSG and Atletico',()=>{
+  assert.deepEqual(player('Nicolas Anelka').k,['PSG','ARS','RMA','PSG','LIV','MCI','FB','CHE','JUV']);
+  assert.deepEqual(player('Fernando Torres').k,['ATM','LIV','CHE','MIL','ATM']);
+});
+test('career pool never substitutes unordered memberships and honors theme and used list',()=>{
+  const def=html.split(/\r?\n/).find(l=>l.startsWith('const careerPool='));
+  const pool=new Function('has','isTurk','STAR',def+';return careerPool')(id=>Object.hasOwn(TEAMS,id),n=>n==='Turk',new Set(['Legend']));
+  const players=[{n:'Turk',k:['GS','FB','BJK']},{n:'Legend',k:['GS','FB','BJK']},{n:'Unordered',c:['GS','FB','BJK']},{n:'Invalid',k:['GS','FB','BAD']}];
+  assert.deepEqual(pool(players,[],'').map(p=>p.n),['Turk','Legend']);
+  assert.deepEqual(pool(players,[],'t').map(p=>p.n),['Turk']);
+  assert.deepEqual(pool(players,[],'e').map(p=>p.n),['Legend']);
+  assert.deepEqual(pool(players,['Turk','Legend'],'').map(p=>p.n),[]);
+});
