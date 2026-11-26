@@ -1,0 +1,20 @@
+// Run: node --test tests/v19-room-security.test.cjs
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.join(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const rules=JSON.parse(fs.readFileSync(path.join(root,'database.rules.json'),'utf8'));
+const defs=html.split(/\r?\n/).filter(l=>/^(const (parsePresence|parseRoomNodes|validHost|selectRoomHost|alive)=)/.test(l));
+const api=new Function('const MAXP=4,now=()=>100000;'+defs.join('\n')+';return {parsePresence,parseRoomNodes,validHost,selectRoomHost,alive}')();
+const state=(uid,t=99000,players=[{u:uid}])=>({uid,o:1,t,j:JSON.stringify({h:1,g:{host:uid,ph:'wait',pl:players}})});
+test('inline scripts compile',()=>{for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi))if(m[1].trim())assert.doesNotThrow(()=>new Function(m[1]));});
+test('V19 is published by the app',()=>assert.match(html,/const APPV='19';/));
+test('room write rule binds UID to the path (static regression)',()=>{const p=rules.rules.rooms.$code.$peer;assert.equal(p['.write'],'auth != null && auth.uid === $peer');assert.match(p['.validate'],/child\('uid'\)\.val\(\) === \$peer/);});
+test('bad presence JSON is rejected',()=>{for(const j of ['[]','null','not-json','1',' '.repeat(6000),null])assert.equal(api.parsePresence(j),null);assert.deepEqual(api.parsePresence('{}'),{});});
+test('spoofed keys and malformed records are ignored',()=>{const out=api.parseRoomNodes({host:state('host'),imposter:state('host'),bad:{uid:'bad',o:1,t:99000,j:'[]'},wrongFlag:{...state('wrongFlag'),o:2},wrongTime:{...state('wrongTime'),t:'99000'}});assert.deepEqual(Object.keys(out),['host']);assert.equal(Object.getPrototypeOf(out),null);});
+test('valid host must identify itself and be in its own room',()=>{const h=api.parseRoomNodes({host:state('host')}).host;assert.equal(api.validHost(h),true);assert.equal(api.validHost({...h,uid:'other'}),false);assert.equal(api.validHost({...h,pr:{h:1,g:{host:'host',ph:'wait',pl:[]}}}),false);});
+test('known host is not replaced by a new claimant',()=>{const h=api.parseRoomNodes({host:state('host'),other:state('other',99500,[{u:'other'},{u:'guest'}])});assert.equal(api.selectRoomHost(Object.values(h),'host','guest').uid,'host');assert.equal(api.selectRoomHost([h.other],'host','guest'),undefined);});
+test('offline or future heartbeat does not count as alive',()=>{assert.equal(api.alive(state('host')),true);assert.equal(api.alive(state('host',200000)),false);assert.equal(api.alive(state('host',50000)),false);assert.equal(api.alive({...state('host'),o:0}),false);});
+test('initial selection prefers a live host',()=>{const h=api.parseRoomNodes({old:state('old',1000,[{u:'old'},{u:'guest'}]),live:state('live')});assert.equal(api.selectRoomHost(Object.values(h),null,'guest').uid,'live');});
