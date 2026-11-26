@@ -693,6 +693,25 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
 .v222-scorewrap .chip .sc{font-size:22px!important}
 @media(max-width:600px){.hero .fan .crest-real{width:67px;height:79px}#nine .team,#nine .team.r5{min-height:97px;padding:6px 3px}#nine .team .crest-real{width:45px;height:53px}#nine .team span:not(.crest-real){font-size:12px!important}#brk{padding:9px 11px;font-size:12px}.vs .t .crest-real{width:62px;height:67px}.v222-scorewrap .chip,.v222-scorewrap .chip.me{min-height:40px;padding:4px}.v222-scorewrap .chip .sc{font-size:19px!important}}
 
+
+/* V22.4: focused result cards and one-shot, non-blocking celebrations */
+.v224-result{position:relative;isolation:isolate;overflow:hidden}
+#res .v224-result,#end .v224-result{border:1px solid #3c4961;padding:22px 16px;background:linear-gradient(145deg,#233047,#1a2032);border-radius:19px}
+#res .v224-result[data-outcome="win"],#end .v224-result[data-outcome="win"]{border-color:#b8f56865;background:radial-gradient(ellipse at 50% 0,#344a34 0,transparent 70%),#1a2631}
+.v224-status{display:inline-block;font:700 11px/1.2 var(--ui);letter-spacing:.12em;color:var(--mute);padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+.v224-result[data-outcome="win"] .v224-status{color:var(--flood);border-color:#b8f56855;background:#b8f56812}
+.v224-result[data-outcome="none"] .v224-status{color:#ffb3be;border-color:#ff71884a;background:#ff71880c}
+.v224-result[data-outcome="draw"] .v224-status{color:#ffd47e}
+#res .v224-result .big,#end .v224-result .big{animation:none;font:750 clamp(30px,6vw,48px)/1.15 var(--ui)!important;letter-spacing:-.03em;text-transform:none;margin:12px 0;color:var(--ink)}
+#res .v224-result[data-outcome="win"] .big,#end .v224-result[data-outcome="win"] .big{color:var(--flood)}
+.v224-enter{animation:v224-reveal .34s cubic-bezier(.2,.8,.2,1) both}
+.v224-enter .v224-status{animation:v224-rise .35s .05s both}
+@keyframes v224-reveal{from{transform:translateY(5px);opacity:.7}to{transform:none;opacity:1}}
+@keyframes v224-rise{from{transform:translateY(4px);opacity:0}to{transform:none;opacity:1}}
+#end .rank li{min-height:54px}
+#fx{pointer-events:none}
+@media(prefers-reduced-motion:reduce){.v224-enter,.v224-enter .v224-status,.shake{animation:none!important}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -786,7 +805,7 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
   </section>
 
   <section class="screen" id="res">
-    <div class="res"><div class="pair" id="rPair"></div><div class="big" id="rBig"></div><p class="lead" id="rTxt" style="margin:10px auto 0"></p></div>
+    <div class="res v224-result" id="v224Round"><div class="v224-status" id="v224RoundStatus"></div><div class="pair" id="rPair"></div><div class="big" id="rBig"></div><p class="lead" id="rTxt" style="margin:10px auto 0"></p></div>
     <div class="pts" id="rPts"></div>
     <div class="tries" id="rTries"></div>
     <div class="objbox" id="obj"></div>
@@ -797,7 +816,7 @@ body.hurry::after{animation:none;box-shadow:inset 0 0 20px #ff71882a;opacity:1}b
   </section>
 
   <section class="screen" id="end">
-    <div class="res"><div class="big" id="eBig"></div><div id="eTxt" style="margin:16px auto 22px"></div></div>
+    <div class="res v224-result" id="v224Final"><div class="v224-status" id="v224FinalStatus"></div><div class="big" id="eBig"></div><div id="eTxt" style="margin:16px auto 22px"></div></div>
     <div class="badgeNew" id="eBadge" hidden></div>
     <div id="eSeason"></div>
     <details class="more" id="eHist"><summary>Maç özeti: tur tur</summary><div class="hist" id="eHistL"></div></details>
@@ -3339,8 +3358,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22.3';
+const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
+const APPV='22.4';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3892,18 +3911,55 @@ $('again').onclick=()=>{if(isHost)act(()=>startGame())};
 $('toLobby').onclick=()=>leaveRoom();
 
 /* ---------- konfeti ---------- */
-function confetti(cols,big){
-  const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(rm)big=false;
-  const cv=$('fx'),dpr=Math.min(2,window.devicePixelRatio||1),W=cv.clientWidth,Hh=cv.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
-  const N=big?160:70,ps=Array.from({length:N},()=>({x:W/2+(Math.random()-.5)*W*.3,y:Hh*.32,vx:(Math.random()-.5)*11,vy:-Math.random()*13-4,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.4,w:6+Math.random()*6,h:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)]}));
-  const t0=performance.now();const f=t=>{const k=(t-t0)/1000;x.clearRect(0,0,W,Hh);ps.forEach(p=>{p.vy+=.38;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-k/2.2);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
-    if(k<2.2)requestAnimationFrame(f);else x.clearRect(0,0,W,Hh)};requestAnimationFrame(f);
+const resultKey=(room,g,kind)=>[room,g.gid,g.st,kind,kind==='round'?g.pn:'end',kind==='round'?(g.wu||'none'):''].join(':');
+function outcomeOf(g,uid){
+  if(!g.pl.some(p=>p.u===uid))return 'spectator';
+  if(g.md==='tr'&&g.ch)return g.ch===uid?'win':'loss';
+  if(g.md==='t'&&g.tm){
+    const total=t=>g.pl.filter(p=>g.tm[p.u]===t).reduce((n,p)=>n+(+p.s||0),0),a=total(0),b=total(1);
+    return a===b?'draw':g.tm[uid]===(a>b?0:1)?'win':'loss';
+  }
+  const top=Math.max(...g.pl.map(p=>+p.s||0)),winners=g.pl.filter(p=>(+p.s||0)===top);
+  return winners.length>1?'draw':winners[0].u===uid?'win':'loss';
 }
-let cfKey='';
-function celebrate(g){const k=g.gid+'-'+g.r+'-'+(+g.vc||0);if(!g.wu||cfKey===k)return;cfKey=k;
-  const sa=STY[g.a]||[],sb=STY[g.b]||[];const run=()=>confetti([sa[1],sa[2],sb[1],sb[2],'#f6d33f'].filter(Boolean),g.wu===ME);
-  requestAnimationFrame(run);if(g.wu===ME)setTimeout(()=>confetti(['#f6d33f','#59e08b','#fff'],false),700);
-  const r=$('rBig');r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');$('next').disabled=true;setTimeout(()=>$('next').disabled=false,2500)}
+const Fx={frame:0,seen:new Set(),
+  reduce:()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches,
+  claim(key){
+    if(this.seen.has(key))return false;
+    try{if(sessionStorage.getItem('oo-fx-last')===key){this.seen.add(key);return false}sessionStorage.setItem('oo-fx-last',key)}catch(e){}
+    this.seen.add(key);if(this.seen.size>128)this.seen.delete(this.seen.values().next().value);return true;
+  },
+  stop(){if(this.frame)cancelAnimationFrame(this.frame);this.frame=0;const cv=$('fx'),ctx=cv&&cv.getContext('2d');if(ctx)ctx.clearRect(0,0,cv.width,cv.height)},
+  burst(cols,big){
+    this.stop();if(this.reduce()||document.hidden||!cols.length)return;
+    const cv=$('fx'),W=cv.clientWidth,H=cv.clientHeight,dpr=Math.min(1.5,window.devicePixelRatio||1);
+    if(!W||!H)return;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);const x=cv.getContext('2d');if(!x)return;x.setTransform(dpr,0,0,dpr,0,0);
+    const N=big?92:48,duration=big?1650:1100,ps=Array.from({length:N},()=>({x:W*.5+(Math.random()-.5)*W*.32,y:H*.27,vx:(Math.random()-.5)*420,vy:-Math.random()*490-100,r:Math.random()*Math.PI,vr:(Math.random()-.5)*10,w:4+Math.random()*5,h:3+Math.random()*4,c:cols[Math.floor(Math.random()*cols.length)]}));
+    const t0=performance.now();let last=t0;
+    const step=t=>{const elapsed=t-t0,dt=Math.min(.05,Math.max(0,(t-last)/1000));last=t;x.clearRect(0,0,W,H);
+      if(elapsed>=duration||document.hidden){this.frame=0;return}
+      x.globalAlpha=Math.max(0,Math.min(1,(duration-elapsed)/350));
+      for(const p of ps){p.vy+=620*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()}
+      x.globalAlpha=1;this.frame=requestAnimationFrame(step);
+    };this.frame=requestAnimationFrame(step);
+  }
+};
+function animateResult(panel,key,kind){
+  if(!Fx.claim(key))return;
+  if(Fx.reduce())return;
+  panel.classList.remove('v224-enter');void panel.offsetWidth;panel.classList.add('v224-enter');
+  if(kind==='win')Fx.burst(['#b8f568','#f5f6fc','#78b7ff','#ffd47e'],true);
+}
+function presentRound(g){
+  const panel=$('v224Round'),kind=!g.wu?'none':g.wu===ME?'win':g.md==='t'&&g.tm&&g.tm[ME]!=null&&g.tm[ME]===g.tm[g.wu]?'win':'other';
+  panel.dataset.outcome=kind;$('v224RoundStatus').textContent=kind==='none'?'SÜRE DOLDU':kind==='win'?'DOĞRU CEVAP':'TUR SONUCU';
+  animateResult(panel,resultKey(code,g,'round'),kind);
+}
+function presentFinal(g){
+  const panel=$('v224Final'),kind=outcomeOf(g,ME);panel.dataset.outcome=kind;
+  $('v224FinalStatus').textContent=({win:'GALİBİYET',loss:'MAÇ TAMAMLANDI',draw:'BERABERE',spectator:'MAÇ SONU'})[kind];
+  animateResult(panel,resultKey(code,g,'final'),kind);
+}
 /* ---------- sesler ---------- */
 function react(p,g){
   if(!g)return;const i=idxOf(ME),me=i>=0?g.pl[i]:null,pm=p&&i>=0&&Array.isArray(p.pl)?p.pl.find(x=>x.u===ME):null;
@@ -3912,14 +3968,14 @@ function react(p,g){
     if(g.ph==='res')Voice.say(g.wu?`Gooool! ${nameOfU(g.wu)} bildi! ${String(g.hit||'').replace(' (itirazla)','')}`:'Kimse bilemedi. Tur geçersiz, yeniden oynanacak.');
     if(g.ph==='end')setTimeout(()=>Voice.say('Maç bitti! '+$('eBig').textContent),400);
     if(g.ph==='ans'){SFX.whistle();$('ansI').value='';C.ty=0;send({ty:0});lastSec=-1;$('aMsg').textContent='';$('ansI').dataset.l='';setTimeout(()=>{if(i>=0)$('ansI').focus()},60)}
-    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)();celebrate(g)}
+    if(g.ph==='res'){(g.wu?SFX.goal:SFX.timeup)()}
     if(g.ph==='end')SFX.final();
     if(g.ph==='rev')SFX.joker();
     if(g.ph==='pick'&&p&&p.ph==='rev'&&p.r===g.r)SFX.timeup();
     return;
   }
   if(g.ph==='pick'&&Object.keys(g.sp||{}).length>Object.keys(p.sp||{}).length&&!(g.sp||{})[ME])SFX.tick(false);
-  if(g.ph==='res'&&(+g.obOK||0)>(+p.obOK||0)){SFX.goal();confetti(['#f6d33f','#59e08b','#fff'],g.wu===ME)}
+  if(g.ph==='res'&&(+g.obOK||0)>(+p.obOK||0)){SFX.goal()}
   if(g.ph==='res'&&g.ob&&(!p.ob||p.ob.id!==g.ob.id))SFX.tick(true);
   if(g.ph==='ans'){
     const wk=x=>x&&x.wr?+x.wr.k||0:0;
@@ -4057,7 +4113,7 @@ function tickUI(force){
   else if(force&&!m.textContent){m.className='msg';m.textContent=G.md==='k'?'Bu kulüplerin hepsinde oynamış futbolcuyu yaz.':'İki takımda da oynamış birini yaz.'}
 }
 setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%1000<200)drawOpps()},200);
-function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
+function drawRes(){
   show('res');const mi=myIdx(),wi=idxOf(G.wu);
   if($('repF').dataset.r!==G.gid+'-'+G.pn){$('repF').dataset.r=G.gid+'-'+G.pn;$('repF').hidden=true}$('repB').hidden=G.md==='k';
   $('rPair').innerHTML=G.md==='k'?(G.kc||[]).map(crest).join(''):crest(G.a)+'<i>×</i>'+crest(G.b);
@@ -4068,7 +4124,7 @@ function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
   $('rList').innerHTML=[...v].sort((x,y)=>(y.n===hit)-(x.n===hit)).map(p=>`<li class="${p.n===hit?'hit':G.used.includes(p.n)?'used':''}">${esc(p.n)}</li>`).join('');
   $('rTries').innerHTML=G.pl.map((p,i)=>{const at=p.at||[];return`<div class="try" style="--pc:${pCol(i)}">${avI(i,26)}<strong>${esc(pName(i))}</strong><span class="g">${at.length?at.map(x=>`<span class="${x.ok?'ok':x.unk?'no unk':'no'}">${esc(clip(x.t,30))}</span>`).join(''):'<span style="opacity:.6">cevap yazmadı</span>'}</span></div>`}).join('');
   drawObj();
-  $('next').hidden=mi<0;$('next').textContent=!G.wu?'Turu tekrar oyna':(G.md==='tr'?!!G.ch:G.r>=G.R)?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';
+  $('next').hidden=mi<0;$('next').textContent=!G.wu?'Turu tekrar oyna':(G.md==='tr'?!!G.ch:G.r>=G.R)?'Sonucu gör':'Sonraki tur';$('rStatus').textContent='';presentRound(G);
 }
 function drawEnd(){
   if(screen!=='end'){$('eBadge').hidden=true;$('eBadge').innerHTML=''}
@@ -4088,7 +4144,7 @@ function drawEnd(){
   if($('eHistL').dataset.h!==hh){$('eHistL').dataset.h=hh;$('eHistL').innerHTML=hh}
   Season.record();
   {const sv=Object.values(G.sv||{}).sort((a,b)=>b.s-a.s);const h=sv.length?`<div class="card" style="max-width:520px;margin:0 auto 16px"><h3>İzleyici tahminleri</h3><table class="stab">${sv.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${r.s}/${r.t}</td></tr>`).join('')}</table></div>`:'';if($('eSpec').dataset.h!==h){$('eSpec').dataset.h=h;$('eSpec').innerHTML=h}}
-  $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';
+  $('again').hidden=!isHost;$('eStatus').textContent=isHost?'Yeni gelenler rövanşa otomatik katılır.':'Rövanşı kurucu başlatabilir.';presentFinal(G);
 }
 
 /* ---------- Firebase ve Google girişi ---------- */
