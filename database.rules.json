@@ -19,8 +19,27 @@
     "sug": {
       ".read": "auth != null",
       "$id": {
-        ".write": "auth != null && !data.exists()",
+        ".write": "auth != null && (!data.exists() || root.child('admins').child(auth.uid).val() === true)",
         ".validate": "newData.child('u').val() === auth.uid && newData.child('t').isString() && newData.child('t').val().length < 41 && newData.child('a').isString() && newData.child('a').val().length < 5 && newData.child('b').isString() && newData.child('b').val().length < 5"
+      }
+    },
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      }
+    },
+    "reports": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$id": {
+        ".write": "auth != null && (!data.exists() || root.child('admins').child(auth.uid).val() === true)",
+        ".validate": "newData.child('u').val() === auth.uid && newData.child('t').isString() && newData.child('t').val().length < 200 && newData.child('p').isString() && newData.child('p').val().length < 70"
+      }
+    },
+    "fix": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }
     }
   }

@@ -126,6 +126,17 @@ label{display:grid;gap:6px;font-weight:700;font-size:14px;color:var(--mute)}
 .rxf span{display:block;font-size:42px}.rxf small{display:block;font-size:12px;font-weight:700;background:rgba(0,0,0,.55);border-radius:8px;padding:1px 6px}
 @keyframes rxup{0%{transform:translateY(0) scale(.6);opacity:0}12%{transform:translateY(-30px) scale(1.15);opacity:1}100%{transform:translateY(-420px) scale(1);opacity:0}}
 .stabs{display:flex;gap:6px;margin:0 0 8px}.stabs button{flex:1;min-height:34px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--mute);font-weight:700;cursor:pointer}.stabs button.on{background:var(--flood);color:#2b2200;border-color:var(--flood)}
+.botrow{margin:4px 0 12px;gap:8px}.botrow select,#botL{min-height:40px;border-radius:10px;background:var(--card);color:var(--ink);border:1px solid var(--line);padding:0 8px}
+.slot .rm{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--mute);border-radius:8px;padding:4px 8px;cursor:pointer}
+.repf{max-width:640px;margin:6px auto;display:grid;gap:8px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.repf select,.repf input{min-height:40px;border-radius:10px;background:rgba(0,0,0,.25);color:var(--ink);border:1px solid var(--line);padding:0 10px;width:100%}
+.pfg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.pfg div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.pfg b{display:block;font:800 28px var(--cond);color:var(--flood)}.pfg span{font-size:12px;color:var(--mute)}
+.pfl{display:grid;gap:6px;margin:6px 0 16px}.pfl div{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border-radius:10px;padding:6px 10px}
+.pfl div>svg,.pfl div>span:first-child{width:30px;height:33px;flex:0 0 30px}.pfl b{margin-left:auto;color:var(--flood)}
+.adm{display:grid;gap:8px}.adm>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
+.adm .btns{justify-content:flex-start;margin-top:8px;gap:6px}.adm .btn{min-height:34px;padding:0 10px;font-size:13px}
+.uid{font-family:ui-monospace,monospace;font-size:12px;word-break:break-all;background:rgba(0,0,0,.3);padding:6px 8px;border-radius:8px;user-select:all}
 .tsc{display:block;font:800 15px var(--cond);margin-bottom:2px}.tsc i{font-style:normal}.tsc:empty{display:none}
 .chip.t0{outline:2px solid #4aa8ff;outline-offset:-2px}.chip.t1{outline:2px solid #ff5a5f;outline-offset:-2px}
 .tres{display:flex;justify-content:center;gap:18px;font:800 26px var(--cond);margin:0 auto 14px}.tres span{padding:6px 16px;border-radius:12px;background:rgba(255,255,255,.06)}
@@ -267,8 +278,9 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
-    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="gOut">Çıkış</button></p>
+    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="admGo" hidden>Yönetici</button> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
+      <div class="card"><h3>Bota karşı oyna</h3><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
       <div class="card"><h3>Günün bulmacası</h3><p>Herkese aynı 5 eşleşme, günde bir kez. Her biri için 30 saniye.</p><button class="btn alt" id="dGo" disabled>Oyna</button></div>
       <div class="card season" id="seasonC" hidden><h3>Sezon tablosu</h3><div id="seasonT"><p class="tiny">Yükleniyor…</p></div></div>
@@ -296,6 +308,7 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
         <label>Ligler<select id="sL"><option value="a" selected>Hepsi (6 lig)</option><option value="e">Sadece Avrupa</option><option value="0">Süper Lig ağırlıklı</option><option value="1">La Liga</option><option value="2">Serie A</option><option value="3">Premier Lig</option><option value="4">Bundesliga</option><option value="5">Ligue 1 ağırlıklı</option></select></label>
         <label>Joker (kişi başı)<select id="sJ"><option value="0">Yok</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></label>
       </div>
+      <div class="row botrow"><select id="bL" aria-label="Bot seviyesi"><option value="k">Kolay bot</option><option value="o" selected>Orta bot</option><option value="z">Zor bot</option></select><button class="btn ghost sm" id="addBot" type="button">Bot ekle</button></div>
       <button class="btn" id="start" disabled>Maçı başlat</button>
     </div>
     <p class="status" id="wStatus" role="status"></p>
@@ -333,6 +346,8 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
     <div class="tries" id="rTries"></div>
     <div class="objbox" id="obj"></div>
     <details class="more" id="rMore"><summary><span id="rSum">Bu eşleşmedeki ortak oyuncular</span> (<span id="rCount"></span>)</summary><ul class="list" id="rList"></ul></details>
+    <div class="center"><button class="link" id="repB" type="button">Hatalı bilgi mi var? Bildir</button></div>
+    <form class="repf" id="repF" hidden><label class="tiny">Hangi oyuncu?<select id="repP"></select></label><input id="repT" maxlength="160" placeholder="Ne yanlış? (ör. bu takımda hiç oynamadı)"><button class="btn sm">Gönder</button><p class="tiny" id="repS"></p></form>
     <div class="dock"><button class="btn" id="next">Sonraki tur</button><p class="status center" id="rStatus"></p></div>
   </section>
 
@@ -361,6 +376,18 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
     </div>
   </section>
   <div class="rxb" id="rxb" hidden><button data-e="😂">😂</button><button data-e="🔥">🔥</button><button data-e="😱">😱</button><button data-e="👏">👏</button><button data-e="😤">😤</button></div>
+  <section class="screen" id="prof">
+    <div class="turnline"><h2>Profilim</h2><p class="lead" id="pfSub"></p></div>
+    <div id="pfBody"><p class="tiny">Yükleniyor…</p></div>
+    <div class="btns"><button class="btn ghost" id="pfBack">Ana ekran</button></div>
+  </section>
+  <section class="screen" id="adm">
+    <div class="turnline"><h2>Yönetici paneli</h2><p class="lead" id="admSub"></p></div>
+    <div class="stabs" id="admTabs"><button data-t="r" class="on">Bildirimler</button><button data-t="s">Topluluk</button><button data-t="f">Düzeltmeler</button></div>
+    <div id="admBody"></div>
+    <div class="btns"><button class="btn ghost" id="admBack">Ana ekran</button></div>
+  </section>
+  <div class="tchat" id="rchat" hidden><div class="tlog" id="rlog"></div><form id="rcF" class="row"><input id="rcI" maxlength="80" placeholder="Odaya yaz…" autocomplete="off" aria-label="Oda sohbeti"><button class="btn sm">Gönder</button></form></div>
   <div class="tchat" id="tchat" hidden><div class="tlog" id="tlog"></div><form id="tcF" class="row"><input id="tcI" maxlength="60" placeholder="Takım arkadaşına yaz…" autocomplete="off" aria-label="Takım sohbeti"><button class="btn sm">Gönder</button></form></div>
   <div class="center"><button class="link" id="quit" hidden>Odadan çık</button></div>
   <p class="note" id="note">Armalar temsili çizimdir.</p>
@@ -2688,8 +2715,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=id==='lobby'||id==='daily';window.scrollTo(0,0)};
-const APPV='12';
+const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
+const APPV='13';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -2706,7 +2733,7 @@ function badgeRow(b){b=b||{};return`<div class="badges">${Object.entries(BADGES)
 const wkKey=(off=0)=>{const[y,m,d]=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date()).split('-').map(Number);const t=new Date(Date.UTC(y,m-1,d));t.setUTCDate(t.getUTCDate()-((t.getUTCDay()+6)%7)+off*7);return t.toISOString().slice(0,10)};
 const Season={done:'',busy:false,rows:[],tab:'w',
   async record(){
-    if(!Net.db||!G||G.ph!=='end'||!G.st||myIdx()<0)return;const k=code+':'+G.gid+':'+G.st;if(this.done===k)return;this.done=k;
+    if(!Net.db||!G||G.ph!=='end'||!G.st||myIdx()<0||G.pl.some(p=>isBot(p.u)))return;const k=code+':'+G.gid+':'+G.st;if(this.done===k)return;this.done=k;
     const ref=Net.db.ref('stats/'+ME);
     try{const s=(await ref.once('value')).val()||{};if(s.lk===k)return this.load();
       const me=P(myIdx()),sc=G.pl.map(p=>+p.s||0),top=Math.max(...sc);let won=(+me.s||0)===top&&sc.filter(x=>x===top).length===1;
@@ -2714,10 +2741,13 @@ const Season={done:'',busy:false,rows:[],tab:'w',
       if(G.md==='tr')won=G.ch===ME;
       const hits=(G.hist||[]).filter(h=>h.w===ME).length,bd=earnBadges(s,me,won,hits);
       if(bd.nw.length){$('eBadge').hidden=false;$('eBadge').innerHTML='Yeni rozet: '+bd.nw.map(k=>'🏅 '+esc(BADGES[k][0])+' <span style="opacity:.7;font-weight:500">('+esc(BADGES[k][1])+')</span>').join('<br>');SFX.goal()}
+      const pkKey=n=>clip(String(n||'').replace(' (itirazla)','').replace(/[.#$\/\[\]]/g,'_'),40),tm=Object.assign({},s.tm||{}),pm=Object.assign({},s.pl||{});let run=0,best=0;
+      (G.hist||[]).forEach(h=>{run=h.w===ME?run+1:0;best=Math.max(best,run);if(h.w!==ME)return;if(!h.k&&has(h.a)&&has(h.b)){tm[h.a]=(+tm[h.a]||0)+1;tm[h.b]=(+tm[h.b]||0)+1}const kk=pkKey(h.h);if(kk)pm[kk]=(+pm[kk]||0)+1});
+      const pmT=Object.fromEntries(Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,40));
       const K=wkKey(),ow=s.wk&&s.wk.k===K?s.wk:{k:K,p:0,w:0,g:0},lw=s.wk&&s.wk.k!==K?s.wk:(s.lw||null);
       const wk={k:K,p:(+ow.p||0)+(+me.s||0),w:(+ow.w||0)+(won?1:0),g:(+ow.g||0)+1};
-      const fr=Object.assign({},s.fr||{});G.pl.forEach(p=>{if(p.u&&p.u!==ME)fr[p.u]=1});
-      await ref.update({n:clean(myName)||'Oyuncu',g:(+s.g||0)+1,w:(+s.w||0)+(won?1:0),p:(+s.p||0)+(+me.s||0),c:(+s.c||0)+hits,b:bd.all,wk,lw,lk:k,fr,t:Date.now()});
+      const fr=Object.assign({},s.fr||{});G.pl.forEach(p=>{if(p.u&&p.u!==ME&&!isBot(p.u))fr[p.u]=1});
+      await ref.update({n:clean(myName)||'Oyuncu',g:(+s.g||0)+1,w:(+s.w||0)+(won?1:0),p:(+s.p||0)+(+me.s||0),c:(+s.c||0)+hits,b:bd.all,wk,lw,tm,pl:pmT,rp:(+s.rp||0)+(G.hist||[]).length,bs:Math.max(+s.bs||0,best),lk:k,fr,t:Date.now()});
       this.load(true);setTimeout(()=>this.load(true),4000)}catch(e){this.fail(e)}
   },
   async load(show){
@@ -2743,6 +2773,44 @@ const Season={done:'',busy:false,rows:[],tab:'w',
   fail(e){const pd=/permission|denied/i.test(String(e&&(e.code||e.message)));$('seasonC').hidden=false;
     $('seasonT').innerHTML=`<p class="tiny">${pd?'Sezon tablosu için veritabanı kuralının güncellenmesi gerekiyor.':'Sezon tablosu şu an yüklenemedi.'}</p>`;this.done=pd?'':this.done}
 };
+const Prof={
+  async open(){if(!ME||!Net.db)return;show('prof');$('pfSub').textContent=$('whoName').textContent;$('pfBody').innerHTML='<p class="tiny">Yükleniyor…</p>';
+    let s={};try{s=(await Net.db.ref('stats/'+ME).once('value')).val()||{}}catch(e){$('pfBody').innerHTML='<p class="tiny">Profil yüklenemedi. Veritabanı kuralını kontrol et.</p>';return}
+    const g=+s.g||0,w=+s.w||0,c=+s.c||0,rp=+s.rp||0,K=wkKey(),wk=s.wk&&s.wk.k===K?s.wk:{p:0},d=s.d||null;
+    const tms=Object.entries(s.tm||{}).filter(([k])=>has(k)).sort((a,b)=>b[1]-a[1]).slice(0,6),pls=Object.entries(s.pl||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    $('pfBody').innerHTML=`<div class="pfg"><div><b>${g}</b><span>Maç</span></div><div><b>${w}</b><span>Galibiyet${g?` · %${Math.round(w/g*100)}`:''}</span></div><div><b>${c}</b><span>Doğru cevap</span></div>
+      <div><b>${rp?'%'+Math.round(c/rp*100):'–'}</b><span>Tur isabeti</span></div><div><b>${+s.bs||0}</b><span>En uzun seri</span></div><div><b>${+wk.p||0}</b><span>Bu hafta puan</span></div></div>
+      ${d?`<p class="tiny">Son günün bulmacası (${esc(String(d.k).split('-').reverse().join('.'))}): ${String(d.r||'').split('').map(x=>x==='1'?'🟩':'🟥').join('')} ${+d.s||0} puan</p>`:''}
+      <h3>En çok bildiğin takımlar</h3><div class="pfl">${tms.length?tms.map(([k,v])=>`<div>${crest(k)}<span>${esc(TEAMS[k][0])}</span><b>${v}</b></div>`).join(''):'<p class="tiny">Henüz yok.</p>'}</div>
+      <h3>En çok yazdığın doğru cevaplar</h3><div class="pfl">${pls.length?pls.map(([k,v])=>`<div><span>⚽</span><span>${esc(k)}</span><b>${v}</b></div>`).join(''):'<p class="tiny">Henüz yok.</p>'}</div>
+      <h3>Rozet vitrini (${Object.keys(s.b||{}).length}/${Object.keys(BADGES).length})</h3>${badgeRow(s.b)}
+      <p class="tiny" style="margin-top:18px">Kullanıcı kimliğin (yönetici kurulumu için):</p><div class="uid">${esc(ME)}</div>`}
+};
+const Admin={on:false,tab:'r',
+  async check(){if(!Net.db||!ME)return;try{this.on=(await Net.db.ref('admins/'+ME).once('value')).val()===true}catch(e){this.on=false}$('admGo').hidden=!this.on;if(this.on)Fixes.load()},
+  open(){if(!this.on)return;show('adm');this.load()},
+  async load(){$('admSub').textContent='Yükleniyor…';const t=this.tab;document.querySelectorAll('#admTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    const path={r:'reports',s:'sug',f:'fix'}[t];let v={};try{v=(await Net.db.ref(path).once('value')).val()||{}}catch(e){$('admSub').textContent='Okunamadı: veritabanı kuralını ve admins kaydını kontrol et.';$('admBody').innerHTML='';return}
+    const L=Object.entries(v).sort((a,b)=>(+b[1].ts||0)-(+a[1].ts||0));$('admSub').textContent=`${L.length} kayıt`;
+    const tn=c=>has(c)?esc(TEAMS[c][0]):esc(c||'?');
+    $('admBody').innerHTML=`<div class="adm">${L.map(([id,e])=>t==='r'?`<div><b>${esc(e.p||'?')}</b> · ${tn(e.a)} / ${tn(e.b)}<br>${esc(e.t||'')}<br><span class="tiny">${esc(e.n||'')} · ${new Date(+e.ts||0).toLocaleString('tr-TR')}</span>
+        <div class="btns">${e.p&&has(e.a)?`<button class="btn sm" data-fx="${esc(id)}" data-c="${e.a}">${tn(e.a)}'dan çıkar</button>`:''}${e.p&&has(e.b)?`<button class="btn sm" data-fx="${esc(id)}" data-c="${e.b}">${tn(e.b)}'dan çıkar</button>`:''}<button class="btn ghost sm" data-del="reports/${esc(id)}">Sil</button></div></div>`
+      :t==='s'?`<div><b>${esc(e.t)}</b> · ${tn(e.a)} / ${tn(e.b)}<div class="btns"><button class="btn ghost sm" data-del="sug/${esc(id)}">Sil</button></div></div>`
+      :`<div><b>${esc(e.t)}</b> artık ${tn(e.c)} oyuncusu sayılmıyor<div class="btns"><button class="btn ghost sm" data-del="fix/${esc(id)}">Geri al</button></div></div>`).join('')||'<p class="tiny">Kayıt yok.</p>'}</div>`;
+    this.cache=v},
+  async act(e){const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.del){b.disabled=true;try{await Net.db.ref(b.dataset.del).remove()}catch(x){alertMsg('Silinemedi.')}return this.load()}
+    if(b.dataset.fx){const r=(this.cache||{})[b.dataset.fx];if(!r)return;b.disabled=true;const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      try{await Net.db.ref('fix/'+id).set({t:r.p,c:b.dataset.c,u:ME,ts:Date.now()});await Net.db.ref('reports/'+b.dataset.fx).remove();Fixes.apply({t:r.p,c:b.dataset.c})}catch(x){alertMsg('Kaydedilemedi.')}return this.load()}}
+};
+const alertMsg=t=>{$('admSub').textContent=t};
+const Fixes={done:false,apply(f){const p=PLAYERS.find(x=>x.n===f.t);if(!p||!has(f.c))return;p.c=p.c.filter(c=>c!==f.c);if(p.k)p.k=p.k.filter(c=>c!==f.c);for(const z in SHC)delete SHC[z]},
+  async load(){if(this.done||!Net.db)return;try{const v=(await Net.db.ref('fix').once('value')).val()||{};this.done=true;Object.values(v).forEach(f=>this.apply(f))}catch(e){}}};
+const RC={log:[],seen:{}};
+function roomChat(){const on=!!(code&&G&&(G.ph==='wait'||G.ph==='end'));$('rchat').hidden=!on;if(!on)return;
+  Net.list().forEach(n=>{if(n.uid===ME||!n.pr||!n.pr.ch)return;const c=n.pr.ch;if(+c.n>(RC.seen[n.uid]||0)){const first=RC.seen[n.uid]==null;RC.seen[n.uid]=+c.n;if(!first||Math.abs(Date.now()-c.n)<90000)RC.log.push({w:clean(n.pr.nm||''),t:clip(String(c.t||''),80),n:+c.n})}});
+  RC.log.sort((a,b)=>a.n-b.n);const h=RC.log.slice(-8).map(m=>`<div><b>${esc(m.w)}:</b> ${esc(m.t)}</div>`).join('')||'<div class="tiny">Oda sohbeti: maç başlamadan ve maç bitince yazışabilirsiniz.</div>';
+  if($('rlog').dataset.h!==h){$('rlog').dataset.h=h;$('rlog').innerHTML=h}}
 const Daily={st:null,T:null,all:null,
   day(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date())},
   rng(seed){let h=1779033703^seed.length;for(const ch of seed){h=Math.imul(h^ch.charCodeAt(0),3432918353);h=h<<13|h>>>19}
@@ -2796,7 +2864,7 @@ $('create').onclick=async()=>{
   audio();saveName();if(!ME)return;
   const A='ABCDEFGHJKLMNPRSTUVYZ23456789';let c='';
   for(let t=0;t<6;t++){c=Array.from({length:4},()=>A[Math.floor(Math.random()*A.length)]).join('');const n=await Net.peek(c);if(!Object.values(n).some(x=>alive(x)))break}
-  enterRoom(c,true);
+  await enterRoom(c,true);
 };
 $('joinF').addEventListener('submit',e=>{e.preventDefault();audio();saveName();const c=$('code').value.trim().toUpperCase();
   if(!/^[A-Z0-9]{4}$/.test(c))return lStatus('Kod 4 karakter olmalı.',true);if(ME)enterRoom(c,false)});
@@ -2821,7 +2889,7 @@ async function enterRoom(c,create,spec){
 function leaveRoom(msg){
   code=null;isHost=false;G=null;prevG=null;banner('');Net.leave();
   try{localStorage.removeItem('oo-room');history.replaceState(null,'',location.pathname)}catch(e){}
-  show('lobby');$('rxb').hidden=true;$('tchat').hidden=true;$('brk').hidden=true;Season.load();lStatus(msg||'Hazır. Oda kur ya da arkadaşının koduyla katıl.',!!msg);
+  show('lobby');$('rxb').hidden=true;$('tchat').hidden=true;$('rchat').hidden=true;RC.log=[];$('brk').hidden=true;Season.load();lStatus(msg||'Hazır. Oda kur ya da arkadaşının koduyla katıl.',!!msg);
 }
 let quitT=null;
 $('quit').onclick=()=>{const b=$('quit');if(b.classList.contains('sure')){clearTimeout(quitT);b.classList.remove('sure');b.textContent='Odadan çık';leaveRoom();return}
@@ -2856,22 +2924,36 @@ const mark=()=>{dirty=true};
 function readSettings(){G.md=$('sM').value;G.R=+$('sR').value;G.T=+$('sT').value;G.J=+$('sJ').value;G.lg=$('sL').value;G.th=$('sTh').value;if(G.md==='q'){G.T=15;G.R=10}}
 ['sM','sR','sT','sJ','sL','sTh'].forEach(id=>$(id).addEventListener('change',()=>{if(isHost&&G&&(G.ph==='wait'||G.ph==='end')){readSettings();publish()}}));
 const freeColor=()=>[0,1,2,3].find(c=>!G.pl.some(p=>p.c===c));
+const isBot=u=>String(u||'').startsWith('bot-');
+const BOTL={k:['Kolay',.5,.55,.95],o:['Orta',.72,.35,.8],z:['Zor',.9,.15,.55]};const BT={pk:{},an:{}};
+function addBot(l){if(!isHost||!G||G.pl.length>=MAXP||!(G.ph==='wait'||G.ph==='end'))return;l=BOTL[l]?l:'o';
+  G.pl.push({u:'bot-'+l+'-'+Math.random().toString(36).slice(2,6),n:'Bot '+BOTL[l][0],c:freeColor(),s:0,j:0,ph:'',bl:l});G.note='';mark();publish()}
+function botTick(t){
+  G.pl.forEach((p,i)=>{if(!isBot(p.u))return;const L=BOTL[p.bl]||BOTL.o;
+    if(G.ph==='pick'&&(G.pk||[]).includes(p.u)&&!G.sp[p.u]){const k=G.pn+':'+p.u;if(!BT.pk[k])BT.pk[k]=t+1200+Math.random()*2500;
+      else if(t>=BT.pk[k]){const n=(G.nine||[]).filter(has);if(n.length)pickTeam(p.u,n[Math.floor(Math.random()*n.length)])}}
+    if(G.ph==='ans'&&isDuel(p.u)){const k=G.gid+':'+G.pn+':'+p.u,T=G.T*1000,st=(+G.end||0)-T-800;
+      if(BT.an[k]==null)BT.an[k]=Math.random()<L[1]?st+T*(L[2]+Math.random()*(L[3]-L[2])):-1;
+      if(BT.an[k]>0&&t>=BT.an[k]&&t>=(+p.lk||0)){BT.an[k]=-1;const c=cands().filter(x=>G.md==='k'||!G.used.includes(x.n));
+        if(c.length){const fam=c.filter(x=>STAR.has(x.n)),pool=fam.length&&Math.random()<.7?fam:c;answer(i,pool[Math.floor(Math.random()*pool.length)].n)}}}
+  })}
 function hostTick(){
   if(!isHost||!G)return;const t=now(),idle=G.ph==='wait'||G.ph==='end';
-  G.pl.forEach(p=>{if(p.u===ME)return;const on=alive(Net.node(p.u));
+  G.pl.forEach(p=>{if(p.u===ME||isBot(p.u))return;const on=alive(Net.node(p.u));
     if(on&&p.off){p.off=0;mark()}else if(!on&&!p.off){p.off=t;mark()}});
-  for(let i=G.pl.length-1;i>=0;i--){const p=G.pl[i],n=Net.node(p.u);
+  for(let i=G.pl.length-1;i>=0;i--){const p=G.pl[i],n=Net.node(p.u);if(isBot(p.u))continue;
     if(p.off&&t-p.off>(idle?15000:60000))removePlayer(i);
     else if(idle&&p.u!==ME&&n&&n.pr&&n.pr.sp){G.pl.splice(i,1);mark()}}          // izleyiciye geçen oyuncu
   if(idle&&G.pl.length<MAXP)Net.list().forEach(n=>{if(G.pl.length>=MAXP||n.uid===ME||idxOf(n.uid)>=0||!alive(n)||!n.pr||n.pr.h||n.pr.sp||!n.pr.nm)return;
     G.pl.push({u:n.uid,n:clean(n.pr.nm),c:freeColor(),s:0,j:G.J,ph:okPh(n.pr.ph)?n.pr.ph:''});G.note='';const p=n.pr;H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0;mark()});
   G.pl.forEach((p,i)=>{if(p.u===ME)return;const n=Net.node(p.u);if(n&&n.pr){const nm=clean(n.pr.nm),ph=okPh(n.pr.ph)?n.pr.ph:'';if((nm!==p.n||ph!==(p.ph||''))&&idle){p.n=nm;p.ph=ph;mark()}handleInputs(i,n.pr)}});
   if(G.ph==='pick')(G.pk||[]).forEach(u=>{const i=idxOf(u);if(i>=0&&!G.sp[u]&&P(i).off&&t-P(i).off>20000)pickTeam(u,G.nine[Math.floor(Math.random()*G.nine.length)])});
+  try{botTick(t)}catch(e){console.error(e)}
   if(G.ph==='rev'&&t>=G.rvEnd)afterReveal();
   if(G.ph==='ans'&&t>=G.end)endRound(-1,null);
   if(dirty)publish();
 }
-setInterval(hostTick,1000);
+setInterval(hostTick,500);
 function handleInputs(i,pr){
   const u=G.pl[i].u,cur=()=>G.pn,gid=G.gid,okR=r=>r===G.pn||r===G.r;
   const k=pr.pk;if(k&&G.ph==='pick'&&k.pn===G.pn&&k.g===gid)pickTeam(u,String(k.id));
@@ -3019,7 +3101,7 @@ function endRound(w,hitName){
 /* ---------- misafir: kurucunun yayınladığı durumu izler ---------- */
 function onNet(){
   if(!code)return;
-  setTimeout(()=>{try{teamChat();rxPoll()}catch(e){}},0);
+  setTimeout(()=>{try{teamChat();rxPoll();roomChat()}catch(e){}},0);
   if(isHost){hostTick();renderLive();return}
   const hosts=Net.list().filter(n=>n.uid!==ME&&n.pr&&n.pr.h&&n.pr.g&&Array.isArray(n.pr.g.pl));
   const h=hosts.find(n=>n.pr.g.pl.some(x=>x&&x.u===ME))||hosts.sort((a,b)=>(+b.t||0)-(+a.t||0))[0];
@@ -3048,6 +3130,16 @@ $('ansF').addEventListener('submit',e=>{
   if(isHost)act(()=>answer(i,t));else{C.ans++;send({ans:{r:G.pn,g:G.gid,n:C.ans,t:clip(t,60)}});pending=Date.now();$('aMsg').textContent='Kontrol ediliyor…';$('aMsg').className='msg'}
 });
 $('rxb').onclick=e=>{const b=e.target.closest('button');if(!b||!code||!RXE.includes(b.dataset.e))return;if(Date.now()-RX.last<1100)return;RX.last=Date.now();send({rx:{e:b.dataset.e,n:Date.now()}});rxShow(b.dataset.e,'Sen')};
+$('slots').onclick=e=>{const b=e.target.closest('[data-rm]');if(!b||!isHost||!G)return;const i=idxOf(b.dataset.rm);if(i>=0&&isBot(G.pl[i].u)){G.pl.splice(i,1);mark();publish()}};
+$('addBot').onclick=()=>addBot($('bL').value);
+$('botGo').onclick=async()=>{if(code)return;const l=$('botL').value;await $('create').onclick();let k=0;const w=setInterval(()=>{if(isHost&&G){clearInterval(w);addBot(l)}else if(++k>40)clearInterval(w)},150)};
+$('rcF').onsubmit=e=>{e.preventDefault();const t=clip($('rcI').value.trim(),80);if(!t||!code)return;const n=Date.now();send({ch:{n,t}});RC.log.push({w:'Sen',t,n});$('rcI').value='';roomChat()};
+$('pfGo').onclick=()=>{if(!code)Prof.open()};$('pfBack').onclick=()=>{show('lobby');Season.load()};
+$('admGo').onclick=()=>{if(!code)Admin.open()};$('admBack').onclick=()=>show('lobby');
+$('admTabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;Admin.tab=b.dataset.t;Admin.load()};$('admBody').onclick=e=>Admin.act(e);
+$('repB').onclick=()=>{if(!G||G.md==='k')return;const f=$('repF');f.hidden=!f.hidden;if(!f.hidden){const v=shared(G.a,G.b);$('repP').innerHTML=v.map(p=>`<option>${esc(p.n)}</option>`).join('')+'<option value="">Listede olmayan / diğer</option>';$('repS').textContent=''}};
+$('repF').onsubmit=async e=>{e.preventDefault();if(!G||!Net.db)return;const t=clip($('repT').value.trim(),160),p=clip($('repP').value,60);if(!t&&!p)return;
+  const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);try{await Net.db.ref('reports/'+id).set({u:ME,n:clean(myName)||'Oyuncu',a:G.a,b:G.b,p,t:t||'Bu takımlardan birinde oynamadı',ts:Date.now()});$('repS').textContent='Teşekkürler, yöneticiye iletildi.';$('repT').value=''}catch(x){$('repS').textContent='Gönderilemedi. Veritabanı kuralı güncel olmayabilir.'}};
 $('tcF').onsubmit=e=>{e.preventDefault();const t=clip($('tcI').value.trim(),60);if(!t||!G||!isTeam())return;send({tc:{g:G.gid,n:Date.now(),t}});TC.log.push({w:'Sen',t});$('tcI').value='';teamChat()};
 let instEv=null;const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;if(!standalone())$('instC').hidden=false});
@@ -3135,12 +3227,12 @@ function draw(){
   if(!G)return;drawBoard();drawSpecs();
   if(!hostAway)banner(G.ph!=='wait'&&G.note?G.note:'');
   ({wait:drawWait,pick:drawPick,rev:drawRev,ans:drawAns,res:drawRes,end:drawEnd}[G.ph]||(()=>{}))();
-  teamChat();drawBracket();$('rxb').hidden=!(code&&['pick','rev','ans','res','end'].includes(G.ph));
+  teamChat();drawBracket();roomChat();$('rxb').hidden=!(code&&['pick','rev','ans','res','end'].includes(G.ph));
 }
 function drawWait(){
   show('wait');$('wCode').textContent=code;const mi=myIdx(),n=G.pl.length;
   const md=isHost?$('sM').value:G.md;
-  const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${md==='t'?`<b style="color:${TCOL[i%2]}">${TNAME[i%2]}</b> · `:''}${p.u===G.host?'Kurucu':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div></div>`);
+  const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${md==='t'?`<b style="color:${TCOL[i%2]}">${TNAME[i%2]}</b> · `:''}${p.u===G.host?'Kurucu':isBot(p.u)?'Bilgisayar':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div>${isHost&&isBot(p.u)?`<button class="rm" data-rm="${esc(p.u)}">Çıkar</button>`:''}</div>`);
   if(n<MAXP)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
   $('slots').innerHTML=slots.join('');
   $('wNote').textContent=isHost?(n>1?`${n} oyuncu hazır. Ayarları seç ve maçı başlat. En fazla ${MAXP} kişi.`:'“Davet et” ile linki arkadaşlarına gönder. Katılan herkes burada görünür.'):'';
@@ -3229,6 +3321,7 @@ function tickUI(force){
 setInterval(()=>{tickUI(false);if(G&&G.ph==='ans'&&screen==='ans'&&Date.now()%1000<200)drawOpps()},200);
 function drawRes(){if(G&&G.ph==='res')setTimeout(()=>celebrate(G),0);
   show('res');const mi=myIdx(),wi=idxOf(G.wu);
+  if($('repF').dataset.r!==G.gid+'-'+G.pn){$('repF').dataset.r=G.gid+'-'+G.pn;$('repF').hidden=true}$('repB').hidden=G.md==='k';
   $('rPair').innerHTML=G.md==='k'?(G.kc||[]).map(crest).join(''):crest(G.a)+'<i>×</i>'+crest(G.b);
   if(!G.wu){$('rBig').textContent='Tur geçersiz';$('rTxt').textContent=G.md==='k'?`Cevap: ${G.kx}. Kimse puan almadı, tur yeniden oynanacak.`:`Kimse bilemedi, kimse puan almadı. Tur ${G.r} yeni takımlarla tekrar oynanacak.`}
   else{const wp=P(wi)||{};$('rBig').textContent=(wi===mi?'Bildin!':pName(wi)+' bildi')+` +${+wp.g||0}`;$('rTxt').textContent=(G.md==='k'?`${clip(G.hit,60)}: ${(G.kc||[]).map(c=>TEAMS[c][0]).join(', ')}.`:`${clip(G.hit,60)}: ${TEAMS[G.a][0]} ve ${TEAMS[G.b][0]} formasını giydi.`)+(wp.ip?' (İpucuyla, puan yarıya indi.)':'')}
@@ -3282,8 +3375,8 @@ const firebaseConfig={
     ME=u.uid;myPhoto=u.photoURL||'';$('whoName').textContent=u.displayName||u.email||'Oyuncu';
     if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
     if(!Net.db)Net.init(firebase.database(),u.uid);
-    Season.load();Community.load();
-    $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
+    Season.load();Community.load();Fixes.load();Admin.check();
+    $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;$('botGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
     let c=hashCode();if(!c)try{c=localStorage.getItem('oo-room')||''}catch(e){}
     if(c&&!code){saveName();enterRoom(c,false)}
   });
