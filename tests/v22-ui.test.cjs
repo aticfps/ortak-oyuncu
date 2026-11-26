@@ -41,3 +41,15 @@ test('V22.1 corrects old-theme dock, card tilt and motion while keeping mobile l
   for(const key of ['#nine .team,#nine .team.r5{transform:none','.dock{background:linear-gradient(transparent,var(--bg)','#ans .tools{display:grid','.chips{display:grid','#pfBody .pfg','body.hurry .clock{animation:none}'])assert.ok(v.includes(key),key);
   assert.ok(html.includes('if(more.dataset.round!==key)'));
 });
+
+test('V22.2 centers the scoreboard within the match content width',()=>{
+  assert.ok(body.includes('class="v222-scorewrap"'));assert.match(css,/\.v222-scorewrap\{max-width:808px;margin:0 auto/);
+});
+test('V22.2 match header, points and answer panel keep existing game controls',()=>{
+  for(const id of ['v222Pts','ansI','ansGo','jkB','ipB','aMsg','aSec','opps'])assert.ok(ids.includes(id),id);
+  assert.ok(body.includes('class="v222-answerpanel"'));assert.ok(html.includes("$('v222Pts').textContent=(km?kPts():+G.pts||1)+' PUAN'"));
+});
+test('V22.2 uses readable normal fonts and mobile match layout',()=>{
+  const v=html.slice(html.indexOf('/* V22.2:'),html.indexOf('</style>'));
+  assert.ok(v.includes('--ui:system-ui'));assert.ok(v.includes('#ans .clock::after'));assert.ok(v.includes('@media(max-width:600px)'));assert.ok(v.includes('#ans .tools .jk:disabled'));
+});
