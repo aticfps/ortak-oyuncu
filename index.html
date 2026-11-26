@@ -280,7 +280,7 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
     <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="admGo" hidden>Yönetici</button> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
-      <div class="card"><h3>Bota karşı oyna</h3><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
+      <div class="card"><h3>Bota karşı oyna</h3><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
       <div class="card"><h3>Günün bulmacası</h3><p>Herkese aynı 5 eşleşme, günde bir kez. Her biri için 30 saniye.</p><button class="btn alt" id="dGo" disabled>Oyna</button></div>
       <div class="card season" id="seasonC" hidden><h3>Sezon tablosu</h3><div id="seasonT"><p class="tiny">Yükleniyor…</p></div></div>
@@ -301,14 +301,14 @@ body.hurry .clock{animation:beat 1s ease-in-out infinite}
     <div class="slots" id="slots"></div>
     <div id="hostCtl" hidden>
       <div class="settings">
-        <label>Mod<select id="sM"><option value="c" selected>Klasik</option><option value="q">Hızlı (15 sn, 10 tur)</option><option value="t">Takım 2v2 (4 kişi)</option><option value="k">Kariyer zinciri</option><option value="tr">Turnuva (eleme)</option></select></label>
-        <label>Tur<select id="sR"><option>4</option><option selected>6</option><option>8</option><option>10</option></select></label>
-        <label>Cevap süresi<select id="sT"><option value="20">20 sn</option><option value="30" selected>30 sn</option><option value="45">45 sn</option><option value="60">60 sn</option></select></label>
-        <label>Tema<select id="sTh"><option value="" selected>Normal</option><option value="d">Derbiler</option><option value="e">Sadece efsaneler</option><option value="t">Türk oyuncular</option></select></label>
-        <label>Ligler<select id="sL"><option value="a" selected>Hepsi (6 lig)</option><option value="e">Sadece Avrupa</option><option value="0">Süper Lig ağırlıklı</option><option value="1">La Liga</option><option value="2">Serie A</option><option value="3">Premier Lig</option><option value="4">Bundesliga</option><option value="5">Ligue 1 ağırlıklı</option></select></label>
-        <label>Joker (kişi başı)<select id="sJ"><option value="0">Yok</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></label>
+        <label>Mod<select id="sM" autocomplete="off"><option value="c" selected>Klasik</option><option value="q">Hızlı (15 sn, 10 tur)</option><option value="t">Takım 2v2 (4 kişi)</option><option value="k">Kariyer zinciri</option><option value="tr">Turnuva (eleme)</option></select></label>
+        <label>Tur<select id="sR" autocomplete="off"><option>4</option><option selected>6</option><option>8</option><option>10</option></select></label>
+        <label>Cevap süresi<select id="sT" autocomplete="off"><option value="20">20 sn</option><option value="30" selected>30 sn</option><option value="45">45 sn</option><option value="60">60 sn</option></select></label>
+        <label>Tema<select id="sTh" autocomplete="off"><option value="" selected>Normal</option><option value="d">Derbiler</option><option value="e">Sadece efsaneler</option><option value="t">Türk oyuncular</option></select></label>
+        <label>Ligler<select id="sL" autocomplete="off"><option value="a" selected>Hepsi (6 lig)</option><option value="e">Sadece Avrupa</option><option value="0">Süper Lig ağırlıklı</option><option value="1">La Liga</option><option value="2">Serie A</option><option value="3">Premier Lig</option><option value="4">Bundesliga</option><option value="5">Ligue 1 ağırlıklı</option></select></label>
+        <label>Joker (kişi başı)<select id="sJ" autocomplete="off"><option value="0">Yok</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></label>
       </div>
-      <div class="row botrow"><select id="bL" aria-label="Bot seviyesi"><option value="k">Kolay bot</option><option value="o" selected>Orta bot</option><option value="z">Zor bot</option></select><button class="btn ghost sm" id="addBot" type="button">Bot ekle</button></div>
+      <div class="row botrow"><select id="bL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay bot</option><option value="o" selected>Orta bot</option><option value="z">Zor bot</option></select><button class="btn ghost sm" id="addBot" type="button">Bot ekle</button></div>
       <button class="btn" id="start" disabled>Maçı başlat</button>
     </div>
     <p class="status" id="wStatus" role="status"></p>
@@ -2716,7 +2716,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='13';
+const APPV='14';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -2880,7 +2880,7 @@ async function enterRoom(c,create,spec){
     isHost=true;G=mine.pr.g;Object.values(nodes).forEach(n=>{const p=n.pr||{};H.n[n.uid]=p.ans?+p.ans.n||0:0;H.j[n.uid]=p.jk?+p.jk.n||0:0;H.o[n.uid]=p.ob?+p.ob.n||0:0;H.v[n.uid]=p.vt?+p.vt.n||0:0});
     publish();return;
   }
-  if(create){isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:''}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
+  if(create){[['sM','c'],['sTh',''],['sL','a'],['sR','6'],['sT','30'],['sJ','1']].forEach(([k,v])=>{$(k).value=v});isHost=true;G={gid:0,seq:0,ph:'wait',host:ME,pl:[{u:ME,n:myName,c:0,s:0,j:1,ph:okPh(myPhoto)?myPhoto:''}],R:6,T:30,J:1,r:0,nine:[],a:null,b:null,pk:[],sp:{},pn:0,redo:'',rvEnd:0,used:[],pairs:[],ob:null,obN:0,obr:null,hit:null,wu:null,end:0,note:'',jkS:0};readSettings();publish();return}
   const p=mine&&mine.pr||{};C.ans=Math.max(C.ans,p.ans?+p.ans.n||0:0);C.jk=Math.max(C.jk,p.jk?+p.jk.n||0:0);C.ob=Math.max(C.ob,p.ob?+p.ob.n||0:0);C.v=Math.max(C.v,p.vt?+p.vt.n||0:0);
   Net.set({nm:myName,ph:okPh(myPhoto)?myPhoto:null,h:null,g:null,ty:0,sp:spec?1:null});
   clearTimeout(searchT);searchT=setTimeout(()=>{if(code===c&&!G){$('wStatus').textContent='Bu kodla açık bir oda bulunamadı. Kodu kontrol et ya da kurucunun sayfayı açık tuttuğundan emin ol.';try{localStorage.removeItem('oo-room')}catch(e){}}},9000);
@@ -3236,13 +3236,14 @@ function drawWait(){
   if(n<MAXP)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
   $('slots').innerHTML=slots.join('');
   $('wNote').textContent=isHost?(n>1?`${n} oyuncu hazır. Ayarları seç ve maçı başlat. En fazla ${MAXP} kişi.`:'“Davet et” ile linki arkadaşlarına gönder. Katılan herkes burada görünür.'):'';
+  if(isHost){const o=id=>$(id).options[$(id).selectedIndex].text;$('wNote').dataset.m=`Seçili: ${o('sM')} · Tema: ${o('sTh')} · ${o('sL')}`}
   $('hostCtl').hidden=!isHost;$('start').disabled=n<2||(md==='t'&&n!==4);
   if(isHost&&md==='t'&&n!==4)$('wNote').textContent=`Takım modu için tam 4 oyuncu gerekli (şu an ${n}).`;
   if(isHost&&md==='q'&&n>1)$('wNote').textContent='Hızlı mod: takım seçimi yok, 10 tur, her tur 15 sn.';
   {const th=isHost?$('sTh').value:G.th;if(isHost&&n>1&&th)$('wNote').textContent=({d:'Derbiler: her tur bir derbi eşleşmesi gelir, takım seçimi yok.',e:'Sadece efsaneler: yalnızca efsane futbolcular doğru sayılır.',t:'Türk oyuncular: her tur iki takım gelir, yalnızca Türk oyuncular doğru sayılır.'})[th]}
   if(isHost&&md==='k'&&n>1)$('wNote').textContent='Kariyer zinciri: futbolcunun kulüpleri teker teker açılır, erken bilen çok puan alır.';
   if(isHost&&md==='tr'&&n>1)$('wNote').textContent=n===3?'Turnuva: kura ile biri finale bay geçer. Her maç 2 tur kazananındır.':'Turnuva: kura çekilir, her maç 2 tur kazananındır, kazananlar finale.';
-  $('wStatus').textContent=G.note?clip(G.note,160):isHost?'':(mi<0?(Net.mine&&Net.mine.sp?'İzleyici olarak buradasın. Maç başlayınca her şeyi canlı göreceksin.':n>=MAXP?'Oda dolu. İzleyici olarak bakabilirsin.':'Odaya ekleniyorsun…'):`${({t:'Takım 2v2 · ',q:'Hızlı mod · ',k:'Kariyer zinciri · ',tr:'Turnuva · '})[G.md]||''}${({d:'Derbiler · ',e:'Efsaneler · ',t:'Türk oyuncular · '})[G.th]||''}${G.md==='tr'?'eleme,':G.R+' tur,'} ${G.T} sn, ${G.J} joker. Kurucunun başlatması bekleniyor…`);
+  $('wStatus').textContent=G.note?clip(G.note,160):isHost?($('wNote').dataset.m||''):(mi<0?(Net.mine&&Net.mine.sp?'İzleyici olarak buradasın. Maç başlayınca her şeyi canlı göreceksin.':n>=MAXP?'Oda dolu. İzleyici olarak bakabilirsin.':'Odaya ekleniyorsun…'):`${({t:'Takım 2v2 · ',q:'Hızlı mod · ',k:'Kariyer zinciri · ',tr:'Turnuva · '})[G.md]||''}${({d:'Derbiler · ',e:'Efsaneler · ',t:'Türk oyuncular · '})[G.th]||''}${G.md==='tr'?'eleme,':G.R+' tur,'} ${G.T} sn, ${G.J} joker. Kurucunun başlatması bekleniyor…`);
 }
 function drawPick(){
   show('pick');const pk=G.pk||[],sp=G.sp||{},amP=pk.includes(ME),mine=myPick&&myPick.pn===G.pn?myPick.id:sp[ME]||null,can=amP&&!mine;
