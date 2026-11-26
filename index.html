@@ -2708,17 +2708,28 @@ Paulo Dybala|ROM
 Serdar Topraktepe|BJK KOC
 Emrah Başsan|GS RIZ ERZ
 Ömer Bayram|GS EYP AMD
-Murat Yıldırım|SAM GFK GNC COR`;
+Murat Yıldırım|SAM GFK GNC COR
+Oğulcan Çağlayan|KOC GS RIZ
+Ahmet Oğuz|KOC KON GNC
+Mame Thiam|FB KAS EYP|mame baba thiam
+Mustafa Yumlu|ERZ TS
+Orhan Ovacıklı|ERZ RIZ
+Kerem Kalafat|COR BJK RIZ
+Ahmet İlhan Özek|COR RIZ GNC
+Max Gradel|AMD BOU TFC GFK LEE
+Gökhan Gönül|GNC RIZ
+Caner Erkin|EYP
+Cenk Tosun|KAS`;
 
 const norm=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const PLAYERS0=(RAW+'\n'+RAW2+'\n'+RAW3+'\n'+RAW4).split('\n').map(l=>{let[n,c,a]=l.split('|');if(ADD[n])c+=' '+ADD[n];const keys=new Set([norm(n),norm(n).replace(/ /g,'')]);const w=norm(n).split(' ');if(w.length>1&&w[w.length-1].length>2)keys.add(w[w.length-1]);if(w.length>2)keys.add(w.slice(-2).join(' '));(a||'').split(',').filter(Boolean).forEach(x=>keys.add(norm(x)));return{n,c:c.split(' '),keys:[...keys]}});
 const KCH=`Zlatan Ibrahimović|JUV INT BAR MIL PSG MUN MIL
 Cristiano Ronaldo|MUN RMA JUV
-Nicolas Anelka|PSG ARS RMA LIV MCI FB CHE JUV
+Nicolas Anelka|PSG ARS RMA PSG LIV MCI FB CHE JUV
 Romelu Lukaku|CHE EVE MUN INT ROM NAP
 Álvaro Morata|RMA JUV CHE ATM MIL GS
 Gonzalo Higuaín|RMA NAP JUV MIL CHE
-Fernando Torres|ATM LIV CHE MIL
+Fernando Torres|ATM LIV CHE MIL ATM
 Cesc Fàbregas|ARS BAR CHE MON COM
 Arda Turan|GS ATM BAR IBF GS
 Wesley Sneijder|RMA INT GS NIC
@@ -2920,7 +2931,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='20';
+const APPV='20.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3277,8 +3288,8 @@ function nextRound(){
   if(replay)G.vc=(+G.vc||0)+1;else{if(G.md==='tr'?!!G.ch:G.r>=G.R){G.ph='end';G.ob=null;mark();return}G.r++}
   G.note='';setPickers();
   Object.assign(G,{ph:'pick',sp:{},pn:(+G.pn||0)+1,redo:'',a:null,b:null,ob:null,obr:null,hit:null,wu:null});
-  G.nine=nine();
-  if(G.md==='k'){const x=kPick();G.nine=[];G.pk=[];Object.assign(G,{kx:x.n,kc:(x.k||x.c).slice(),a:(x.k||x.c)[0],b:(x.k||x.c)[1],ph:'ans',end:now()+G.T*1000+800,pts:Math.min(5,x.c.length-1)})}
+  G.nine=G.md==='k'?[]:nine();
+  if(G.md==='k'){const x=kPick();if(!x){G.ph='end';G.note='Bu tema için sıralı kariyer havuzu tükendi.';G.pk=[];mark();return}G.pk=[];Object.assign(G,{kx:x.n,kc:x.k.slice(),a:x.k[0],b:x.k[1],ph:'ans',end:now()+G.T*1000+800,pts:Math.min(5,x.k.length-1)})}
   if(G.th==='t'&&G.md!=='k'){const all=[];for(let x=0;x<IDS.length;x++)for(let y=x+1;y<IDS.length;y++)if(pairOK(IDS[x],IDS[y]))all.push([IDS[x],IDS[y]]);if(all.length){const[x,y]=all[Math.floor(Math.random()*all.length)];G.nine=[];G.pk=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2500,rvOK:1,pts:ptsOf(x,y)})}}
   else if(G.th==='d'&&G.md!=='k'){const dd=DERBY.filter(([x,y])=>has(x)&&has(y)&&pairOK(x,y));if(dd.length){const[x,y]=dd[Math.floor(Math.random()*dd.length)];G.nine=[];G.pk=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2500,rvOK:1,pts:ptsOf(x,y)})}}
   else if(G.md==='q'){const x=G.nine[0],y=G.nine[1];G.pk=[];G.nine=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2000,rvOK:1,pts:ptsOf(x,y)})}
@@ -3325,8 +3336,8 @@ const DERBY='GS-FB GS-BJK FB-BJK TS-FB TS-GS RMA-BAR RMA-ATM BAR-ESY SEV-BET ATH
 const cands=()=>G.md==='k'?PLAYERS.filter(p=>p.n===G.kx):shared(G.a,G.b).filter(themeOK);
 const kShown=()=>{const tot=(G.kc||[]).length,st=(+G.end||0)-G.T*1000-800,el=Math.max(0,now()-st);return Math.min(tot,2+Math.floor(el/(G.T*1000/4)))};
 const kPts=()=>Math.min(5,Math.max(1,(G.kc||[]).length-kShown()+1));
-function kPick(){const kk=PLAYERS.filter(p=>p.k&&p.k.length>=3&&!G.used.includes(p.n)&&(G.th!=='t'||isTurk(p.n)));if(kk.length)return kk[Math.floor(Math.random()*kk.length)];const ok=p=>!p.x&&p.c.length<=7&&p.c.every(has)&&!G.used.includes(p.n);let pool=PLAYERS.filter(p=>ok(p)&&p.c.length>=4);if(pool.length<20)pool=PLAYERS.filter(p=>ok(p)&&p.c.length>=3);const st=pool.filter(p=>STAR.has(p.n));
-  const from=st.length&&Math.random()<.6?st:pool;return from[Math.floor(Math.random()*from.length)]}
+const careerPool=(players,used,theme)=>players.filter(p=>Array.isArray(p.k)&&p.k.length>=3&&p.k.every(has)&&!used.includes(p.n)&&(theme!=='t'||isTurk(p.n))&&(theme!=='e'||STAR.has(p.n)));
+function kPick(){const pool=careerPool(PLAYERS,G.used,G.th);return pool.length?pool[Math.floor(Math.random()*pool.length)]:null}
 const winPts=p=>{const v=+G.pts||1;/*k: pts answer anında hesaplanır*/return p&&p.ip?Math.ceil(v/2):v};
 /* itiraz: cevaplar tur sonuna kadar gizli olduğu için, kimse bilemeden biten turda sonuç ekranında yapılır */
 function objectIt(i,t){
