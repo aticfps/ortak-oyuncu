@@ -2977,7 +2977,7 @@ const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 v
   elli:['Ansiklopedi','Toplam 50 doğru cevap'],ay1:['Ay şampiyonu','Aylık sezonu arkadaşların arasında birinci bitirdin'],ay3:['Podyum','Aylık sezonu ilk 3’te bitirdin'],hafta:['Haftanın birincisi','Bir haftayı arkadaşların arasında zirvede bitirdin'],kupa:['Kupa sahibi','Turnuva kazandın'],kariyer:['Kariyer uzmanı','Bir kariyer zinciri maçında 3 tur bildin'],gun:['Günün adamı','Günün bulmacasını 5/5 bitirdin']};
 function earnBadges(s,game,uid,won,hits){const H=game.hist||[],b={},mine=H.filter(h=>h.w===uid);let run=0,best=0;
   H.forEach(h=>{run=h.w===uid?run+1:0;best=Math.max(best,run)});const valid=H.filter(h=>h.w);
-  b.ilk=1;if(mine.some(h=>+h.p>=4))b.zor=1;if(best>=3)b.seri=1;if(valid.length>=3&&valid.every(h=>h.w===ME))b.temiz=1;
+  b.ilk=1;if(mine.some(h=>+h.p>=4))b.zor=1;if(best>=3)b.seri=1;if(valid.length>=3&&valid.every(h=>h.w===uid))b.temiz=1;
   if(won&&!mine.some(h=>h.i))b.ipsiz=1;if(mine.some(h=>/itirazla/.test(h.h||'')))b.itiraz=1;if(won&&game.md==='q')b.hiz=1;if(won&&game.md==='t'&&game.tm)b.takim=1;if(won&&game.md==='tr')b.kupa=1;if(game.md==='k'&&mine.length>=3)b.kariyer=1;
   if((+s.g||0)+1>=10)b.on=1;if((+s.w||0)+(won?1:0)>=10)b.kral=1;if((+s.c||0)+hits>=50)b.elli=1;
   const old=s.b||{},nw=Object.keys(b).filter(k=>!old[k]);return{all:Object.assign({},old,b),nw}}
@@ -3004,7 +3004,8 @@ function statMatchUpdate(current,game,uid,k,name,K,M,ts){
   const wk={k:K,p:statAdd(ow.p,me.s),w:statAdd(ow.w,won?1:0),g:statAdd(ow.g,1)};
   const om=s.mo&&s.mo.k===M?s.mo:{k:M,p:0,w:0,g:0},lm=s.mo&&s.mo.k!==M?s.mo:(s.lm||null),mo={k:M,p:statAdd(om.p,me.s),w:statAdd(om.w,won?1:0),g:statAdd(om.g,1)};
   const fr=Object.assign(Object.create(null),s.fr||{});game.pl.forEach(p=>{if(p.u&&p.u!==uid&&!isBot(p.u))fr[p.u]=1});
-  ledger[k]=ts;const matchLog=Object.fromEntries(Object.entries(ledger).sort((a,b)=>statCount(b[1])-statCount(a[1])).slice(0,128));
+  if(typeof s.lk==='string'&&/^[A-Z0-9]{4}:\d+:\d+$/.test(s.lk)&&!Object.prototype.hasOwnProperty.call(ledger,s.lk))ledger[s.lk]=statCount(s.t);
+  const matchLog={...Object.fromEntries(Object.entries(ledger).sort((a,b)=>statCount(b[1])-statCount(a[1])).slice(0,127)),[k]:ts};
   return {...s,n:name,g:statAdd(s.g,1),w:statAdd(s.w,won?1:0),p:statAdd(s.p,me.s),c:statAdd(s.c,hits),b:bd.all,wk,lw,mo,lm,tm:{...tm},pl:pmT,rp:statAdd(s.rp,hist.length),bs:Math.max(statCount(s.bs),best),lk:k,matchLog,fr:{...fr},t:ts};
 }
 const Season={done:'',busy:false,rows:[],tab:'w',
