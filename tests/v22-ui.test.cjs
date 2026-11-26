@@ -23,3 +23,21 @@ test('V22 match theme retains selection, disabled and countdown states',()=>{
   for(const selector of ['.team.mypick','.team:disabled','.btn:disabled','.clock.low #ring','.chip.me','.slot.full'])assert.ok(css.includes(selector),selector);
   assert.match(css,/--flood:#b8f568/);
 });
+
+test('V22.1 keeps unchanged HTML intact to avoid interrupting UI interactions',()=>{
+  const line=html.split('\n').find(l=>l.startsWith('const stableHTML='));
+  assert.ok(line);
+  const stable=new Function(line+';return stableHTML')();
+  let writes=0,value='';const el={get innerHTML(){return value},set innerHTML(v){writes++;value=v}};
+  assert.equal(stable(el,'one'),true);assert.equal(stable(el,'one'),false);assert.equal(stable(el,'two'),true);assert.equal(writes,2);assert.equal(value,'two');
+});
+test('V22.1 score panel preserves DOM on unchanged player layout and writes current scores directly',()=>{
+  const source=html.slice(html.indexOf('function drawBoard(){'),html.indexOf('function draw(){'));
+  const harness=new Function('const G={gid:1,pl:[{u:"a",n:"Alpha",s:0,c:0},{u:"b",n:"Beta",s:0,c:1}],md:"c",r:1,R:6};const code="ABCD",myIdx=()=>0,isTeam=()=>false,tmOf=()=>0,esc=x=>x,pCol=()=>"#fff",avI=()=>"",pName=i=>G.pl[i].n,CSS={escape:x=>x};let builds=0;const scores={a:{textContent:"0"},b:{textContent:"0"}},nodes={a:{querySelector:()=>scores.a,classList:{remove(){},add(){}},offsetWidth:1},b:{querySelector:()=>scores.b,classList:{remove(){},add(){}},offsetWidth:1}};const chips={set innerHTML(v){builds++},querySelector:s=>nodes[s.includes(\'"a"\')?"a":"b"]};const other={};const $=id=>id==="chips"?chips:(other[id]||=( {}));const stableHTML=(el,v)=>el.innerHTML=v;'+source+';return {drawBoard,G,scores,builds:()=>builds}')();
+  harness.drawBoard();harness.drawBoard();assert.equal(harness.builds(),1);harness.G.pl[0].s=4;harness.drawBoard();assert.equal(harness.scores.a.textContent,'4');assert.equal(harness.builds(),1);harness.G.pl[0].s=0;harness.drawBoard();assert.equal(harness.scores.a.textContent,'0');assert.equal(harness.builds(),1);
+});
+test('V22.1 corrects old-theme dock, card tilt and motion while keeping mobile layout',()=>{
+  const v=html.slice(html.indexOf('/* V22.1:'),html.indexOf('</style>'));
+  for(const key of ['#nine .team,#nine .team.r5{transform:none','.dock{background:linear-gradient(transparent,var(--bg)','#ans .tools{display:grid','.chips{display:grid','#pfBody .pfg','body.hurry .clock{animation:none}'])assert.ok(v.includes(key),key);
+  assert.ok(html.includes('if(more.dataset.round!==key)'));
+});
