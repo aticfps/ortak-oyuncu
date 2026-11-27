@@ -970,6 +970,20 @@ html[data-theme="light"] #brk .tb-match.active .tb-matchhead{color:var(--tb-acti
 html[data-theme="light"] #friends .fr-state[data-state="game"]{color:#936500}
 #friends .fr-online-summary{font:600 12px/1.4 var(--ui);color:var(--mute);margin:0}
 #friends .fr-online-summary[hidden]{display:none}
+/* V24.3 direct game invites */
+.iv-card{width:100%;min-width:0;box-sizing:border-box;margin:0 auto 10px;max-width:650px;padding:12px;grid-template-columns:minmax(0,1fr);gap:8px}
+.iv-card[hidden],#ivOpen[hidden]{display:none!important}
+.iv-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.iv-card .iv-head h3{font:800 16px/1.25 var(--ui);margin:0;color:var(--ink)}
+.iv-head h3 span{display:inline-block;font:700 12px/1.2 var(--ui);color:var(--ok);margin-left:5px}
+.iv-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--line)}
+.iv-av{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--bg);border:1px solid var(--line);font-weight:800}
+.iv-info{min-width:0;overflow-wrap:anywhere;font:700 14px/1.35 var(--ui)}
+.iv-info small{display:block;color:var(--mute);font:500 11px/1.35 var(--ui)}
+.iv-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.iv-card .btn{font:700 13px/1.2 var(--ui);min-height:44px;padding:8px 10px;white-space:normal}
+.iv-pass{grid-column:2/-1;min-width:0;max-width:100%;box-sizing:border-box;font-size:16px}
+@media(max-width:600px){.iv-row{grid-template-columns:34px minmax(0,1fr)}.iv-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr))}.iv-pass{grid-column:1/-1}.codebox .btns{flex-wrap:wrap}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -990,6 +1004,7 @@ html[data-theme="light"] #friends .fr-state[data-state="game"]{color:#936500}
 <main>
   <div class="v225-themebar"><label for="themeMode"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/></svg> Görünüm</label><select id="themeMode" aria-label="Görünüm teması"><option value="dark">Koyu</option><option value="light">Açık</option><option value="system">Sistem</option></select></div>
   <p class="banner" id="banner" role="status"></p>
+  <section id="ivInbox" class="card iv-card" hidden aria-label="Oyun davetleri"><div class="iv-head"><h3>Oyun davetleri <span id="ivCount">0</span></h3></div><div id="ivList"></div><p id="ivStatus" class="tiny" role="status"></p></section>
   <div class="brk" id="brk" hidden></div>
   <div class="pred" id="pred" hidden><div class="ph2" id="predQ">Bu turu kim bilir?</div><div class="pb" id="predB"></div><p class="tiny" id="predS"></p></div>
   <section class="screen on" id="lobby">
@@ -1018,7 +1033,8 @@ html[data-theme="light"] #friends .fr-state[data-state="game"]{color:#936500}
 
   <section class="screen" id="wait">
     <p class="kicker">Oda kodu</p>
-    <div class="codebox"><span id="wCode"></span><span id="privateBadge" class="v232-lock" hidden>🔒 Şifreli oda</span><div class="btns" style="justify-content:start"><button class="btn sm" id="share">Davet et</button><button class="btn ghost sm" id="copy">Linki kopyala</button></div></div>
+    <div class="codebox"><span id="wCode"></span><span id="privateBadge" class="v232-lock" hidden>🔒 Şifreli oda</span><div class="btns" style="justify-content:start"><button class="btn sm" id="share">Davet et</button><button class="btn ghost sm" id="copy">Linki kopyala</button><button class="btn alt sm" id="ivOpen" type="button" hidden>Arkadaş davet et</button></div></div>
+    <section class="card iv-card" id="ivPicker" hidden><div class="iv-head"><h3>Arkadaş davet et</h3><button type="button" class="link" id="ivClose">Kapat</button></div><p class="tiny">Şifreli odalarda arkadaşın kendi şifresini girer.</p><div id="ivFriends"></div><p id="ivSendStatus" class="tiny" role="status"></p></section>
     <p class="lead" id="wNote"></p>
     <div class="slots" id="slots"></div>
     <div id="hostCtl" hidden>
@@ -3644,8 +3660,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish()};
-const APPV='24.2';
+const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
+const APPV='24.3';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4007,6 +4023,105 @@ $('frCopy').onclick=async()=>{const input=$('frCode');try{await navigator.clipbo
 $('frAdd').onsubmit=e=>{e.preventDefault();const peer=$('frTarget').value.trim();Friends.run(async api=>{await api.send(peer);$('frTarget').value=''},'Arkadaşlık isteği gönderildi.')};
 $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');if(!b)return;const {fr,peer,dir}=b.dataset;if(fr==='accept')Friends.run(api=>api.accept(peer),'Arkadaşlık isteği kabul edildi.');else if(fr==='remove')Friends.run(api=>api.remove(peer,dir),'Liste güncellendi.')});
 
+/* V24.3: short-lived participant-only invitations. Passwords never enter invitation records. */
+const INVITE_TTL=300000,INVITE_COOLDOWN=30000;
+function activeInvites(data,t){
+  return Object.entries(data||{}).filter(([uid,x])=>validFriendId(uid)&&x&&validRoomCode(x.c)&&x.s==='pending'&&Number.isFinite(x.t)&&t-x.t>=-10000&&t-x.t<INVITE_TTL).map(([uid,x])=>({uid,c:x.c,t:x.t})).sort((a,b)=>b.t-a.t);
+}
+function canInviteRoom(g,host,uid){
+  return !!(host&&g&&g.host===uid&&g.ph==='wait'&&Array.isArray(g.pl)&&g.pl.length<MAXP);
+}
+function inviteHostReady(nodes,uid){
+  const n=nodes&&nodes[uid];return !!(n&&alive(n)&&validHost(n)&&n.pr.g.ph==='wait'&&n.pr.g.pl.length<MAXP);
+}
+function inviteApi(db,uid){
+  const read=async p=>(await db.ref(p).once('value')).val();
+  const check=peer=>{if(!validFriendId(peer)||peer===uid)throw Error('INVITE_INVALID')};
+  return {
+    async send(peer,c,t){
+      check(peer);if(!validRoomCode(c))throw Error('INVITE_INVALID');
+      const ref=db.ref('gameInvites/'+peer+'/'+uid),old=(await ref.once('value')).val();
+      if(old&&Number.isFinite(old.t)&&t-old.t<INVITE_COOLDOWN)throw Error('INVITE_COOLDOWN');
+      await ref.set({c,s:'pending',t:firebase.database.ServerValue.TIMESTAMP});
+    },
+    async dismiss(peer,expected){
+      check(peer);const ref=db.ref('gameInvites/'+uid+'/'+peer);
+      await ref.transaction(x=>x&&x.c===expected.c&&x.t===expected.t&&x.s==='pending'?{...x,s:'dismissed'}:undefined,undefined,false);
+    },
+    async accepted(peer){
+      check(peer);const [a,b]=await Promise.all([read('friendLinks/'+uid+'/'+peer),read('friendLinks/'+peer+'/'+uid)]);return a==='accepted'||b==='accepted';
+    }
+  };
+}
+const Invites={
+  ref:null,listener:null,timer:null,epoch:0,data:null,names:new Map(),busy:false,pickerBusy:false,
+  start(uid){
+    this.stop();if(!validFriendId(uid)||!Net.db)return;
+    const epoch=this.epoch;this.ref=Net.db.ref('gameInvites/'+uid);
+    this.listener=snap=>{if(epoch!==this.epoch)return;this.data=snap.val();this.render();this.loadNames(epoch)};
+    this.ref.on('value',this.listener,()=>{if(epoch===this.epoch){this.data=null;this.render()}});
+    this.timer=setInterval(()=>this.render(),5000);
+  },
+  stop(){
+    this.epoch++;if(this.ref&&this.listener)this.ref.off('value',this.listener);if(this.timer)clearInterval(this.timer);
+    this.ref=null;this.listener=null;this.timer=null;this.data=null;this.names.clear();this.busy=false;this.pickerBusy=false;
+    $('ivInbox').hidden=true;$('ivList').textContent='';$('ivList')._v22html=null;$('ivStatus').textContent='';this.closePicker();
+  },
+  async loadNames(epoch){
+    for(const x of activeInvites(this.data,now()))if(!this.names.has(x.uid)){
+      this.names.set(x.uid,'Oyuncu');try{const v=(await Net.db.ref('friendProfiles/'+x.uid).once('value')).val();if(epoch!==this.epoch)return;this.names.set(x.uid,clean(v));this.render()}catch(e){}
+    }
+  },
+  render(){
+    const items=activeInvites(this.data,now()),visible=!!(ME&&!code&&['lobby','friends'].includes(screen)&&items.length);
+    $('ivInbox').hidden=!visible;if(!visible)return;
+    $('ivCount').textContent=items.length;
+    stableHTML($('ivList'),items.map(x=>{const name=this.names.get(x.uid)||'Oyuncu',priv=isPrivateCode(x.c);
+      return '<div class="iv-row" data-invite="'+esc(x.uid)+'"><span class="iv-av" aria-hidden="true">'+esc(name[0].toLocaleUpperCase('tr'))+'</span><div class="iv-info">'+esc(name)+'<small>'+(priv?'Şifreli oda':'Oyun daveti')+'</small></div><div class="iv-actions"><button type="button" class="btn sm" data-iv="accept">Katıl</button><button type="button" class="btn ghost sm" data-iv="dismiss">Reddet</button></div>'+(priv?'<input class="iv-pass" type="password" maxlength="64" autocomplete="off" placeholder="Oda şifresi" aria-label="Oda şifresi">':'')+'</div>';
+    }).join(''));
+  },
+  async act(peer,action,password=''){
+    if(this.busy||!ME||code||openingRoom)return;const uid=ME,epoch=this.epoch,x=activeInvites(this.data,now()).find(y=>y.uid===peer);if(!x)return;
+    this.busy=true;$('ivStatus').textContent='İşleniyor…';
+    try{
+      const api=inviteApi(Net.db,uid);
+      if(action==='dismiss'){await api.dismiss(peer,x);if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent='Davet reddedildi.';return}
+      if(!await api.accepted(peer))throw Error('INVITE_NOT_FRIEND');
+      if(ME!==uid||this.epoch!==epoch||code||!activeInvites(this.data,now()).some(y=>y.uid===peer&&y.c===x.c&&y.t===x.t))return;
+      if(isPrivateCode(x.c)&&!validRoomPassword(password)){ $('ivStatus').textContent='Odanın şifresini gir.';return}
+      saveName();$('joinPass').value=password;
+      await joinRoom(x.c,false,peer);
+      if(ME===uid&&this.epoch===epoch&&code===x.c){await api.dismiss(peer,x);$('ivStatus').textContent=''}
+      else if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent='Katılım olmadı. Şifreyi veya oda durumunu kontrol et.';
+    }catch(e){if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent=e.message==='INVITE_NOT_FRIEND'?'Bu kişi artık arkadaş listende değil.':'Davet işlemi başarısız. Tekrar dene.'}
+    finally{if(ME===uid&&this.epoch===epoch)this.busy=false;this.render()}
+  },
+  closePicker(){$('ivPicker').hidden=true;$('ivFriends').textContent='';$('ivSendStatus').textContent=''},
+  syncRoom(){
+    const ok=canInviteRoom(G,isHost,ME);$('ivOpen').hidden=!ok;
+    if(!ok&&!$('ivPicker').hidden)this.closePicker();
+  },
+  async openPicker(){
+    if(!canInviteRoom(G,isHost,ME)||!code||this.pickerBusy)return;
+    const epoch=this.epoch,room=code;this.pickerBusy=true;$('ivPicker').hidden=false;$('ivFriends').textContent='Yükleniyor…';$('ivSendStatus').textContent='';
+    try{const data=await friendApi(Net.db,ME).list();if(epoch!==this.epoch||code!==room||!canInviteRoom(G,isHost,ME)||$('ivPicker').hidden)return;
+      const rows=data.friends.filter(r=>!G.pl.some(p=>p.u===r.peer));
+      $('ivFriends').innerHTML=rows.length?rows.map(r=>{const n=clean(r.name);return '<div class="iv-row"><span class="iv-av" aria-hidden="true">'+esc(n[0].toLocaleUpperCase('tr'))+'</span><div class="iv-info">'+esc(n)+'</div><div class="iv-actions"><button type="button" class="btn sm" data-iv-send="'+esc(r.peer)+'">Davet et</button></div></div>'}).join(''):'<p class="tiny">Davet edilecek arkadaş yok.</p>';
+    }catch(e){if(epoch===this.epoch&&code===room)$('ivFriends').textContent='Arkadaşlar yüklenemedi.'}
+    finally{if(epoch===this.epoch)this.pickerBusy=false}
+  },
+  async send(peer,button){
+    if(!canInviteRoom(G,isHost,ME)||!code||G.pl.some(p=>p.u===peer)||button.disabled)return;
+    const uid=ME,room=code,epoch=this.epoch;button.disabled=true;
+    try{await inviteApi(Net.db,uid).send(peer,room,now());if(epoch===this.epoch&&code===room){button.textContent='Gönderildi';$('ivSendStatus').textContent='Oyun daveti gönderildi.'}}
+    catch(e){if(epoch===this.epoch&&code===room){button.disabled=false;$('ivSendStatus').textContent=e.message==='INVITE_COOLDOWN'?'Yeni davet için 30 saniye bekle.':'Davet gönderilemedi. Arkadaşlığı ve bağlantını kontrol et.'}}
+  }
+};
+$('ivOpen').onclick=()=>Invites.openPicker();
+$('ivClose').onclick=()=>Invites.closePicker();
+$('ivFriends').addEventListener('click',e=>{const b=e.target.closest('[data-iv-send]');if(b)Invites.send(b.dataset.ivSend,b)});
+$('ivList').addEventListener('click',e=>{const b=e.target.closest('[data-iv]');if(!b)return;const row=b.closest('[data-invite]');if(row)Invites.act(row.dataset.invite,b.dataset.iv,row.querySelector('.iv-pass')?.value||'')});
+
 /* ---------- oda kurma / katılma / ayrılma ---------- */
 let openingRoom=false;
 const updateJoinPassword=()=>{$('joinPassWrap').hidden=!isPrivateCode($('code').value.trim().toUpperCase())};
@@ -4032,7 +4147,7 @@ async function createRoom(password=''){
   finally{openingRoom=false;$('create').disabled=!ME}
 }
 $('create').onclick=()=>{audio();saveName();return createRoom($('createPass').value)};
-async function joinRoom(c,spec=false){
+async function joinRoom(c,spec=false,inviteHost=null){
   if(!ME||openingRoom||code===c)return;
   if(!validRoomCode(c))return lStatus('Oda kodu 4 karakter veya P ile başlayan 10 karakter olmalı.',true);
   openingRoom=true;$('joinB').disabled=true;$('watchB').disabled=true;
@@ -4040,11 +4155,13 @@ async function joinRoom(c,spec=false){
   const password=$('joinPass').value;
   try{
     await Net.admit(c,password);
+    if(inviteHost&&!inviteHostReady(await Net.peek(c),inviteHost))throw Error('INVITE_CLOSED');
     $('joinPass').value='';
     await enterRoom(c,false,spec);
   }catch(e){
     $('joinPass').value='';
-    if(isPrivateCode(c)&&(denied(e)||e.message==='ROOM_PASSWORD_REQUIRED')){
+    if(e.message==='INVITE_CLOSED'){lStatus('Davetin odası kapalı, dolu veya maç başlamış.',true)}
+    else if(isPrivateCode(c)&&(denied(e)||e.message==='ROOM_PASSWORD_REQUIRED')){
       lStatus(password?'Şifre yanlış, oda kapalı veya süresi dolmuş.':'Şifreli oda: giriş için oda şifresini yaz.',true);
       $('joinPass').focus();
     }else{console.error(e);lStatus('Odaya bağlanılamadı. Bağlantını kontrol et.',true)}
@@ -4511,7 +4628,7 @@ function draw(){
   teamChat();drawBracket();roomChat();drawPred();$('rxb').hidden=!(code&&['pick','rev','ans','res','end'].includes(G.ph));
 }
 function drawWait(){
-  show('wait');$('wCode').textContent=code;const mi=myIdx(),n=G.pl.length;
+  show('wait');Invites.syncRoom();$('wCode').textContent=code;const mi=myIdx(),n=G.pl.length;
   if(isHost&&mi>=0&&(G.pl[mi].fm||'')!==myFrame){G.pl[mi].fm=myFrame;mark()}
   const md=isHost?$('sM').value:G.md;
   const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${md==='t'?`<b style="color:${TCOL[i%2]}">${TNAME[i%2]}</b> · `:''}${p.u===G.host?'Kurucu':isBot(p.u)?'Bilgisayar':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div>${isHost&&isBot(p.u)?`<button class="rm" data-rm="${esc(p.u)}">Çıkar</button>`:''}</div>`);
@@ -4716,17 +4833,17 @@ const firebaseConfig={
   if(!window.firebase){lStatus('Firebase yüklenemedi. İnternet bağlantını kontrol et.',true);return}
   firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const prov=new firebase.auth.GoogleAuthProvider();
   $('gIn').onclick=()=>{auth.signInWithPopup(prov).catch(e=>{const c=e&&e.code||'';if(/popup-blocked|operation-not-supported/.test(c))auth.signInWithRedirect(prov);else if(!/popup-closed|cancelled/.test(c))lStatus('Giriş yapılamadı: '+clip(e&&e.message,160),true)})};
-  $('gOut').onclick=async()=>{const pending=FriendPresence.stop();leaveRoom();await Promise.race([pending,new Promise(resolve=>setTimeout(resolve,1500))]);auth.signOut()};
+  $('gOut').onclick=async()=>{const pending=FriendPresence.stop();leaveRoom();Invites.stop();await Promise.race([pending,new Promise(resolve=>setTimeout(resolve,1500))]);auth.signOut()};
   auth.getRedirectResult().catch(()=>{});
   Net.on(onNet);
   if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
   auth.onAuthStateChanged(u=>{
     $('authBox').hidden=!!u;$('cards').hidden=!u;$('who').hidden=!u;
-    if(!u){FriendPresence.stop();Friends.reset();if(screen==='friends')show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
+    if(!u){Invites.stop();FriendPresence.stop();Friends.reset();if(screen==='friends')show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
     ME=u.uid;myPhoto=u.photoURL||'';$('whoName').textContent=u.displayName||u.email||'Oyuncu';
     if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
     if(!Net.db)Net.init(firebase.database(),u.uid);else Net.uid=u.uid;
-    Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
+    Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Invites.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
     try{if(localStorage.getItem('oo-intro')!=='1'&&!code)setTimeout(()=>Intro.open(),500)}catch(e){}
     Net.db.ref('stats/'+u.uid+'/fm').once('value').then(v=>{myFrame=okFm(v.val())}).catch(()=>{});
     $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;$('botGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
