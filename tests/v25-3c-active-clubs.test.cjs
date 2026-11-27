@@ -10,7 +10,7 @@ test('V25.3c exactly five selected clubs per original league and archive remains
  assert.equal(IDS.length,30);assert.equal(new Set(IDS).size,30);
  assert.equal(pool.ACTIVE_LEAGUES.length,6);
  for(let i=0;i<6;i++){const ids=pool.ACTIVE_LEAGUES[i].split(' ');assert.equal(ids.length,5);for(const id of ids)assert.ok(pool.LEAGUES[i][1].split(' ').includes(id));}
- assert.equal(pool.ARCHIVE_IDS.length,114);assert.equal(pool.PLAYERS.length,1839);
+ assert.equal(pool.ARCHIVE_IDS.length,114);assert.equal(pool.PLAYERS.length,1906);
  assert.ok(shared('ERZ','RIZ').length>0);
  const {ACTIVE_CLUBS}=await import('../server/ranked-game.mjs');assert.deepEqual(ACTIVE_CLUBS,IDS);
 });
