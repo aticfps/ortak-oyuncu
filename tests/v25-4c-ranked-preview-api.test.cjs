@@ -247,3 +247,27 @@ test('V26.0c worker is scheduled-only and refuses missing or production scope',a
  assert.equal(cfg.d1_databases[0].database_name,'ortak-oyuncu-ranked-preview');
  assert.equal(cfg.d1_databases[0].database_id,'REPLACE_WITH_PREVIEW_DATABASE_ID');
 });
+
+test('V26.1a production sweeper rejects preview scope, mixed bindings and HTTP access',async()=>{
+ const worker=(await import('../server/ranked-production-sweeper-worker.mjs')).default;
+ assert.equal((await worker.fetch()).status,404);
+ const base={RANKED_SWEEPER_ENABLED:'true',RANKED_SWEEPER_SCOPE:'production'};
+ for(const env of [{},{...base,RANKED_SWEEPER_SCOPE:'preview',RANKED_PRODUCTION_DB:{}},{...base,RANKED_PREVIEW_DB:{}},{...base,RANKED_PREVIEW_DB:{},RANKED_PRODUCTION_DB:{}},{...base,RANKED_SWEEPER_ENABLED:'false',RANKED_PRODUCTION_DB:{}}]){
+  await assert.rejects(worker.scheduled({},env),/PRODUCTION_SWEEPER_NOT_CONFIGURED/);
+ }
+ const cfg=JSON.parse(fs.readFileSync(path.join(root,'workers','ranked-production-sweeper','wrangler.example.json'),'utf8'));
+ assert.equal(cfg.name,'ortak-oyuncu-ranked-production-sweeper');
+ assert.equal(cfg.workers_dev,false);assert.equal(cfg.preview_urls,false);
+ assert.equal(cfg.observability.enabled,true);assert.deepEqual(cfg.triggers.crons,['* * * * *']);
+ assert.equal(cfg.vars.RANKED_SWEEPER_SCOPE,'production');
+ assert.deepEqual(cfg.d1_databases,[{binding:'RANKED_PRODUCTION_DB',database_name:'ortak-oyuncu-ranked',database_id:'REPLACE_WITH_PRODUCTION_DATABASE_ID'}]);
+});
+integration('V26.1a production worker recovers only its bound database and preserves player ratings',async t=>{
+ const worker=(await import('../server/ranked-production-sweeper-worker.mjs')).default;
+ const prod=await recoveryFixture(t,{age:180000}),preview=await recoveryFixture(t,{age:180000});
+ await worker.scheduled({},{RANKED_SWEEPER_ENABLED:'true',RANKED_SWEEPER_SCOPE:'production',RANKED_PRODUCTION_DB:prod.db});
+ assert.equal(prod.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(prod.id).status,'void');
+ assert.equal(preview.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(preview.id).status,'active');
+ assert.equal(prod.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+ assert.equal(prod.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('a').rating,1000);
+});
