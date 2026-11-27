@@ -26,7 +26,7 @@ test('V25.3b pinned server catalog matches original club and player membership d
  assert.ok(start>=0&&end>start);
  const raw=vm.runInNewContext(html.slice(start,end)+'\nJSON.stringify({teams:Object.fromEntries(Object.entries(TEAMS).map(([k,v])=>[k,v[0]])),stars:STARS,players:PLAYERS.map(({n,c,keys})=>({n,c,keys}))})',{}, {timeout:3000});
  const expected=JSON.parse(raw);
- assert.equal(Object.keys(c.teams).length,114);assert.equal(c.players.length,1839);
+ assert.equal(Object.keys(c.teams).length,114);assert.equal(c.players.length,1906);
  assert.deepEqual(c.teams,expected.teams);assert.deepEqual(c.stars,expected.stars);
  assert.deepEqual(c.players,expected.players);
 });
