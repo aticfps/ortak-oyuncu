@@ -29,3 +29,16 @@ test('V23.4 player names are escaped and responsive markup includes scores and a
 test('V23.4 bracket detail shell persists between snapshots with keyboard accessible summary and mobile scroll',()=>{
  for(const x of ["el._tbKey!==key","el._tbPhase!==G.ph","stableHTML(el.querySelector('.tb-scroll'),bracketTree(v))","<summary>Turnuva ağacı</summary>","aria-label=\"Turnuva ağacı\"","overscroll-behavior-x:contain","--tb-min-mobile","prefers-reduced-motion:reduce","html[data-theme=\"light\"] #brk"])assert.ok(html.includes(x),x);
 });
+
+test('V23.4a active indicator stays visible in compact live panel and exactly one tree match',()=>{
+ const g=makeTournament(ids(8));trSeek(g);let v=bracketView(g);
+ assert.match(bracketLive(v),/tb-live active/);assert.match(bracketLive(v),/tb-active-label">CANLI/);
+ assert.equal((bracketTree(v).match(/tb-match active/g)||[]).length,1);
+ g.du.p0=2;trCommit(g,'p0');v=bracketView(g);
+ assert.equal(bracketLive(v).includes('tb-live active'),false);assert.equal(bracketTree(v).includes('tb-match active'),false);
+ trSeek(g);v=bracketView(g);assert.match(bracketLive(v),/tb-live active/);assert.equal((bracketTree(v).match(/tb-match active/g)||[]).length,1);
+});
+test('V23.4a explicit green contrast in both themes and no reliance on tree being open',()=>{
+ const css=html.slice(html.indexOf('/* V23.4a:'),html.indexOf('</style>'));
+ for(const x of ['--tb-active:#9cfa61','--tb-active:#286b22',' .tb-match.active,#brk .tb-live.active','border:2px solid var(--tb-active)','tb-active-label:before'])assert.ok(css.includes(x),x);
+});
