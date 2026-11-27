@@ -71,5 +71,5 @@ integration('V25.4c authenticated surrender settles once and only returns own ra
 });
 test('V25.4c production status and existing UI stay disabled',()=>{
  const s=fs.readFileSync(path.join(root,'server/ranked-foundation.mjs'),'utf8');assert.match(s,/rankedEnabled:false/);
- const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.doesNotMatch(h,/\/api\/ranked\/play/);
+ const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/id="rkJoin" type="button" disabled/);assert.match(h,/!rankedPreviewHost\(location.hostname\)/);
 });
