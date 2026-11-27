@@ -4,9 +4,9 @@ const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),rules=JSON.parse(fs.readFileSync(path.join(__dirname,'..','database.rules.json'),'utf8'));
 const defs=html.split(/\r?\n/).filter(l=>/^(const (MAXP|roomModeAllowed|nextFreeColor|validHost|parsePresence|COLORS)=)/.test(l));
 const {MAXP,roomModeAllowed,nextFreeColor,validHost,parsePresence,COLORS}=new Function(defs.join('\n')+';return {MAXP,roomModeAllowed,nextFreeColor,validHost,parsePresence,COLORS}')();
-test('V23.1 supports 2-8 free-for-all players and preserves 2v2 and legacy tournament limits',()=>{
+test('V23.1 supports 2-8 free-for-all players and preserves 2v2 and supports 2–8 player tournaments',()=>{
   assert.equal(MAXP,8);for(const m of ['c','q','k'])for(let n=0;n<=9;n++)assert.equal(roomModeAllowed(m,n),n>=2&&n<=8);
-  for(let n=0;n<=9;n++){assert.equal(roomModeAllowed('t',n),n===4);assert.equal(roomModeAllowed('tr',n),n>=2&&n<=4)}
+  for(let n=0;n<=9;n++){assert.equal(roomModeAllowed('t',n),n===4);assert.equal(roomModeAllowed('tr',n),n>=2&&n<=8)}
   assert.equal(roomModeAllowed('unknown',4),false);assert.equal(roomModeAllowed('c',2.5),false);
 });
 test('V23.1 eight distinct player colors and freed slot reuse',()=>{
