@@ -344,3 +344,14 @@ integration('V26.2a names are authenticated, validated, editable and never modif
  const {rankedPreviewPlay}=await mod;
  const r=await rankedPreviewPlay(req({action:'profile.name',name:'X'},'missing',{url:prodUrl}),{...prodFlags,RANKED_DB:f.db},verify);assert.equal(r.status,409);
 });
+
+integration('V26.2b automatic nickname initialization cannot overwrite an explicit rename',async t=>{
+ const f=await fixture(t);
+ const first=await f.call('a','profile.name.init',{name:'EskiAd'});assert.equal(first.status,200);assert.equal(first.body.name,'EskiAd');
+ const updated=await f.call('a','profile.name',{name:'YeniAd'});assert.equal(updated.status,200);
+ const stale=await f.call('a','profile.name.init',{name:'EskiAd'});assert.equal(stale.status,200);assert.equal(stale.body.name,'YeniAd');
+ assert.equal((await f.call('a','profile.name.init',{name:'BaskaAd',uid:'b'})).status,400);
+ assert.equal((await f.call('b','profile.name.init',{name:'<b>'})).status,400);
+ const {matchId}=await f.start();await f.call('a','game.surrender',{matchId,commandId:'s'});
+ const board=await f.call('b','leaderboard.get');assert.equal(board.body.rows[1].name,'YeniAd');
+});
