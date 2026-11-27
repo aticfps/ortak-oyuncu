@@ -42,11 +42,31 @@ test('V25.1 missing binding or schema fails safely, ranked remains disabled even
  const {rankedStatus,rankedMe}=await api;
  assert.equal((await rankedStatus({})).status,503);
  assert.equal((await rankedStatus({RANKED_DB:{prepare(){throw Error('private detail')}}})).status,503);
- const r=await rankedStatus({RANKED_DB:dbMock()});assert.deepEqual(await r.json(),{version:'25.1',ready:true,rankedEnabled:false});
+ const r=await rankedStatus({RANKED_DB:dbMock()});assert.deepEqual(await r.json(),{version:'25.1a',ready:true,rankedEnabled:false});
  assert.equal((await rankedMe(req('POST'),{},async()=>({uid}))).status,503);
 });
 test('V25.1 UI does not invent ELO offline; worker never caches authenticated API requests',()=>{
  const root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),sw=fs.readFileSync(path.join(root,'sw.js'),'utf8'),sql=fs.readFileSync(path.join(root,'server','ranked-schema.sql'),'utf8');
  for(const x of ["id=\"rankGo\"","id=\"ranked\"","user.getIdToken()","Authorization:'Bearer '+token","fetch('/api/ranked/me'","id=\"rankProfile\" hidden","<button class=\"btn\" disabled>Rakip ara","Ranked.reset()"])assert.ok(html.includes(x),x);
  assert.ok(sw.includes("u.pathname.startsWith('/api/')"));assert.ok(sw.includes("r.headers.has('authorization')"));assert.match(sql,/CHECK\(played = wins \+ draws \+ losses\)/);
+});
+
+test('V25.1a Google JWK loader accepts valid public key and ignores malformed siblings',async()=>{
+ const {loadGoogleKeys}=await auth,pair=await webcrypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']),jwk=await webcrypto.subtle.exportKey('jwk',pair.publicKey);
+ let calls=0;const result=await loadGoogleKeys(async(url,opts)=>{calls++;assert.ok(url.includes('securetoken%40'));assert.equal(opts.redirect,'follow');return new Response(JSON.stringify({keys:[{kty:'RSA',kid:'bad',n:'bad',e:'AQAB'},{...jwk,kid:'good'}]}),{headers:{'cache-control':'max-age=120'}})});
+ assert.equal(calls,1);assert.equal(result.source,'jwk');assert.equal(result.keys.has('good'),true);assert.ok(result.until>Date.now());
+});
+test('V25.1a certificate fallback extracts actual RSA SPKI and verifies signature',async()=>{
+ const {loadGoogleKeys,certificateSpki}=await auth,pair=await webcrypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
+ const spki=Buffer.from(await webcrypto.subtle.exportKey('spki',pair.publicKey));
+ // Minimal DER certificate-shaped fixture with a real SPKI; TLS establishes trust in Google's certificate feed.
+ const der=(tag,body)=>Buffer.concat([Buffer.from(body.length<128?[tag,body.length]:body.length<256?[tag,129,body.length]:[tag,130,body.length>>8,body.length&255]),body]);
+ const seq=body=>der(48,body),empty=seq(Buffer.alloc(0)),tbs=seq(Buffer.concat([der(160,der(2,Buffer.from([2]))),der(2,Buffer.from([1])),empty,empty,empty,empty,spki]));
+ const pem='-----BEGIN CERTIFICATE-----\n'+seq(Buffer.concat([tbs,empty,der(3,Buffer.from([0]))])).toString('base64')+'\n-----END CERTIFICATE-----\n';
+ assert.deepEqual(Buffer.from(certificateSpki(pem)),spki);assert.throws(()=>certificateSpki('invalid'));
+ let calls=0;const result=await loadGoogleKeys(async()=>++calls===1?new Response('unavailable',{status:503}):new Response(JSON.stringify({good:pem})));
+ assert.equal(calls,2);assert.equal(result.source,'x509');const msg=new TextEncoder().encode('verification');const sig=await webcrypto.subtle.sign('RSASSA-PKCS1-v1_5',pair.privateKey,msg);assert.equal(await webcrypto.subtle.verify('RSASSA-PKCS1-v1_5',result.keys.get('good'),sig,msg),true);
+});
+test('V25.1a key service failure still refuses authentication',async()=>{
+ const {loadGoogleKeys}=await auth;await assert.rejects(loadGoogleKeys(async()=>new Response('{}',{status:503})),/AUTH_UNAVAILABLE/);
 });
