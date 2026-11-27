@@ -1028,6 +1028,14 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
 .fl-points{min-width:0;text-align:right;max-width:130px;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:3px}.fl-points b{font:800 19px/1.2 var(--ui);color:var(--ink);font-variant-numeric:tabular-nums}.fl-points small{font:500 11px/1.2 var(--ui);color:var(--mute)}
 #flBack{width:100%;margin-top:10px;font:700 14px/1.2 var(--ui)}
 @media(max-width:600px){.fl-title h2{font-size:21px}.fl-metric{padding:8px}.fl-metric b{font-size:19px}.fl-row{grid-template-columns:24px minmax(0,1fr) minmax(0,90px);gap:6px;padding:9px 3px}.fl-points{max-width:90px}.fl-points b{font-size:16px}.fl-pod{padding:9px 4px}.fl-pod b{font-size:16px}}
+/* V25.1 ranked readiness */
+#ranked{max-width:650px;width:100%;margin-inline:auto;min-width:0}#ranked [hidden]{display:none!important}
+.v251-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.v251-head h2{font:800 26px/1.2 var(--ui);margin:0 0 5px}.v251-head .lead{font:500 13px/1.3 var(--ui);margin:0}
+.v251-beta{font:700 11px/1.2 var(--ui);padding:5px 7px;border:1px solid var(--line);border-radius:7px;color:var(--mute);white-space:nowrap}
+.v251-ranked .v22-cardhead{flex-wrap:wrap}.v251-ranked .v251-beta{margin-left:auto}
+.v251-panel{min-width:0;grid-template-columns:minmax(0,1fr);gap:9px;margin-bottom:10px;padding:14px}.v251-panel h3{font:800 16px/1.25 var(--ui);margin:0}.v251-panel p{margin:0;font:500 13px/1.4 var(--ui);overflow-wrap:anywhere;color:var(--mute)}
+.v251-score{display:grid;justify-items:center;gap:4px;padding:15px 0}.v251-score strong{font:800 42px/1.1 var(--ui);font-variant-numeric:tabular-nums;color:var(--flood)}.v251-score small{color:var(--mute)}
+.v251-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.v251-stats div{border:1px solid var(--line);border-radius:9px;padding:9px 4px;text-align:center;min-width:0}.v251-stats b,.v251-stats small{display:block;overflow-wrap:anywhere}.v251-stats small{font:600 11px/1.2 var(--ui);color:var(--mute)}#rankBack{width:100%}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1068,6 +1076,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
     <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="friendsGo">Arkadaşlar</button> · <button class="link" id="flGo" type="button">Sıralama</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
+      <div class="card v251-ranked"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 21 6v6c0 5-5 8-9 10-4-2-9-5-9-10V6z"/><path d="m8 12 3 3 5-6"/></svg></span><h3>Rekabetçi</h3><span class="v251-beta">Hazırlık</span></div><p>Sunucu kontrollü sıralamalı maçlar.</p><button class="btn ghost" id="rankGo" type="button">Rekabetçi profil</button></div>
       <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
       <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-8 kişilik oda. Şifre boşsa oda herkese açık olur.</p><label class="field v232-pass">Oda şifresi (isteğe bağlı)<input id="createPass" type="password" autocomplete="new-password" maxlength="64" placeholder="En az 12 karakter"></label><button class="link" id="generatePass" type="button">Güçlü şifre oluştur</button><small class="tiny">Şifreli oda 24 saat geçerlidir. Şifreyi ayrı paylaş, başka hesap şifreni kullanma.</small><button class="btn" id="create" disabled>Oda kur</button></div>
       <div class="card v22-join"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h13m-5-5 5 5-5 5"/></svg></span><h3>Odaya katıl</h3></div><p>Arkadaşının verdiği oda kodunu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="10" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button><label class="field v232-pass" id="joinPassWrap" hidden>Oda şifresi<input id="joinPass" type="password" autocomplete="off" maxlength="64" placeholder="Şifreyi gir"></label></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
@@ -1183,6 +1192,13 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
     <div class="card fr-card"><h3>Gelen istekler <span id="frInCount">0</span></h3><div id="frIncoming"></div></div>
     <div class="card fr-card"><h3>Gönderilen istekler <span id="frOutCount">0</span></h3><div id="frOutgoing"></div></div>
     <div class="fr-back"><button class="btn ghost" id="frBack" type="button">Ana ekran</button></div>
+  </section>
+  <section class="screen" id="ranked">
+    <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1</p></div><span class="v251-beta">Hazırlık</span></div>
+    <div class="card v251-panel"><h3>Sunucu bağlantısı</h3><p id="rankStatus" class="tiny" role="status">Kontrol ediliyor…</p><button type="button" id="rankRefresh" class="btn ghost sm">Yenile</button></div>
+    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="v251-beta">Başlangıç profili</span><strong id="rankRating">—</strong><small>ELO</small></div><div id="rankStats" class="v251-stats"></div></div>
+    <div class="card v251-panel"><h3>Rekabetçi maçlar</h3><p>Maç doğrulaması ve eşleştirme tamamlanana kadar kapalı. Normal oda puanları rekabetçi ELO'yu etkilemez.</p><button class="btn" disabled>Rakip ara</button></div>
+    <button class="btn ghost" id="rankBack" type="button">Ana ekran</button>
   </section>
   <section class="screen" id="friendRanks">
     <div class="fl-title"><div><h2>Arkadaş sıralaması</h2><p class="lead">Sen ve kabul ettiğin arkadaşların.</p></div><button class="link" id="flRefresh" type="button">Yenile</button></div>
@@ -3722,8 +3738,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='24.5';
+const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
+const APPV='25.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4084,6 +4100,31 @@ $('frRefresh').onclick=()=>Friends.run(null,'Liste güncellendi.');
 $('frCopy').onclick=async()=>{const input=$('frCode');try{await navigator.clipboard.writeText(input.value);Friends.status('Arkadaş kodun kopyalandı.')}catch(e){input.focus();input.select();Friends.status('Kodu seçtik, kopyalayabilirsin.')}};
 $('frAdd').onsubmit=e=>{e.preventDefault();const peer=$('frTarget').value.trim();Friends.run(async api=>{await api.send(peer);$('frTarget').value=''},'Arkadaşlık isteği gönderildi.')};
 $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');if(!b)return;const {fr,peer,dir}=b.dataset;if(fr==='accept')Friends.run(api=>api.accept(peer),'Arkadaşlık isteği kabul edildi.');else if(fr==='remove')Friends.run(api=>api.remove(peer,dir),'Liste güncellendi.')});
+
+/* V25.1: server-only competitive profiles, no client rating writes. */
+const Ranked={
+  epoch:0,busy:false,
+  reset(){this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
+  open(){if(!ME||code)return;show('ranked');this.load()},
+  async load(){
+    if(this.busy||!ME||code)return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
+    const uid=ME,epoch=++this.epoch;this.busy=true;$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
+    try{
+      const token=await user.getIdToken(),res=await fetch('/api/ranked/me',{method:'POST',headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});
+      if(ME!==uid||epoch!==this.epoch)return;
+      if(!(res.headers.get('content-type')||'').includes('application/json'))throw Error('API_NOT_DEPLOYED');
+      const data=await res.json();if(!res.ok)throw Error(data.error||'API_UNAVAILABLE');
+      const p=data.profile;if(data.version!=='25.1'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
+      if(ME!==uid||epoch!==this.epoch)return;
+      $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';$('rankRating').textContent=p.rating.toLocaleString('tr-TR');
+      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;
+    }catch(e){if(ME===uid&&epoch===this.epoch){$('rankStatus').textContent=({DB_BINDING_MISSING:'Rekabetçi veritabanı henüz bağlanmadı.',DB_SCHEMA_OR_CONNECTION:'Rekabetçi veritabanı henüz hazır değil.',AUTH_REQUIRED:'Google hesabınla tekrar giriş yap.',INVALID_TOKEN:'Kimlik doğrulanamadı. Tekrar giriş yap.',AUTH_UNAVAILABLE:'Kimlik sunucusuna ulaşılamadı.',API_NOT_DEPLOYED:'Rekabetçi API bu adreste henüz çalışmıyor.'})[e.message]||'Sunucu bağlantısı kurulamadı. Daha sonra yenile.'}}
+    finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=false}}
+  }
+};
+$('rankGo').onclick=()=>Ranked.open();
+$('rankRefresh').onclick=()=>Ranked.load();
+$('rankBack').onclick=()=>{Ranked.reset();show('lobby')};
 
 /* V24.5: read-only standings using accepted friends, never historical opponents. */
 function friendRankRows(uid,roster,stats,period,week,month){
@@ -5029,11 +5070,11 @@ const firebaseConfig={
   if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
   auth.onAuthStateChanged(u=>{
     $('authBox').hidden=!!u;$('cards').hidden=!u;$('who').hidden=!u;
-    if(!u){Notifications.stop();Invites.stop();FriendPresence.stop();Friends.reset();FriendRanks.reset();if(['friends','friendRanks'].includes(screen))show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
+    if(!u){Notifications.stop();Invites.stop();FriendPresence.stop();Friends.reset();FriendRanks.reset();Ranked.reset();if(['friends','friendRanks','ranked'].includes(screen))show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
     ME=u.uid;myPhoto=u.photoURL||'';$('whoName').textContent=u.displayName||u.email||'Oyuncu';
     if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
     if(!Net.db)Net.init(firebase.database(),u.uid);else Net.uid=u.uid;
-    FriendRanks.reset();Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Notifications.start(u.uid);Invites.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
+    Ranked.reset();FriendRanks.reset();Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Notifications.start(u.uid);Invites.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
     try{if(localStorage.getItem('oo-intro')!=='1'&&!code)setTimeout(()=>Intro.open(),500)}catch(e){}
     Net.db.ref('stats/'+u.uid+'/fm').once('value').then(v=>{myFrame=okFm(v.val())}).catch(()=>{});
     $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;$('botGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
