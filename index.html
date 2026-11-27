@@ -1054,6 +1054,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
 .rk-season{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:9px}.rk-season[hidden],.rk-season [hidden]{display:none!important}
 .rk-season-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.rk-season-head strong{font-size:15px}.rk-season-head small,.rk-season-status{font-size:12px;color:var(--mute)}.rk-season-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.rk-season-kpis>div{padding:10px;border:1px solid var(--line);border-radius:10px;min-width:0;display:grid;gap:3px}.rk-season-kpis b{font-size:21px;overflow-wrap:anywhere}.rk-season-kpis small{font-size:11px;color:var(--mute)}.rk-season-result{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;text-align:center}.rk-season-result>div{display:grid;gap:3px;min-width:0}.rk-season-result small{font-size:10px;overflow-wrap:anywhere}.rk-season-result b{font-size:16px}.rk-season [data-direction="up"]{color:#16874d}.rk-season [data-direction="down"]{color:#d64d55}#rkSeasonWinBar{width:100%;height:8px;accent-color:#45a36f}
 .rk-history{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:8px}.rk-history[hidden],.rk-history [hidden]{display:none!important}.rk-history h3{margin:0;font-size:15px}.rk-history small{font-size:11px;color:var(--mute)}.rk-history-chart{display:block;width:100%;height:auto;max-height:140px;color:var(--ink)}.rk-history-list{display:grid;gap:5px;max-height:280px;overflow:auto}.rk-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:9px 6px;border-bottom:1px solid var(--line);font-size:13px}.rk-history-row>div{min-width:0;display:grid;gap:3px}.rk-history-row b{font-size:13px}.rk-history-row[data-outcome="win"] .rk-history-outcome{color:#45a36f}.rk-history-row[data-outcome="loss"] .rk-history-outcome{color:#e34b58}.rk-history-row[data-outcome="draw"] .rk-history-outcome{color:var(--mute)}
+.rk-board{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:9px}.rk-board[hidden],.rk-board [hidden]{display:none!important}.rk-board h3{font-size:15px;margin:0}.rk-board small{font-size:11px;color:var(--mute)}.rk-board-list{max-height:340px;overflow:auto;display:grid;gap:4px}.rk-board-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 4px;font-size:13px}.rk-board-row[data-self="yes"]{border:1px solid #45a36f;border-radius:8px}.rk-board-row>div{min-width:0;display:grid;gap:3px;overflow-wrap:anywhere}.rk-board-row b{font-size:13px}.rk-board-row>span{text-align:center;font-weight:800}.rk-board-self{font-size:13px;font-weight:700}
 #rkLevelProgress{width:100%;height:12px;accent-color:var(--flood)}#rkLevelNotice{font-weight:800;color:var(--ink);overflow-wrap:anywhere}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1215,7 +1216,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   <section class="screen" id="ranked">
     <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1a</p></div><span class="v251-beta">Hazırlık</span></div>
     <div class="card v251-panel"><h3>Sunucu bağlantısı</h3><p id="rankStatus" class="tiny" role="status">Kontrol ediliyor…</p><button type="button" id="rankRefresh" class="btn ghost sm">Yenile</button></div>
-    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="rk-level" id="rkLevelBadge" aria-hidden="true">—</span><span class="v251-beta" id="rkLevelName">Seviye —</span><strong id="rankRating">—</strong><small>ELO</small></div><div class="rk-progress"><div class="rk-progress-label"><span id="rkLevelRange">—</span><span id="rkLevelNext">—</span></div><progress id="rkLevelProgress" max="100" value="0" aria-label="Sonraki seviyeye ilerleme"></progress></div><div id="rankStats" class="v251-stats"></div><section id="rkSeason" class="rk-season" aria-label="Rekabetçi sezon" hidden><div class="rk-season-head"><strong id="rkSeasonTitle">Rekabetçi sezon</strong><small id="rkSeasonEnd"></small></div><div id="rkSeasonStatus" class="rk-season-status" role="status"></div><div id="rkSeasonData" hidden><div class="rk-season-kpis"><div><small>Sezon ELO değişimi</small><b id="rkSeasonDelta">—</b></div><div><small>Galibiyet oranı</small><b id="rkSeasonRate">—</b></div></div><progress id="rkSeasonWinBar" max="100" value="0" aria-label="Sezon galibiyet oranı"></progress><div class="rk-season-result"><div><b id="rkSeasonPlayed">—</b><small>Maç</small></div><div><b id="rkSeasonWins">—</b><small>Galibiyet</small></div><div><b id="rkSeasonDraws">—</b><small>Beraberlik</small></div><div><b id="rkSeasonLosses">—</b><small>Mağlubiyet</small></div></div></div></section><section class="rk-history" id="rkHistoryProfile" aria-label="Rekabetçi maç geçmişi" hidden><h3>ELO grafiği</h3><small id="rkHistoryStatus" role="status"></small><div id="rkHistoryData" hidden><svg id="rkHistoryChart" class="rk-history-chart" viewBox="0 0 320 120" role="img" aria-label="Son maçlarda ELO değişimi"><path id="rkHistoryLine" fill="none" stroke="#45a36f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><text id="rkHistoryHigh" x="3" y="13" font-size="10" fill="currentColor"></text><text id="rkHistoryLow" x="3" y="112" font-size="10" fill="currentColor"></text></svg><h3>Son maçlar</h3><div class="rk-history-list" id="rkHistoryList"></div><small id="rkHistoryLimit"></small></div></section></div>
+    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="rk-level" id="rkLevelBadge" aria-hidden="true">—</span><span class="v251-beta" id="rkLevelName">Seviye —</span><strong id="rankRating">—</strong><small>ELO</small></div><div class="rk-progress"><div class="rk-progress-label"><span id="rkLevelRange">—</span><span id="rkLevelNext">—</span></div><progress id="rkLevelProgress" max="100" value="0" aria-label="Sonraki seviyeye ilerleme"></progress></div><div id="rankStats" class="v251-stats"></div><section id="rkSeason" class="rk-season" aria-label="Rekabetçi sezon" hidden><div class="rk-season-head"><strong id="rkSeasonTitle">Rekabetçi sezon</strong><small id="rkSeasonEnd"></small></div><div id="rkSeasonStatus" class="rk-season-status" role="status"></div><div id="rkSeasonData" hidden><div class="rk-season-kpis"><div><small>Sezon ELO değişimi</small><b id="rkSeasonDelta">—</b></div><div><small>Galibiyet oranı</small><b id="rkSeasonRate">—</b></div></div><progress id="rkSeasonWinBar" max="100" value="0" aria-label="Sezon galibiyet oranı"></progress><div class="rk-season-result"><div><b id="rkSeasonPlayed">—</b><small>Maç</small></div><div><b id="rkSeasonWins">—</b><small>Galibiyet</small></div><div><b id="rkSeasonDraws">—</b><small>Beraberlik</small></div><div><b id="rkSeasonLosses">—</b><small>Mağlubiyet</small></div></div></div></section><section class="rk-history" id="rkHistoryProfile" aria-label="Rekabetçi maç geçmişi" hidden><h3>ELO grafiği</h3><small id="rkHistoryStatus" role="status"></small><div id="rkHistoryData" hidden><svg id="rkHistoryChart" class="rk-history-chart" viewBox="0 0 320 120" role="img" aria-label="Son maçlarda ELO değişimi"><path id="rkHistoryLine" fill="none" stroke="#45a36f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><text id="rkHistoryHigh" x="3" y="13" font-size="10" fill="currentColor"></text><text id="rkHistoryLow" x="3" y="112" font-size="10" fill="currentColor"></text></svg><h3>Son maçlar</h3><div class="rk-history-list" id="rkHistoryList"></div><small id="rkHistoryLimit"></small></div></section><section class="rk-board" id="rkBoard" aria-label="Global rekabetçi sıralama" hidden><h3>Global sıralama</h3><small id="rkBoardStatus" role="status"></small><div id="rkBoardData" hidden><p class="rk-board-self" id="rkBoardSelf"></p><small id="rkBoardTotal"></small><div class="rk-board-list" id="rkBoardList"></div></div></section></div>
     <div class="card v251-panel rk-action" id="rkIdle"><h3>Rekabetçi maçlar</h3><p id="rkHint">Rekabetçi maçlar henüz genel kullanıma açılmadı. Normal oda puanları ELO'yu etkilemez.</p><button class="btn" id="rkJoin" type="button" disabled>Rakip ara</button></div>
     <div class="card v251-panel rk-action" id="rkSearch" hidden><h3>Rakip aranıyor</h3><div class="rk-search" aria-hidden="true"></div><div class="rk-clock" id="rkWait">00:00</div><p id="rkGap"></p><button class="btn ghost" id="rkCancel" type="button">Aramayı iptal et</button></div>
     <div class="card v251-panel rk-action" id="rkOffer" hidden><h3>MAÇ BULUNDU!</h3><div class="rk-clock" id="rkAcceptClock">—</div><div class="rk-duel"><div><b>Sen</b><span id="rkSelfReady">Bekleniyor</span></div><div><b>Rakip</b><span id="rkOtherReady">Bekleniyor</span></div></div><button class="btn" id="rkAccept" type="button">Maçı kabul et</button><button class="btn ghost" id="rkDecline" type="button">Reddet</button></div>
@@ -3868,7 +3869,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.7';
+const APPV='25.8';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4232,8 +4233,8 @@ $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');
 
 /* V25.1: server-only competitive profiles, no client rating writes. */
 const Ranked={
-  epoch:0,busy:false,seasonEpoch:0,historyEpoch:0,
-  reset(){this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
+  epoch:0,busy:false,seasonEpoch:0,historyEpoch:0,boardEpoch:0,
+  reset(){this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
   open(){if(!ME||code)return;show('ranked');this.load()},
   async loadSeason(){
     const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.seasonEpoch;
@@ -4264,9 +4265,23 @@ const Ranked={
       const data=await r.json();if(valid())renderRankedHistory(data,'ready');
     }catch{if(valid())renderRankedHistory(null,'error')}
   },
+  async loadBoard(){
+    const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.boardEpoch;
+    const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.boardEpoch===serial&&screen==='ranked'&&!code;
+    if(!uid||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedBoard(null,'hidden');return}
+    renderRankedBoard(null,'loading');
+    try{
+      const token=await user.getIdToken();if(!valid())return;
+      const r=await fetch('/api/ranked/play',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({action:'leaderboard.get'}),cache:'no-store'});
+      if(!valid())return;
+      if(r.status===403||r.status===404){renderRankedBoard(null,'hidden');return}
+      if(!r.ok||!(r.headers.get('content-type')||'').includes('application/json'))throw Error('BOARD_UNAVAILABLE');
+      const data=await r.json();if(valid())renderRankedBoard(data,'ready');
+    }catch{if(valid())renderRankedBoard(null,'error')}
+  },
   async load(){
     if(this.busy||!ME||code||RankedPreview.inProgress())return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
-    const uid=ME,epoch=++this.epoch;this.busy=true;this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
+    const uid=ME,epoch=++this.epoch;this.busy=true;this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
     try{
       const token=await user.getIdToken(),res=await fetch('/api/ranked/me',{method:'POST',headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});
       if(ME!==uid||epoch!==this.epoch)return;
@@ -4275,7 +4290,7 @@ const Ranked={
       const p=data.profile;if(data.version!=='25.1a'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
       if(ME!==uid||epoch!==this.epoch)return;
       $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';renderRankedLevel(p.rating);
-      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.onSettled=()=>this.loadSeason();const refreshSeason=RankedPreview.onSettled;RankedPreview.onSettled=()=>{void refreshSeason();void this.loadHistory()};RankedPreview.open(uid);void this.loadSeason();void this.loadHistory();
+      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.onSettled=()=>this.loadSeason();const refreshSeason=RankedPreview.onSettled;RankedPreview.onSettled=()=>{void refreshSeason();void this.loadHistory();void this.loadBoard()};RankedPreview.open(uid);void this.loadSeason();void this.loadHistory();void this.loadBoard();
     }catch(e){if(ME===uid&&epoch===this.epoch){$('rankStatus').textContent=({DB_BINDING_MISSING:'Rekabetçi veritabanı henüz bağlanmadı.',DB_SCHEMA_OR_CONNECTION:'Rekabetçi veritabanı henüz hazır değil.',AUTH_REQUIRED:'Google hesabınla tekrar giriş yap.',INVALID_TOKEN:'Kimlik doğrulanamadı. Tekrar giriş yap.',AUTH_UNAVAILABLE:'Kimlik sunucusuna ulaşılamadı.',API_NOT_DEPLOYED:'Rekabetçi API bu adreste henüz çalışmıyor.'})[e.message]||'Sunucu bağlantısı kurulamadı. Daha sonra yenile.'}}
     finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=RankedPreview.inProgress()}}
   }
@@ -4367,6 +4382,37 @@ function renderRankedHistory(data,state='ready'){
   label.className='rk-history-outcome';label.textContent=({win:'Galibiyet',loss:'Mağlubiyet',draw:'Beraberlik'})[m.outcome];date.textContent=new Date(m.finishedAt).toLocaleDateString('tr-TR');title.append(label,date);
   score.textContent=m.score+' – '+m.opponentScore;const diff=m.ratingAfter-m.ratingBefore;change.textContent=(diff>0?'+':'')+diff+' ELO';elo.textContent=m.ratingAfter.toLocaleString('tr-TR')+' ELO';delta.append(change,elo);row.append(title,score,delta);return row;
  });$('rkHistoryList').replaceChildren(...rows);
+}
+
+
+function rankedBoardView(data){
+ const int=(n,min,max)=>Number.isSafeInteger(n)&&n>=min&&n<=max;
+ if(!data||!Array.isArray(data.rows)||!int(data.total,0,Number.MAX_SAFE_INTEGER)||data.rows.length!==Math.min(data.total,20))return null;
+ const valid=r=>!!r&&typeof r.name==='string'&&/^Oyuncu [0-9A-F]{12}$/.test(r.name)&&typeof r.isSelf==='boolean'&&int(r.position,1,data.total)&&int(r.rating,0,100000)&&int(r.played,1,Number.MAX_SAFE_INTEGER)&&int(r.wins,0,r.played);
+ let prev=null,own=null;
+ for(let i=0;i<data.rows.length;i++){
+  const r=data.rows[i];if(!valid(r)||r.position!==(prev&&prev.rating===r.rating?prev.position:i+1)||(prev&&r.rating>prev.rating))return null;
+  if(r.isSelf){if(own)return null;own=r}prev=r;
+ }
+ const self=data.self;
+ if(self!==null&&(!valid(self)||!self.isSelf))return null;
+ if(own&&(!self||['name','rating','played','wins','position'].some(k=>own[k]!==self[k])))return null;
+ if(!own&&self&&data.total<=20)return null;
+ return {rows:data.rows,self,total:data.total};
+}
+function renderRankedBoard(data,state='ready'){
+ const v=state==='ready'?rankedBoardView(data):null;
+ $('rkBoard').hidden=state==='hidden';$('rkBoardData').hidden=!v;
+ $('rkBoardStatus').textContent=v?(v.total?'':'Henüz sıralamaya giren oyuncu yok.'):state==='loading'?'Sıralama yükleniyor…':state==='hidden'?'':'Sıralama alınamadı. Yenile.';
+ $('rkBoardSelf').textContent=v?(v.self?'Sıran: #'+v.self.position.toLocaleString('tr-TR')+' · Seviye '+rankedLevel(v.self.rating).level:'Sıralama için ilk rekabetçi maçını tamamla.'):'';
+ $('rkBoardTotal').textContent=v?v.total.toLocaleString('tr-TR')+' oyuncu · İlk '+v.rows.length:'';
+ const rows=(v?.rows||[]).map(r=>{
+  const el=document.createElement('div');el.className='rk-board-row';el.dataset.self=r.isSelf?'yes':'no';
+  const pos=document.createElement('span'),player=document.createElement('div'),name=document.createElement('b'),stats=document.createElement('small'),elo=document.createElement('div'),rating=document.createElement('b'),level=document.createElement('small');
+  pos.textContent='#'+r.position;name.textContent=r.isSelf?'Sen · '+r.name:r.name;stats.textContent=r.played+' maç · '+Math.round(r.wins/r.played*100)+'% galibiyet';
+  rating.textContent=r.rating.toLocaleString('tr-TR')+' ELO';level.textContent='Seviye '+rankedLevel(r.rating).level;
+  player.append(name,stats);elo.append(rating,level);el.append(pos,player,elo);return el;
+ });$('rkBoardList').replaceChildren(...rows);
 }
 
 const rankedSides=(s,side)=>side==='a'?[s.scoreA,s.scoreB]:[s.scoreB,s.scoreA];
