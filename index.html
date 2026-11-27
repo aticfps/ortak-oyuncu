@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ortak Oyuncu</title>
+<title>Çapraz90</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#101322">
 <script>
@@ -20,10 +20,10 @@ const Theme=(()=>{
 })();
 </script>
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/svg+xml" href="capraz90.svg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ortak Oyuncu">
+<meta name="apple-mobile-web-app-title" content="Çapraz90">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@800&family=Nunito:wght@600;700;800;900&family=Barlow+Condensed:ital,wght@0,800;1,800&family=Barlow:wght@600;700&display=swap">
 <style>
@@ -1056,6 +1056,109 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
 .rk-history{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:8px}.rk-history[hidden],.rk-history [hidden]{display:none!important}.rk-history h3{margin:0;font-size:15px}.rk-history small{font-size:11px;color:var(--mute)}.rk-history-chart{display:block;width:100%;height:auto;max-height:140px;color:var(--ink)}.rk-history-list{display:grid;gap:5px;max-height:280px;overflow:auto}.rk-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:9px 6px;border-bottom:1px solid var(--line);font-size:13px}.rk-history-row>div{min-width:0;display:grid;gap:3px}.rk-history-row b{font-size:13px}.rk-history-row[data-outcome="win"] .rk-history-outcome{color:#45a36f}.rk-history-row[data-outcome="loss"] .rk-history-outcome{color:#e34b58}.rk-history-row[data-outcome="draw"] .rk-history-outcome{color:var(--mute)}
 .rk-board{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:9px}.rk-board[hidden],.rk-board [hidden]{display:none!important}.rk-board h3{font-size:15px;margin:0}.rk-board small{font-size:11px;color:var(--mute)}.rk-board-list{max-height:340px;overflow:auto;display:grid;gap:4px}.rk-board-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 4px;font-size:13px}.rk-board-row[data-self="yes"]{border:1px solid #45a36f;border-radius:8px}.rk-board-row>div{min-width:0;display:grid;gap:3px;overflow-wrap:anywhere}.rk-board-row b{font-size:13px}.rk-name-actions{display:flex;flex-wrap:wrap;gap:8px}.rk-board-name{display:flex;align-items:center;gap:7px;min-width:0}.rk-board-level{width:24px;height:24px;min-width:24px;font-size:12px;flex-shrink:0}.rk-board-row>span{text-align:center;font-weight:800}.rk-board-self{font-size:13px;font-weight:700}
 #rkLevelProgress{width:100%;height:12px;accent-color:var(--flood)}#rkLevelNotice{font-weight:800;color:var(--ink);overflow-wrap:anywhere}
+
+/* V27.1b — Çapraz90 Arena. Lobby-only redesign; gameplay, data and identity unchanged. */
+#lobby{--c90-bg:#0c1014;--c90-panel:#171f26;--c90-ink:#f7f9f5;--c90-muted:#b7c1c7;--c90-line:#ffffff20;--c90-accent:#dcff45;--c90-blue:#7bc5ff;--c90-orange:#ffc46b;--c90-head:"Barlow Condensed",system-ui,sans-serif;color:var(--c90-ink)}
+body:has(#lobby.on){background:radial-gradient(ellipse at 50% -10%,#314654 0,transparent 52%),#0c1014}
+body:has(#lobby.on) .pitch{inset:0;height:100%;background:none;opacity:.2;clip-path:none}
+body:has(#lobby.on) .pitch svg{display:block}
+body:has(#lobby.on) main{max-width:1000px;padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+#lobby .hero{position:relative;display:flex;align-items:center;min-height:128px;gap:0;margin:0 0 12px;padding:18px 20px;border:0;border-radius:0;background:transparent;overflow:hidden}
+#lobby .hero::after{display:none}
+#lobby .c90-brand{flex:1;position:relative;z-index:2}
+#lobby .c90-wordmark{display:flex;align-items:center;gap:9px}
+#lobby .c90-wordmark svg{width:42px;height:42px;color:var(--c90-accent);flex:none}
+#lobby .hero h1{font:italic 800 clamp(40px,7vw,70px)/.9 var(--c90-head);letter-spacing:-.025em;margin:0;color:var(--c90-ink);text-shadow:none}
+#lobby .hero h1 span{color:var(--c90-accent)}
+#lobby .v22-eyebrow{font-size:10px;letter-spacing:.18em;color:var(--c90-muted);margin:9px 0 5px}
+#lobby .v22-eyebrow::before{display:none}
+#lobby .hero .lead{font-size:13px;color:var(--c90-muted);margin:0}
+#lobby .v22-meta{margin-top:6px;gap:5px}
+#lobby .v22-meta span{border:0;background:transparent;padding:0 8px 0 0;font-size:11px;color:var(--c90-muted)}
+#lobby .hero .fan{position:absolute;right:0;top:50%;width:280px;height:130px;transform:translateY(-50%) scale(.75);transform-origin:right center;opacity:.8;pointer-events:none}
+#lobby .whoami{display:block;background:transparent;border:0;padding:0;margin:0 0 12px}
+#lobby .whoami[hidden],#lobby #cards[hidden],#lobby [hidden]{display:none!important}
+#lobby .c90-account{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--c90-line);border-radius:11px;background:var(--c90-panel)}
+#lobby .c90-account>div{flex:1;overflow:hidden}
+#lobby .c90-account b,#lobby .c90-account small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--c90-ink)}
+#lobby .c90-account small{font-size:10px;color:var(--c90-muted);letter-spacing:.12em}
+#lobby .c90-account .link{font:700 12px/1.3 var(--ui);min-height:44px;color:var(--c90-muted)}
+#lobby .c90-avatar{width:38px;height:38px;display:grid;place-items:center;background:var(--c90-accent);color:#151c0c;border-radius:9px;flex:none}
+#lobby .c90-avatar svg{width:23px;height:23px}
+#lobby .c90-nav{position:fixed;z-index:12;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,1000px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--c90-panel);border:1px solid var(--c90-line);border-radius:15px 15px 0 0;padding:5px 8px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px #0005}
+#lobby .c90-nav .link{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;gap:4px;color:var(--c90-muted);font:700 11px/1.2 var(--ui);text-decoration:none}
+#lobby .c90-nav svg{width:22px;height:22px}
+#lobby #c90Home{color:var(--c90-accent)}
+#lobby .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#lobby .cards>.card{background:var(--c90-panel);color:var(--c90-ink);border:1px solid var(--c90-line);border-radius:11px;padding:15px;min-height:0;gap:8px;box-shadow:none}
+#lobby .cards>.card h3{font:italic 800 27px/1 var(--c90-head);text-transform:uppercase;color:var(--c90-ink);text-shadow:none;letter-spacing:.015em}
+#lobby .cards>.card p,#lobby .cards>.card .tiny,#lobby .cards>.card small,#lobby .cards>.card .link{color:var(--c90-muted)}
+#lobby .cards>.card input,#lobby .cards>.card select,#lobby .c90-nickname input{background:var(--c90-bg);color:var(--c90-ink);border:1px solid var(--c90-line);font-size:16px}
+#lobby .cards>.card .btn{background:var(--c90-accent);color:#18200c;font:800 19px/1.2 var(--c90-head);text-transform:uppercase;letter-spacing:.035em;border:0;border-radius:6px;box-shadow:none;min-height:44px;text-shadow:none}
+#lobby .cards>.card .btn:disabled{opacity:.45}
+#lobby .cards>.card .v22-modeicon{width:34px;height:34px;background:#ffffff0d;border:1px solid var(--c90-line);color:var(--c90-accent);border-radius:6px}
+#lobby .cards>.card.v251-ranked{grid-column:1/-1;order:-10;position:relative;isolation:isolate;overflow:hidden;min-height:210px;padding:19px;display:grid;grid-template-columns:minmax(0,1fr);align-content:end;gap:10px;border:1px solid #c8ff6355;background:radial-gradient(ellipse at 78% 5%,#7ba02d55,transparent 65%),linear-gradient(120deg,#1b2d21,#0c1817 72%);color:#f7f9f5}
+#lobby .v251-ranked::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(130deg,transparent 0 62px,#d8ff4810 63px 64px,transparent 65px 105px)}
+#lobby .v251-ranked::after{content:"";position:absolute;right:-65px;top:-115px;width:330px;height:330px;border-radius:50%;border:1px solid #e7ffa73a;box-shadow:0 0 0 30px #d6ff4810;z-index:-1;pointer-events:none}
+#lobby .cards>.card.v251-ranked h3{font-size:clamp(40px,7vw,61px);color:#f7f9f5}
+#lobby .cards>.card.v251-ranked p{color:#d2ddc4;max-width:28ch;font-size:14px}
+#lobby .v251-ranked .v22-cardhead{position:relative;z-index:1;max-width:100%;gap:7px}
+#lobby .v251-ranked .v251-beta{margin-left:0;background:#dfff4515;border-color:#c9ef6f66;color:#e1ff85;font-size:12px}
+#lobby .v251-ranked .v22-modeicon{display:none}
+#lobby .c90-league-art{position:absolute;right:25px;top:12px;width:112px;height:125px;display:grid;place-items:center;transform:rotate(-10deg);color:#dfff45;opacity:.8;z-index:-1;pointer-events:none}
+#lobby .c90-league-art svg{width:105px;height:105px;filter:drop-shadow(0 0 15px #a9db3440)}
+#lobby .c90-league-art span{position:absolute;bottom:0;right:0;background:#17251a;border:1px solid #b5de66;padding:1px 6px;font:italic 800 20px var(--c90-head)}
+#lobby #rankGo{position:relative;z-index:1;width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#dcff45;color:#17210d;font-size:25px}
+#lobby .cards>.card.v22-daily{order:-9;background:linear-gradient(145deg,#32291d,var(--c90-panel) 75%);border-top:3px solid var(--c90-orange)}
+#lobby .cards>.card.v22-bot{order:-8;background:linear-gradient(145deg,#1c3041,var(--c90-panel) 75%);border-top:3px solid var(--c90-blue)}
+#lobby .cards>.card.v22-daily .v22-modeicon{color:var(--c90-orange)}
+#lobby .cards>.card.v22-bot .v22-modeicon{color:var(--c90-blue)}
+#lobby .cards>.card.v22-daily .btn{background:var(--c90-orange);color:#251807}
+#lobby .cards>.card.v22-bot .btn{background:var(--c90-blue);color:#132432}
+#lobby .cards>.card.v22-create,#lobby .cards>.card.v22-join{grid-column:auto}
+#lobby .c90-nickname{grid-column:1/-1;order:-7;padding:9px 12px;border:1px solid var(--c90-line);border-radius:10px;background:var(--c90-panel);color:var(--c90-muted)}
+#lobby .c90-nickname small,#lobby .cards .field{color:var(--c90-muted)}
+#lobby .c90-private{display:grid;gap:6px;border:1px solid var(--c90-line);border-radius:7px;padding:6px 9px}
+#lobby .c90-private summary{cursor:pointer;min-height:32px;display:flex;align-items:center;font-size:12px;color:var(--c90-muted)}
+#lobby .c90-private summary::after{content:"+";margin-left:auto;font-size:18px}
+#lobby .c90-private[open] summary::after{content:"−"}
+#lobby .c90-private[open]>*+*{margin-top:8px}
+#lobby #lStatus,#lobby .how,#lobby>.tiny,#lobby>.center .link{color:var(--c90-muted)}
+#lobby .authbox{color:var(--c90-ink);background:var(--c90-panel);border-color:var(--c90-line)}
+#lobby .authbox p{color:var(--c90-muted)}
+#lobby .authbox .btn{background:var(--c90-accent);color:#17210d}
+html[data-theme="light"] body:has(#lobby.on){background:radial-gradient(ellipse at 50% -10%,#c8d5dd,transparent 60%),#edf1f2}
+html[data-theme="light"] #lobby{--c90-bg:#f5f7f8;--c90-panel:#fff;--c90-ink:#18252d;--c90-muted:#435762;--c90-line:#233d4928;--c90-accent:#427b17;--c90-blue:#a5d7ff;--c90-orange:#ffd48b}
+html[data-theme="light"] #lobby .cards>.card .btn,html[data-theme="light"] #lobby .authbox .btn{color:#fff}
+html[data-theme="light"] #lobby #rankGo{color:#17210d}
+html[data-theme="light"] #lobby .cards>.card.v22-daily{background:linear-gradient(145deg,#fff2d7,#fff 75%)}
+html[data-theme="light"] #lobby .cards>.card.v22-bot{background:linear-gradient(145deg,#e0f0ff,#fff 75%)}
+html[data-theme="light"] #lobby .cards>.card.v22-daily .btn,html[data-theme="light"] #lobby .cards>.card.v22-bot .btn{color:#18252d}
+html[data-theme="light"] #lobby .cards>.card.v22-daily .v22-modeicon{color:#86500e}
+html[data-theme="light"] #lobby .cards>.card.v22-bot .v22-modeicon{color:#175486}
+html[data-theme="light"] #lobby .c90-avatar{color:#fff}
+@media(max-width:600px){
+ #lobby .hero{min-height:100px;padding:8px 3px}
+ #lobby .hero h1{font-size:clamp(36px,10vw,52px)}
+ #lobby .c90-wordmark svg{width:32px;height:32px}
+ #lobby .hero .fan{opacity:.28;transform:translateY(-50%) scale(.48);right:0}
+ #lobby .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #lobby .cards>.card{padding:11px}
+ #lobby .cards>.card.v251-ranked{min-height:185px;padding:14px}
+ #lobby .cards>.card.v251-ranked h3{font-size:38px}
+ #lobby .c90-league-art{right:12px;top:8px;width:80px;height:95px}
+ #lobby .c90-league-art svg{width:76px;height:76px}
+ #lobby .cards>.card.v22-daily .v22-cardhead,#lobby .cards>.card.v22-bot .v22-cardhead{flex-direction:column;align-items:flex-start;gap:7px}
+ #lobby .cards>.card.v22-daily h3,#lobby .cards>.card.v22-bot h3{font-size:25px}
+ #lobby .cards>.card.v22-bot>.row{display:grid;grid-template-columns:minmax(0,1fr)}
+ #lobby .cards>.card.v22-create,#lobby .cards>.card.v22-join{grid-column:1/-1}
+ #lobby .cards>.card.v22-join>.row{flex-wrap:wrap}
+ #lobby .cards>.card.v22-join #joinPassWrap{flex-basis:100%}
+ #lobby .cards>.card.install{grid-column:1/-1}
+}
+@media(max-width:350px){#lobby .cards>.card.v251-ranked h3{font-size:32px}#lobby .cards>.card.v22-daily h3,#lobby .cards>.card.v22-bot h3{font-size:22px}}
+@media(prefers-reduced-motion:reduce){#lobby .card,#lobby .c90-nav{animation:none;transition:none}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1089,16 +1192,15 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   <div class="pred" id="pred" hidden><div class="ph2" id="predQ">Bu turu kim bilir?</div><div class="pb" id="predB"></div><p class="tiny" id="predS"></p></div>
   <section class="screen on" id="lobby">
     <div class="hero">
-      <div><div class="v22-eyebrow">Futbol bilgi arenası</div><h1>Ortak<br><span>Oyuncu</span></h1>
-      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>30 takım</span><span>Canlı düello</span><span>2–8 oyuncu</span></div></div>
+      <div class="c90-brand"><div class="c90-wordmark"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M4 4h40v40H4z" rx="8" stroke="currentColor" stroke-width="2"/><path d="M4 24h40M24 4v40" stroke="currentColor" stroke-opacity=".23"/><path d="M10 35 35 10m-11 0h11v11M13 13l22 22m-11 0h11V24" stroke="currentColor" stroke-width="4" stroke-linecap="square" stroke-linejoin="round"/></svg><h1>ÇAPRAZ<span>90</span></h1></div><div class="v22-eyebrow">FUTBOL BİLGİ ARENASI</div><p class="lead">İki takım. Tek futbolcu.</p><div class="v22-meta"><span>30 takım</span><span>1.906 futbolcu</span></div></div>
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
-    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="friendsGo">Arkadaşlar</button> · <button class="link" id="flGo" type="button">Sıralama</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
+    <div class="whoami" id="who" hidden><div class="c90-account"><span class="c90-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 3 6l-2 5 4 2 2-3v11h10V10l2 3 4-2-2-5-5-3a4 4 0 0 1-8 0Z"/></svg></span><div><small>SOYUNMA ODASI</small><b id="whoName"></b></div><span id="admW" hidden><button class="link" id="admGo">Yönetici</button></span><button class="link" id="gOut">Çıkış</button></div><nav class="c90-nav" aria-label="Ana menü"><button type="button" class="link" id="c90Home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/></svg><span>Ana ekran</span></button><button class="link" id="friendsGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M2 20v-3a7 7 0 0 1 14 0v3M17 4a3 3 0 0 1 0 6m2 3c2 1 3 3 3 5v2"/></svg><span>Arkadaşlar</span></button><button class="link" id="flGo" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7h5v7m1 0V5h5v16m1 0V10h5v11M2 21h21"/></svg><span>Sıralama</span></button><button class="link" id="pfGo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2Z"/></svg><span>Profil</span></button></nav></div>
     <div class="cards" id="cards" hidden>
-      <div class="card v251-ranked"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 21 6v6c0 5-5 8-9 10-4-2-9-5-9-10V6z"/><path d="m8 12 3 3 5-6"/></svg></span><h3>Rekabetçi</h3><span class="v251-beta">Profil</span></div><p>Sunucu kontrollü sıralamalı maçlar.</p><button class="btn ghost" id="rankGo" type="button">Rekabetçi profil</button></div>
-      <label class="field">Oyun adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"><small>Bu ad, rekabetçi sıralamaya girdiğinde diğer oyunculara görünür. Gerçek ad veya e-posta yerine takma ad kullan.</small></label>
-      <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-8 kişilik oda. Şifre boşsa oda herkese açık olur.</p><label class="field v232-pass">Oda şifresi (isteğe bağlı)<input id="createPass" type="password" autocomplete="new-password" maxlength="64" placeholder="En az 12 karakter"></label><button class="link" id="generatePass" type="button">Güçlü şifre oluştur</button><small class="tiny">Şifreli oda 24 saat geçerlidir. Şifreyi ayrı paylaş, başka hesap şifreni kullanma.</small><button class="btn" id="create" disabled>Oda kur</button></div>
+      <div class="card v251-ranked"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 21 6v6c0 5-5 8-9 10-4-2-9-5-9-10V6z"/><path d="m8 12 3 3 5-6"/></svg></span><h3>Rekabetçi</h3><span class="v251-beta">1V1</span></div><div class="c90-league-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M4 4h40v40H4z" rx="8" stroke="currentColor" stroke-width="2"/><path d="M4 24h40M24 4v40" stroke="currentColor" stroke-opacity=".23"/><path d="M10 35 35 10m-11 0h11v11M13 13l22 22m-11 0h11V24" stroke="currentColor" stroke-width="4" stroke-linecap="square" stroke-linejoin="round"/></svg><span>VS</span></div><p>Rakibini geç. ELO kazan. Liginde yüksel.</p><button class="btn ghost" id="rankGo" type="button">MAÇA ÇIK <span aria-hidden="true">↗</span></button></div>
+      <label class="field c90-nickname">Oyun adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"><small>Bu ad, rekabetçi sıralamaya girdiğinde diğer oyunculara görünür. Gerçek ad veya e-posta yerine takma ad kullan.</small></label>
+      <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-8 kişilik oda. Şifre boşsa oda herkese açık olur.</p><details class="c90-private"><summary>Şifreli oda seçenekleri</summary><label class="field v232-pass">Oda şifresi (isteğe bağlı)<input id="createPass" type="password" autocomplete="new-password" maxlength="64" placeholder="En az 12 karakter"></label><button class="link" id="generatePass" type="button">Güçlü şifre oluştur</button><small class="tiny">Şifreli oda 24 saat geçerlidir. Şifreyi ayrı paylaş, başka hesap şifreni kullanma.</small></details><button class="btn" id="create" disabled>Oda kur</button></div>
       <div class="card v22-join"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h13m-5-5 5 5-5 5"/></svg></span><h3>Odaya katıl</h3></div><p>Arkadaşının verdiği oda kodunu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="10" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button><label class="field v232-pass" id="joinPassWrap" hidden>Oda şifresi<input id="joinPass" type="password" autocomplete="off" maxlength="64" placeholder="Şifreyi gir"></label></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
       <div class="card v22-bot"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 3v4M2 11v5m20-5v5M9 13h.01M15 13h.01M9 17h6"/></svg></span><h3>Bota karşı oyna</h3></div><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
@@ -1148,7 +1250,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   </section>
 
   <section class="screen" id="ans">
-    <div class="v222-matchhead"><div><span class="v222-overline">ORTAK OYUNCU</span><h2>Futbolcuyu bul</h2></div><span class="v222-points" id="v222Pts"></span></div>
+    <div class="v222-matchhead"><div><span class="v222-overline">ÇAPRAZ90</span><h2>Futbolcuyu bul</h2></div><span class="v222-points" id="v222Pts"></span></div>
     <div class="kc" id="kChain" hidden></div>
     <div class="vs"><div class="t" id="tA"></div>
       <div class="clock" id="clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" pathLength="100" fill="none" stroke="#f6d33f" stroke-width="7" stroke-linecap="round" stroke-dasharray="none" stroke-dashoffset="0"/></svg><b id="aSec"></b></div>
@@ -3869,7 +3971,8 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='26.4a';
+const APPV='27.1b';
+$('c90Home').onclick=()=>window.scrollTo(0,0);
 $('rankVersion').textContent='Sürüm V'+APPV;
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
@@ -4013,7 +4116,7 @@ async function matchCard(){
   x.fillStyle='rgba(0,0,0,.35)';x.fillRect(0,H-110,W,110);x.fillStyle='#f4f8f3';x.font=`600 32px ${B}`;x.textAlign='center';x.fillText('Sen de oyna: '+location.host,W/2,H-46);
   return new Promise(r=>cv.toBlob(r,'image/png'))}
 $('cardB').onclick=async()=>{const b=$('cardB');b.disabled=true;b.textContent='Hazırlanıyor…';try{const blob=await matchCard(),file=new File([blob],'ortak-oyuncu-mac.png',{type:'image/png'});
-  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],text:'Ortak Oyuncu maç sonucu'}).catch(()=>{});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],text:'Çapraz90 maç sonucu'}).catch(()=>{});
   else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);$('eStatus').textContent='Maç kartı indirildi.'}}
   catch(e){$('eStatus').textContent='Kart hazırlanamadı.'}b.disabled=false;b.textContent='📸 Maç kartı'};
 const Intro={i:0,
@@ -4029,8 +4132,8 @@ const Intro={i:0,
   next(){if(this.i>=this.steps().length-1)return this.close();this.i++;this.draw()}};
 $('howB').onclick=()=>Intro.open();$('iNext').onclick=()=>Intro.next();$('iSkip').onclick=()=>Intro.close();
 $('intro').addEventListener('keydown',e=>{if(e.key==='Escape')Intro.close()});
-$('rmB').onclick=()=>{if(!code||!G)return;const md=({t:'Takım 2v2',q:'Hızlı mod',k:'Kariyer zinciri',tr:'Turnuva'})[G.md]||'Klasik',url=roomUrl(code),text=`Ortak Oyuncu rövanşına gel! ${md} · Oda kodu: ${code}`;
-  if(navigator.share)navigator.share({title:'Ortak Oyuncu',text,url}).catch(()=>{});else navigator.clipboard.writeText(text+' '+url).then(()=>{$('eStatus').textContent='Rövanş linki kopyalandı.'},()=>{$('eStatus').textContent=url})};
+$('rmB').onclick=()=>{if(!code||!G)return;const md=({t:'Takım 2v2',q:'Hızlı mod',k:'Kariyer zinciri',tr:'Turnuva'})[G.md]||'Klasik',url=roomUrl(code),text=`Çapraz90 rövanşına gel! ${md} · Oda kodu: ${code}`;
+  if(navigator.share)navigator.share({title:'Çapraz90',text,url}).catch(()=>{});else navigator.clipboard.writeText(text+' '+url).then(()=>{$('eStatus').textContent='Rövanş linki kopyalandı.'},()=>{$('eStatus').textContent=url})};
 $('newB').onclick=async()=>{if(!G)return;const st={sM:G.md||'c',sTh:G.th||'',sL:G.lg||'a',sR:String(G.R||6),sT:String(G.T||30),sJ:String(G.J!=null?G.J:1)};
   if(isPrivateCode(code)){leaveRoom();lStatus('Yeni şifreli oda için yeni şifre belirleyip Oda kur düğmesine bas.',true);$('createPass').focus();return}
   leaveRoom();await createRoom();for(const[k,v]of Object.entries(st))if([...$(k).options].some(o=>o.value===v))$(k).value=v;
@@ -4084,7 +4187,7 @@ const Daily={st:null,T:null,all:null,
     this.friends();Season.load()},
   friends(){const d=this.st&&this.st.k,rows=(Season.rows||[]).filter(r=>r.d&&r.d.k===d).sort((a,b)=>(+b.d.s||0)-(+a.d.s||0));
     $('dFr').innerHTML=rows.length?`<div class="card" style="margin:14px 0"><h3>Bugün arkadaşların</h3><table class="stab">${rows.map((r,i)=>`<tr class="${r.u===ME?'me':''}"><td>${i+1}</td><td>${esc(clip(clean(r.n)||'Oyuncu',16))}</td><td>${String(r.d.r||'').split('').map(x=>x==='1'?'🟩':'🟥').join('')}</td><td>${+r.d.s||0}</td></tr>`).join('')}</table></div>`:''},
-  share(){const st=this.st,t=`Ortak Oyuncu · Günün bulmacası ${st.k.split('-').reverse().join('.')}\n${st.res.map(r=>r.ok?'🟩':'🟥').join('')} ${this.score()} puan\n${location.origin+location.pathname}`;
+  share(){const st=this.st,t=`Çapraz90 · Günün bulmacası ${st.k.split('-').reverse().join('.')}\n${st.res.map(r=>r.ok?'🟩':'🟥').join('')} ${this.score()} puan\n${location.origin+location.pathname}`;
     if(navigator.share)navigator.share({text:t}).catch(()=>{});else navigator.clipboard.writeText(t).then(()=>{$('dStatus').textContent='Sonuç kopyalandı, yapıştırıp gönder.'},()=>{$('dStatus').textContent=t})}
 };
 function verCheck(g){if(!g||!g.v||g.v===APPV||$('upd'))return;const d=document.createElement('div');d.id='upd';d.innerHTML='Oyunun yeni sürümü var. <button class="btn">Yenile</button>';d.querySelector('button').onclick=()=>location.reload();document.body.appendChild(d)}
@@ -4831,8 +4934,8 @@ let quitT=null;
 $('quit').onclick=()=>{const b=$('quit');if(b.classList.contains('sure')){clearTimeout(quitT);b.classList.remove('sure');b.textContent='Odadan çık';leaveRoom();return}
   b.classList.add('sure');b.textContent=isHost&&G&&G.ph!=='wait'?'Kurucu sensin, oda kapanacak. Emin misin? Tekrar bas':'Emin misin? Tekrar bas';
   quitT=setTimeout(()=>{b.classList.remove('sure');b.textContent='Odadan çık'},3500)};
-$('share').onclick=()=>{const url=roomUrl(code),text=`Ortak Oyuncu oynayalım! Oda kodu: ${code}`;
-  if(navigator.share)navigator.share({title:'Ortak Oyuncu',text,url}).catch(()=>{});else copyLink()};
+$('share').onclick=()=>{const url=roomUrl(code),text=`Çapraz90 oynayalım! Oda kodu: ${code}`;
+  if(navigator.share)navigator.share({title:'Çapraz90',text,url}).catch(()=>{});else copyLink()};
 const copyLink=()=>{try{navigator.clipboard.writeText(roomUrl(code)).then(()=>{$('copy').textContent='Kopyalandı'},()=>{$('copy').textContent='Kopyalanamadı'})}catch(e){}};
 $('copy').onclick=copyLink;
 
