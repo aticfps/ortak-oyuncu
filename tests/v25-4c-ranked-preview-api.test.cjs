@@ -73,3 +73,17 @@ test('V25.4c production status and existing UI stay disabled',()=>{
  const s=fs.readFileSync(path.join(root,'server/ranked-foundation.mjs'),'utf8');assert.match(s,/rankedEnabled:false/);
  const h=fs.readFileSync(path.join(root,'index.html'),'utf8');assert.match(h,/id="rkJoin" type="button" disabled/);assert.match(h,/!rankedPreviewHost\(location.hostname\)/);
 });
+
+integration('V25.6 season endpoint reads only own settled results, never trusts UID or season from client',async t=>{
+ const f=await fixture(t);
+ const first=await f.call('a','season.me');assert.equal(first.status,200);assert.equal(first.cache,'no-store');assert.equal(first.body.registered,true);assert.deepEqual(first.body.stats,{played:0,wins:0,draws:0,losses:0,eloDelta:0});
+ assert.equal((await f.call('a','season.me',{uid:'b'})).status,400);assert.equal((await f.call('a','season.me',{season:'2020-01'})).status,400);
+ const {matchId}=await f.start();
+ assert.equal((await f.call('a','season.me')).body.stats.played,0);
+ await f.call('a','game.surrender',{matchId,commandId:'s'});
+ const a=await f.call('a','season.me'),b=await f.call('b','season.me'),c=await f.call('c','season.me');
+ assert.deepEqual(a.body.stats,{played:1,wins:0,draws:0,losses:1,eloDelta:-25});
+ assert.deepEqual(b.body.stats,{played:1,wins:1,draws:0,losses:0,eloDelta:25});
+ assert.equal(c.body.stats.played,0);assert.equal('uid'in a.body,false);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
+});
