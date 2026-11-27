@@ -47,7 +47,7 @@ test('V25.1 missing binding or schema fails safely, ranked remains disabled even
 });
 test('V25.1 UI does not invent ELO offline; worker never caches authenticated API requests',()=>{
  const root=path.join(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),sw=fs.readFileSync(path.join(root,'sw.js'),'utf8'),sql=fs.readFileSync(path.join(root,'server','ranked-schema.sql'),'utf8');
- for(const x of ["id=\"rankGo\"","id=\"ranked\"","user.getIdToken()","Authorization:'Bearer '+token","fetch('/api/ranked/me'","id=\"rankProfile\" hidden","<button class=\"btn\" disabled>Rakip ara","Ranked.reset()"])assert.ok(html.includes(x),x);
+ for(const x of ["id=\"rankGo\"","id=\"ranked\"","user.getIdToken()","Authorization:'Bearer '+token","fetch('/api/ranked/me'","id=\"rankProfile\" hidden","<button class=\"btn\" id=\"rkJoin\" type=\"button\" disabled>Rakip ara","Ranked.reset()"])assert.ok(html.includes(x),x);
  assert.ok(sw.includes("u.pathname.startsWith('/api/')"));assert.ok(sw.includes("r.headers.has('authorization')"));assert.match(sql,/CHECK\(played = wins \+ draws \+ losses\)/);
 });
 
