@@ -47,3 +47,13 @@ test('V24.1 social screen uses escaped display names, no email and account reset
  for(const id of ['friendsGo','friends','frCode','frSend','frList','frIncoming','frOutgoing','frRefresh'])assert.ok(html.includes('id="'+id+'"'));
  assert.ok(html.includes("Friends.reset();Friends.register().catch"));assert.ok(html.includes("esc(n)"));assert.ok(html.includes("friendApi(Net.db,ME).register(clean($('myName').value))"));
 });
+
+test('V24.1a mobile friend cards and controls use shrinkable single-column layout',()=>{
+ const css=html.slice(html.indexOf('/* V24.1a:'),html.indexOf('</style>'));
+ for(const marker of ['#friends .fr-card{min-width:0;width:100%;box-sizing:border-box;grid-template-columns:minmax(0,1fr)','@media(max-width:600px)','grid-template-columns:34px minmax(0,1fr)','grid-column:1/-1','grid-template-columns:repeat(auto-fit,minmax(0,1fr))','font:500 16px/1.3','min-height:44px','overflow-wrap:anywhere','#friends #frBack{width:100%}'])assert.ok(css.includes(marker),marker);
+});
+test('V24.1a mobile friend code input preserves case and disables keyboard corrections',()=>{
+ assert.match(html,/id="frTarget"[^>]*autocapitalize="off" autocorrect="off" spellcheck="false"/);
+ assert.match(html,/id="frCode" readonly/);
+ assert.match(html,/class="fr-back"><button class="btn ghost" id="frBack" type="button"/);
+});
