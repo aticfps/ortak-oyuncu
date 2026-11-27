@@ -45,7 +45,7 @@ async function fixture(t){
  async function call(uid,action,fields={}){const r=await rankedPreviewPlay(req({action,...fields},uid),env,verify);return {status:r.status,body:await r.json(),cache:r.headers.get('cache-control')}}
  async function offer(){await call('a','queue.join');await call('b','queue.join');const r=await call('a','queue.find');assert.equal(r.status,200);assert.equal(r.body.status,'reserved');assert.equal('opponentUid'in r.body,false);return r.body.matchId}
  async function start(){const matchId=await offer();await call('a','offer.respond',{matchId,decision:'accept'});await call('b','offer.respond',{matchId,decision:'accept'});const r=await call('a','offer.start',{matchId});assert.equal(r.status,200);return {matchId,r}}
- return {sql,call,offer,start};
+ return {sql,db,call,offer,start};
 }
 integration('V25.4c queue and bilateral admission work through authenticated request boundary',async t=>{
  const f=await fixture(t),matchId=await f.offer();
@@ -115,4 +115,50 @@ integration('V25.8 private leaderboard ranks settled players and protects identi
  assert.equal(a.body.self.position,2);assert.equal(b.body.self.position,1);assert.equal(c.body.self,null);
  assert.equal(a.body.rows[0].name,b.body.self.name);assert.match(a.body.rows[0].name,/^Oyuncu [0-9A-F]{12}$/);
  assert.deepEqual(Object.keys(a.body.rows[0]).sort(),['name','position','rating','played','wins','isSelf'].sort());
+});
+
+async function recoveryFixture(t,{age=180000,sessionAge=null}={}){
+ const f=await fixture(t),id='recovery-match',now=Date.now(),created=now-age;
+ f.sql.prepare("INSERT INTO ranked_offers(match_id,uid_a,uid_b,created_at,expires_at,status) VALUES (?,?,?,?,?,'pending')").run(id,'a','b',created,created+20000);
+ f.sql.prepare("UPDATE ranked_offers SET accepted_a=?,accepted_b=?,status='accepted' WHERE match_id=?").run(created+1,created+2,id);
+ let service;
+ if(sessionAge!==null){
+  const {createRankedSessionService,d1RankedSessionStore}=await import('../server/ranked-session.mjs');
+  service=createRankedSessionService(d1RankedSessionStore(f.db),{clock:()=>now-sessionAge,seed:()=>42});
+  await service.start(id,{monitor:true});
+ }
+ return {...f,id,service};
+}
+integration('V26.0a abandoned accepted offer releases both accounts without Elo changes',async t=>{
+ const f=await recoveryFixture(t);
+ const a=await f.call('a','queue.status');assert.equal(a.status,200);assert.equal(a.body.status,'idle');
+ assert.equal((await f.call('b','queue.status')).body.status,'idle');
+ assert.equal(f.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(f.id).status,'void');
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+ assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('a').rating,1000);
+ assert.equal((await f.call('a','queue.join')).body.status,'searching');
+});
+integration('V26.0a fresh accepted offer and existing active session are not cancelled',async t=>{
+ const f=await recoveryFixture(t,{age:30000});
+ const a=await f.call('a','queue.status');assert.equal(a.status,200);assert.equal(a.body.status,'reserved');
+ assert.equal((await f.call('a','offer.start',{matchId:f.id})).status,200);
+ assert.equal((await f.call('b','queue.status')).body.status,'reserved');
+ assert.equal(f.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(f.id).status,'active');
+});
+integration('V26.0a both absent session recovers through durable tick with no settlement',async t=>{
+ const f=await recoveryFixture(t,{sessionAge:60000});
+ const a=await f.call('a','queue.status');assert.equal(a.status,200);assert.equal(a.body.status,'settlement_pending');
+ const result=await f.call('a','game.poll',{matchId:f.id});assert.equal(result.status,200);assert.equal(result.body.state.status,'void');assert.equal(result.body.state.termination.reason,'BOTH_ABSENT');
+ assert.equal((await f.call('b','queue.status')).body.status,'idle');
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+});
+integration('V26.0a interrupted terminal result settles once during recovery',async t=>{
+ const f=await recoveryFixture(t,{sessionAge:10000});
+ const r=await f.service.command(f.id,{id:'internal-surrender',type:'surrender',uid:'a'});assert.equal(r.state.status,'completed');
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+ const a=await f.call('a','queue.status');assert.equal(a.status,200);assert.equal(a.body.status,'settlement_pending');
+ const result=await f.call('a','game.poll',{matchId:f.id});assert.equal(result.status,200);assert.equal(result.body.settlement.ratingAfter,975);
+ assert.equal((await f.call('a','queue.status')).body.status,'idle');
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
+ assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('b').rating,1025);
 });
