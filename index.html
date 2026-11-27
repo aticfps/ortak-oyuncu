@@ -3868,7 +3868,7 @@ const Friends={
   busy:false,epoch:0,
   status(t,bad=false){const el=$('frStatus');el.textContent=t;el.classList.toggle('bad',bad)},
   register(){if(!ME||!Net.db||!validFriendId(ME))return Promise.resolve();return friendApi(Net.db,ME).register(clean($('myName').value))},
-  reset(){this.epoch++;this.busy=false;$('frCode').value='';$('frTarget').value='';for(const id of ['frList','frIncoming','frOutgoing'])$(id).textContent='';for(const id of ['frCount','frInCount','frOutCount'])$(id).textContent='0';this.status('')},
+  reset(){this.epoch++;this.busy=false;$('frCode').value='';$('frTarget').value='';for(const id of ['frList','frIncoming','frOutgoing']){$(id).textContent='';$(id)._v22html=null}$('frSend').disabled=false;$('frRefresh').disabled=false;for(const id of ['frCount','frInCount','frOutCount'])$(id).textContent='0';this.status('')},
   async open(){if(!ME||code)return;show('friends');$('frCode').value=ME;await this.run(async api=>{await api.register(clean($('myName').value))},'')},
   draw(data){
     const section=(id,count,rows,empty)=>{$(count).textContent=rows.length;stableHTML($(id),rows.length?rows.map(row=>{
