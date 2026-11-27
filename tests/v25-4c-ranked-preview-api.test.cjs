@@ -38,6 +38,7 @@ async function fixture(t){
  for(const uid of ['a','b','c'])sql.prepare('INSERT INTO ranked_players(uid,created_at) VALUES (?,1)').run(uid);
  const db={prepare(q){return {bind(...args){return {
   async first(){return sql.prepare(q).get(...args)||null;},
+  async all(){return {success:true,results:sql.prepare(q).all(...args)};},
   async run(){const r=sql.prepare(q).run(...args);return {success:true,meta:{changes:Number(r.changes)}};}
  };}};}};
  const env={...flags,RANKED_PREVIEW_UIDS:'a,b,c',RANKED_DB:db};
@@ -86,4 +87,19 @@ integration('V25.6 season endpoint reads only own settled results, never trusts 
  assert.deepEqual(b.body.stats,{played:1,wins:1,draws:0,losses:0,eloDelta:25});
  assert.equal(c.body.stats.played,0);assert.equal('uid'in a.body,false);
  assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
+});
+
+integration('V25.7 private history returns own scores and ELO only, excludes active and rejects forged identity',async t=>{
+ const f=await fixture(t);
+ const empty=await f.call('a','history.me');assert.equal(empty.status,200);assert.equal(empty.cache,'no-store');assert.deepEqual(empty.body,{matches:[],hasMore:false});
+ assert.equal((await f.call('a','history.me',{uid:'b'})).status,400);
+ const {matchId}=await f.start();assert.equal((await f.call('a','history.me')).body.matches.length,0);
+ await f.call('a','game.surrender',{matchId,commandId:'s'});
+ const a=await f.call('a','history.me'),b=await f.call('b','history.me'),c=await f.call('c','history.me');
+ assert.equal(a.status,200);assert.equal(b.status,200);
+ const x=a.body.matches[0],y=b.body.matches[0];
+ assert.equal(x.outcome,'loss');assert.equal(y.outcome,'win');assert.equal(x.ratingAfter,975);assert.equal(y.ratingAfter,1025);
+ assert.equal(x.sequence,1);assert.equal(x.score,y.opponentScore);assert.equal(x.opponentScore,y.score);
+ assert.deepEqual(Object.keys(x).sort(),['matchId','finishedAt','settledAt','sequence','score','opponentScore','outcome','ratingBefore','ratingAfter'].sort());
+ assert.deepEqual(c.body,{matches:[],hasMore:false});
 });
