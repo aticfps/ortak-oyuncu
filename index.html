@@ -1194,7 +1194,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
     <div class="fr-back"><button class="btn ghost" id="frBack" type="button">Ana ekran</button></div>
   </section>
   <section class="screen" id="ranked">
-    <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1</p></div><span class="v251-beta">Hazırlık</span></div>
+    <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1a</p></div><span class="v251-beta">Hazırlık</span></div>
     <div class="card v251-panel"><h3>Sunucu bağlantısı</h3><p id="rankStatus" class="tiny" role="status">Kontrol ediliyor…</p><button type="button" id="rankRefresh" class="btn ghost sm">Yenile</button></div>
     <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="v251-beta">Başlangıç profili</span><strong id="rankRating">—</strong><small>ELO</small></div><div id="rankStats" class="v251-stats"></div></div>
     <div class="card v251-panel"><h3>Rekabetçi maçlar</h3><p>Maç doğrulaması ve eşleştirme tamamlanana kadar kapalı. Normal oda puanları rekabetçi ELO'yu etkilemez.</p><button class="btn" disabled>Rakip ara</button></div>
@@ -3739,7 +3739,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.1';
+const APPV='25.1a';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4114,7 +4114,7 @@ const Ranked={
       if(ME!==uid||epoch!==this.epoch)return;
       if(!(res.headers.get('content-type')||'').includes('application/json'))throw Error('API_NOT_DEPLOYED');
       const data=await res.json();if(!res.ok)throw Error(data.error||'API_UNAVAILABLE');
-      const p=data.profile;if(data.version!=='25.1'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
+      const p=data.profile;if(data.version!=='25.1a'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
       if(ME!==uid||epoch!==this.epoch)return;
       $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';$('rankRating').textContent=p.rating.toLocaleString('tr-TR');
       stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;

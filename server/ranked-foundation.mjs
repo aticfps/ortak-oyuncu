@@ -1,5 +1,5 @@
 import {authenticate,AuthError} from './ranked-auth.mjs';
-export const VERSION='25.1',INITIAL_RATING=1000;
+export const VERSION='25.1a',INITIAL_RATING=1000;
 export const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
 export async function rankedStatus(env){
   if(!env?.RANKED_DB)return json({version:VERSION,ready:false,rankedEnabled:false,reason:'DB_BINDING_MISSING'},503);
