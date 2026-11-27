@@ -4085,13 +4085,13 @@ const Invites={
     this.busy=true;$('ivStatus').textContent='İşleniyor…';
     try{
       const api=inviteApi(Net.db,uid);
-      if(action==='dismiss'){await api.dismiss(peer,x);return}
+      if(action==='dismiss'){await api.dismiss(peer,x);if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent='Davet reddedildi.';return}
       if(!await api.accepted(peer))throw Error('INVITE_NOT_FRIEND');
-      if(ME!==uid||this.epoch!==epoch||code)return;
+      if(ME!==uid||this.epoch!==epoch||code||!activeInvites(this.data,now()).some(y=>y.uid===peer&&y.c===x.c&&y.t===x.t))return;
       if(isPrivateCode(x.c)&&!validRoomPassword(password)){ $('ivStatus').textContent='Odanın şifresini gir.';return}
       saveName();$('joinPass').value=password;
       await joinRoom(x.c,false,peer);
-      if(ME===uid&&this.epoch===epoch&&code===x.c)await api.dismiss(peer,x);
+      if(ME===uid&&this.epoch===epoch&&code===x.c){await api.dismiss(peer,x);$('ivStatus').textContent=''}
       else if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent='Katılım olmadı. Şifreyi veya oda durumunu kontrol et.';
     }catch(e){if(ME===uid&&this.epoch===epoch)$('ivStatus').textContent=e.message==='INVITE_NOT_FRIEND'?'Bu kişi artık arkadaş listende değil.':'Davet işlemi başarısız. Tekrar dene.'}
     finally{if(ME===uid&&this.epoch===epoch)this.busy=false;this.render()}
@@ -4833,7 +4833,7 @@ const firebaseConfig={
   if(!window.firebase){lStatus('Firebase yüklenemedi. İnternet bağlantını kontrol et.',true);return}
   firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const prov=new firebase.auth.GoogleAuthProvider();
   $('gIn').onclick=()=>{auth.signInWithPopup(prov).catch(e=>{const c=e&&e.code||'';if(/popup-blocked|operation-not-supported/.test(c))auth.signInWithRedirect(prov);else if(!/popup-closed|cancelled/.test(c))lStatus('Giriş yapılamadı: '+clip(e&&e.message,160),true)})};
-  $('gOut').onclick=async()=>{const pending=FriendPresence.stop();Invites.stop();leaveRoom();await Promise.race([pending,new Promise(resolve=>setTimeout(resolve,1500))]);auth.signOut()};
+  $('gOut').onclick=async()=>{const pending=FriendPresence.stop();leaveRoom();Invites.stop();await Promise.race([pending,new Promise(resolve=>setTimeout(resolve,1500))]);auth.signOut()};
   auth.getRedirectResult().catch(()=>{});
   Net.on(onNet);
   if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
