@@ -103,3 +103,16 @@ integration('V25.7 private history returns own scores and ELO only, excludes act
  assert.deepEqual(Object.keys(x).sort(),['matchId','finishedAt','settledAt','sequence','score','opponentScore','outcome','ratingBefore','ratingAfter'].sort());
  assert.deepEqual(c.body,{matches:[],hasMore:false});
 });
+
+integration('V25.8 private leaderboard ranks settled players and protects identity',async t=>{
+ const f=await fixture(t);
+ const empty=await f.call('a','leaderboard.get');assert.equal(empty.status,200);assert.deepEqual(empty.body,{rows:[],self:null,total:0});
+ assert.equal((await f.call('a','leaderboard.get',{uid:'b'})).status,400);
+ const {matchId}=await f.start();await f.call('a','game.surrender',{matchId,commandId:'s'});
+ const a=await f.call('a','leaderboard.get'),b=await f.call('b','leaderboard.get'),c=await f.call('c','leaderboard.get');
+ assert.equal(a.status,200);assert.equal(a.cache,'no-store');assert.equal(a.body.total,2);
+ assert.deepEqual(a.body.rows.map(x=>[x.position,x.rating,x.isSelf]),[[1,1025,false],[2,975,true]]);
+ assert.equal(a.body.self.position,2);assert.equal(b.body.self.position,1);assert.equal(c.body.self,null);
+ assert.equal(a.body.rows[0].name,b.body.self.name);assert.match(a.body.rows[0].name,/^Oyuncu [0-9A-F]{12}$/);
+ assert.deepEqual(Object.keys(a.body.rows[0]).sort(),['name','position','rating','played','wins','isSelf'].sort());
+});
