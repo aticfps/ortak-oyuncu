@@ -1,4 +1,5 @@
 // V26.1b authenticated transport. Host and deployment flags select access scope.
+import {validRankedName,saveRankedName} from './ranked-names.mjs';
 import {rankedScope} from './ranked-access.mjs';
 import {authenticate,AuthError} from './ranked-auth.mjs';
 import {json} from './ranked-foundation.mjs';
@@ -14,7 +15,7 @@ import {takeRankedRequest} from './ranked-rate-limit.mjs';
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const clientId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(x);
 const actions={
- 'season.me':[], 'history.me':[], 'leaderboard.get':[],
+ 'season.me':[], 'history.me':[], 'leaderboard.get':[], 'profile.name':['name'],
  'queue.join':[], 'queue.status':[], 'queue.find':[], 'queue.cancel':[],
  'offer.status':['matchId'], 'offer.respond':['matchId','decision'], 'offer.start':['matchId'],
  'game.poll':['matchId'], 'game.answer':['matchId','commandId','round','input'],
@@ -38,9 +39,10 @@ async function body(request){
  if(fields.includes('commandId')&&!clientId(x.commandId))throw Error('INVALID_COMMAND');
  if(x.action==='offer.respond'&&!['accept','decline'].includes(x.decision))throw Error('INVALID_DECISION');
  if(x.action==='game.answer'&&(!Number.isSafeInteger(x.round)||x.round<1||x.round>5||typeof x.input!=='string'||x.input.length>100))throw Error('INVALID_COMMAND');
+ if(x.action==='profile.name'&&!validRankedName(x.name))throw Error('INVALID_NAME');
  return x;
 }
-const BAD=new Set(['INVALID_BODY','INVALID_ACTION','INVALID_FIELDS','INVALID_MATCH_ID','INVALID_COMMAND','INVALID_DECISION']);
+const BAD=new Set(['INVALID_BODY','INVALID_ACTION','INVALID_FIELDS','INVALID_MATCH_ID','INVALID_COMMAND','INVALID_DECISION','INVALID_NAME']);
 function safeQueue(q){const {opponentUid,...rest}=q;return rest}
 function safeState(s,uid,other){
  if(!s)return null;
@@ -70,6 +72,7 @@ export async function rankedPreviewPlay(request,env,verify){
    const res=json({error:'RATE_LIMITED',retryAfter:budget.retryAfter},429);
    res.headers.set('retry-after',String(budget.retryAfter));return res;
   }
+  if(x.action==='profile.name')return json(await saveRankedName(db,uid,x.name));
   if(x.action==='season.me')return json(await readRankedSeason(db,uid));
   if(x.action==='history.me')return json(await readRankedHistory(db,uid));
   if(x.action==='leaderboard.get')return json(await readRankedLeaderboard(db,uid));
