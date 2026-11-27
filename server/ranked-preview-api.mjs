@@ -6,9 +6,11 @@ import {createRankedMatchmaker} from './ranked-matchmaking.mjs';
 import {createRankedAdmission} from './ranked-admission.mjs';
 import {createRankedSessionService,d1RankedSessionStore} from './ranked-session.mjs';
 import {finalizeRankedSession} from './ranked-finalization.mjs';
+import {readRankedSeason} from './ranked-seasons.mjs';
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const clientId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(x);
 const actions={
+ 'season.me':[],
  'queue.join':[], 'queue.status':[], 'queue.find':[], 'queue.cancel':[],
  'offer.status':['matchId'], 'offer.respond':['matchId','decision'], 'offer.start':['matchId'],
  'game.poll':['matchId'], 'game.answer':['matchId','commandId','round','input'],
@@ -64,6 +66,7 @@ export async function rankedPreviewPlay(request,env,verify){
  let x;try{x=await body(request)}catch(e){return json({error:e?.message==='BODY_TOO_LARGE'?'BODY_TOO_LARGE':BAD.has(e?.message)?e.message:'INVALID_BODY'},e?.message==='BODY_TOO_LARGE'?413:400)}
  const db=env.RANKED_DB;if(!db)return json({error:'DB_BINDING_MISSING'},503);
  try{
+  if(x.action==='season.me')return json(await readRankedSeason(db,uid));
   const q=createRankedMatchmaker(db),admission=createRankedAdmission(db),sessions=createRankedSessionService(d1RankedSessionStore(db));
   if(x.action.startsWith('queue.')){
    // Only authorized preview accounts may enter through this transport.
