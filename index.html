@@ -3869,7 +3869,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='26.0b';
+const APPV='26.1c';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4233,13 +4233,21 @@ $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');
 
 /* V25.1: server-only competitive profiles, no client rating writes. */
 const Ranked={
-  epoch:0,busy:false,seasonEpoch:0,historyEpoch:0,boardEpoch:0,
-  reset(){this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
+  epoch:0,busy:false,seasonEpoch:0,historyEpoch:0,boardEpoch:0,profileEpoch:0,productionEnabled:false,
+  profileValid(data){const p=data?.profile;return data?.version==='25.1a'&&data.registered===true&&p&&['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0)&&p.rating<=100000&&p.played===p.wins+p.draws+p.losses},
+  paintProfile(p){renderRankedLevel(p.rating);stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false},
+  async refreshProfile(){
+    const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.profileEpoch;
+    const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.profileEpoch===serial&&screen==='ranked'&&!code;
+    if(!uid||!user||user.uid!==uid||!valid())return;
+    try{const token=await user.getIdToken();if(!valid())return;const r=await fetch('/api/ranked/me',{method:'GET',headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});if(!valid()||!r.ok||!(r.headers.get('content-type')||'').includes('application/json'))return;const data=await r.json();if(valid()&&this.profileValid(data))this.paintProfile(data.profile)}catch{}
+  },
+  reset(){this.productionEnabled=false;this.profileEpoch++;this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
   open(){if(!ME||code)return;show('ranked');this.load()},
   async loadSeason(){
     const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.seasonEpoch;
     const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.seasonEpoch===serial&&screen==='ranked'&&!code;
-    if(!uid||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedSeason(null,'hidden');return}
+    if(!uid||!user||user.uid!==uid||(!rankedPreviewHost(location.hostname)&&!(this.productionEnabled&&location.hostname==='ortak-oyuncu.pages.dev'))||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedSeason(null,'hidden');return}
     renderRankedSeason(null,'loading');
     try{
       const token=await user.getIdToken();if(!valid())return;
@@ -4254,7 +4262,7 @@ const Ranked={
   async loadHistory(){
     const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.historyEpoch;
     const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.historyEpoch===serial&&screen==='ranked'&&!code;
-    if(!uid||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedHistory(null,'hidden');return}
+    if(!uid||!user||user.uid!==uid||(!rankedPreviewHost(location.hostname)&&!(this.productionEnabled&&location.hostname==='ortak-oyuncu.pages.dev'))||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedHistory(null,'hidden');return}
     renderRankedHistory(null,'loading');
     try{
       const token=await user.getIdToken();if(!valid())return;
@@ -4268,7 +4276,7 @@ const Ranked={
   async loadBoard(){
     const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.boardEpoch;
     const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.boardEpoch===serial&&screen==='ranked'&&!code;
-    if(!uid||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedBoard(null,'hidden');return}
+    if(!uid||!user||user.uid!==uid||(!rankedPreviewHost(location.hostname)&&!(this.productionEnabled&&location.hostname==='ortak-oyuncu.pages.dev'))||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedBoard(null,'hidden');return}
     renderRankedBoard(null,'loading');
     try{
       const token=await user.getIdToken();if(!valid())return;
@@ -4281,16 +4289,17 @@ const Ranked={
   },
   async load(){
     if(this.busy||!ME||code||RankedPreview.inProgress())return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
-    const uid=ME,epoch=++this.epoch;this.busy=true;this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
+    const uid=ME,epoch=++this.epoch;this.busy=true;this.productionEnabled=false;this.profileEpoch++;RankedPreview.reset();this.boardEpoch++;renderRankedBoard(null,'hidden');this.historyEpoch++;renderRankedHistory(null,'hidden');this.seasonEpoch++;renderRankedSeason(null,'hidden');$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
     try{
       const token=await user.getIdToken(),res=await fetch('/api/ranked/me',{method:'POST',headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});
       if(ME!==uid||epoch!==this.epoch)return;
       if(!(res.headers.get('content-type')||'').includes('application/json'))throw Error('API_NOT_DEPLOYED');
       const data=await res.json();if(!res.ok)throw Error(data.error||'API_UNAVAILABLE');
-      const p=data.profile;if(data.version!=='25.1a'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
-      if(ME!==uid||epoch!==this.epoch)return;
-      $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';renderRankedLevel(p.rating);
-      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.onSettled=()=>this.loadSeason();const refreshSeason=RankedPreview.onSettled;RankedPreview.onSettled=()=>{void refreshSeason();void this.loadHistory();void this.loadBoard()};RankedPreview.open(uid);void this.loadSeason();void this.loadHistory();void this.loadBoard();
+      const p=data.profile;if(!this.profileValid(data))throw Error('API_RESPONSE');
+      if(ME!==uid||epoch!==this.epoch||firebase.auth().currentUser?.uid!==uid||screen!=='ranked'||code)return;
+      this.productionEnabled=location.hostname==='ortak-oyuncu.pages.dev'&&location.protocol==='https:'&&data.rankedEnabled===true;
+      $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';this.paintProfile(p);
+      RankedPreview.onSettled=()=>this.loadSeason();const refreshSeason=RankedPreview.onSettled;RankedPreview.onSettled=()=>{void refreshSeason();void this.loadHistory();void this.loadBoard();void this.refreshProfile()};RankedPreview.open(uid,this.productionEnabled);void this.loadSeason();void this.loadHistory();void this.loadBoard();
     }catch(e){if(ME===uid&&epoch===this.epoch){$('rankStatus').textContent=({DB_BINDING_MISSING:'Rekabetçi veritabanı henüz bağlanmadı.',DB_SCHEMA_OR_CONNECTION:'Rekabetçi veritabanı henüz hazır değil.',AUTH_REQUIRED:'Google hesabınla tekrar giriş yap.',INVALID_TOKEN:'Kimlik doğrulanamadı. Tekrar giriş yap.',AUTH_UNAVAILABLE:'Kimlik sunucusuna ulaşılamadı.',API_NOT_DEPLOYED:'Rekabetçi API bu adreste henüz çalışmıyor.'})[e.message]||'Sunucu bağlantısı kurulamadı. Daha sonra yenile.'}}
     finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=RankedPreview.inProgress()}}
   }
@@ -4300,7 +4309,7 @@ $('rankRefresh').onclick=()=>Ranked.load();
 $('rankBack').onclick=()=>{if(RankedPreview.inProgress())return;Ranked.reset();show('lobby')};
 
 
-/* V25.4d: authenticated preview UI; no public activation or locally fabricated result. */
+/* V26.1c: authenticated UI, production requires a server-enabled profile. */
 const rankedPreviewHost=host=>/^[a-z0-9-]+\.ortak-oyuncu\.pages\.dev$/.test(host);
 const rankedClock=ms=>{const n=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
 
@@ -4417,14 +4426,14 @@ function renderRankedBoard(data,state='ready'){
 
 const rankedSides=(s,side)=>side==='a'?[s.scoreA,s.scoreB]:[s.scoreB,s.scoreA];
 const RankedPreview={
- epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,onSettled:null,settledKey:null,retryAt:0,
+ epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,productionEnabled:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,onSettled:null,settledKey:null,retryAt:0,
  inProgress(){return this.allowed&&['search','offer','game'].includes(this.phase)},
  panels(phase){this.phase=phase;for(const [k,id] of [['idle','rkIdle'],['search','rkSearch'],['offer','rkOffer'],['game','rkGame'],['result','rkResult']])$(id).hidden=k!==phase;$('rankBack').disabled=this.inProgress();$('rankRefresh').disabled=this.inProgress()},
- reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.settledKey=null;this.retryAt=0;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
+ reset(){this.productionEnabled=false;renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.settledKey=null;this.retryAt=0;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
  valid(epoch,uid){return this.epoch===epoch&&this.uid===uid&&ME===uid&&screen==='ranked'&&!code},
  async request(action,fields={}){
   const epoch=this.epoch,uid=this.uid,user=firebase.auth().currentUser;
-  if(!this.valid(epoch,uid)||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:')throw Error('STALE_PREVIEW');
+  if(!this.valid(epoch,uid)||!user||user.uid!==uid||(!rankedPreviewHost(location.hostname)&&!(this.productionEnabled&&location.hostname==='ortak-oyuncu.pages.dev'))||location.protocol!=='https:')throw Error('STALE_PREVIEW');
   const token=await user.getIdToken();if(!this.valid(epoch,uid))throw Error('STALE_PREVIEW');
   const r=await fetch('/api/ranked/play',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({action,...fields}),cache:'no-store'});
   if(!this.valid(epoch,uid))throw Error('STALE_PREVIEW');
@@ -4440,13 +4449,14 @@ const RankedPreview={
   if(this.busy||!this.uid)return;
   const epoch=this.epoch,uid=this.uid;this.busy=true;
   try{await fn();if(this.valid(epoch,uid))$('rkError').textContent=''}
-  catch(e){if(this.valid(epoch,uid)&&e.message!=='STALE_PREVIEW')$('rkError').textContent=({RATE_LIMITED:'Çok sık istek gönderdin. Biraz bekle.',RANKED_PREVIEW_DISABLED:'Önizleme henüz etkin değil.',PREVIEW_FORBIDDEN:'Bu hesap önizlemeye dahil değil.',MATCH_NOT_FOUND:'Maç oturumu bulunamadı.',OFFER_NOT_ACCEPTED:'İki oyuncunun da kabul etmesi gerekiyor.'})[e.message]||'İşlem tamamlanamadı. Bağlantını kontrol et.'}
+  catch(e){if(this.valid(epoch,uid)&&e.message!=='STALE_PREVIEW')$('rkError').textContent=({RATE_LIMITED:'Çok sık istek gönderdin. Biraz bekle.',RANKED_PREVIEW_DISABLED:'Rekabetçi erişim şu anda kapalı.',PREVIEW_FORBIDDEN:'Bu hesap önizlemeye dahil değil.',MATCH_NOT_FOUND:'Maç oturumu bulunamadı.',OFFER_NOT_ACCEPTED:'İki oyuncunun da kabul etmesi gerekiyor.'})[e.message]||'İşlem tamamlanamadı. Bağlantını kontrol et.'}
   finally{if(this.valid(epoch,uid))this.busy=false}
  },
- open(uid){
-  if(!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked')return;
-  if(this.uid===uid&&this.allowed)return;this.reset();this.uid=uid;
-  this.task(async()=>{const q=await this.request('queue.status');this.allowed=true;$('rkHint').textContent='Özel test ortamı · Rekabetçi 1v1';$('rkJoin').disabled=false;$('rkAgain').disabled=false;await this.queue(q);if(this.uid===uid&&!this.timer)this.timer=setInterval(()=>this.pulse(),2000)});
+ open(uid,productionEnabled=false){
+  const prod=productionEnabled===true&&location.hostname==='ortak-oyuncu.pages.dev';
+  if((!rankedPreviewHost(location.hostname)&&!prod)||location.protocol!=='https:'||screen!=='ranked')return;
+  if(this.uid===uid&&this.allowed&&this.productionEnabled===prod)return;this.reset();this.uid=uid;this.productionEnabled=prod;
+  this.task(async()=>{const q=await this.request('queue.status');this.allowed=true;$('rkHint').textContent=this.productionEnabled?'Rekabetçi 1v1':'Özel test ortamı · Rekabetçi 1v1';$('rkJoin').disabled=false;$('rkAgain').disabled=false;await this.queue(q);if(this.uid===uid&&!this.timer)this.timer=setInterval(()=>this.pulse(),2000)});
  },
  async queue(q){
   if(q.status==='searching'){this.panels('search');$('rkWait').textContent=rankedClock(q.waitMs);$('rkGap').textContent='ELO farkı: ±'+q.maxGap;return}
@@ -4486,7 +4496,7 @@ const RankedPreview={
    }
   });
  },
- join(){this.task(async()=>{renderRankedLevelNotice(null);this.settledKey=null;this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
+ join(){if(!this.allowed)return;this.task(async()=>{renderRankedLevelNotice(null);this.settledKey=null;this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
  cancel(){this.task(async()=>this.queue(await this.request('queue.cancel')))},
  respond(decision){this.task(async()=>this.offer(await this.request('offer.respond',{matchId:this.matchId,decision})))},
  answer(){const input=$('rkAnswer').value.trim();if(!input||this.phase!=='game')return;this.task(async()=>this.game(await this.request('game.answer',{matchId:this.matchId,commandId:crypto.randomUUID(),round:this.round,input})))},
