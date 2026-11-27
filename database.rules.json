@@ -118,6 +118,28 @@
           }
         }
       }
+    },
+    "gameInvites": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$sender": {
+          ".read": "auth != null && auth.uid === $sender",
+          ".write": "auth != null && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && $sender.matches(/^[A-Za-z0-9_-]{20,128}$/) && $uid !== $sender && ((auth.uid === $sender && (root.child('friendLinks').child($uid).child($sender).val() === 'accepted' || root.child('friendLinks').child($sender).child($uid).val() === 'accepted') && newData.child('s').val() === 'pending' && newData.child('t').val() === now && (!data.exists() || data.child('t').val() <= now - 30000) && ((newData.child('c').val().matches(/^[A-Z0-9]{4}$/) && root.child('rooms').child(newData.child('c').val()).child($sender).child('o').val() === 1 && root.child('rooms').child(newData.child('c').val()).child($sender).child('t').val() > now - 45000) || (newData.child('c').val().matches(/^P[A-Z2-9]{9}$/) && root.child('privateRoomLocks').child(newData.child('c').val()).child('owner').val() === $sender && now < root.child('privateRoomLocks').child(newData.child('c').val()).child('createdAt').val() + 86400000 && root.child('privateRooms').child(newData.child('c').val()).child($sender).child('o').val() === 1 && root.child('privateRooms').child(newData.child('c').val()).child($sender).child('t').val() > now - 45000))) || (auth.uid === $uid && data.child('s').val() === 'pending' && newData.child('s').val() === 'dismissed' && newData.child('c').val() === data.child('c').val() && newData.child('t').val() === data.child('t').val()))",
+          ".validate": "newData.hasChildren(['c','s','t']) && newData.child('c').isString() && (newData.child('c').val().matches(/^[A-Z0-9]{4}$/) || newData.child('c').val().matches(/^P[A-Z2-9]{9}$/)) && (newData.child('s').val() === 'pending' || newData.child('s').val() === 'dismissed') && newData.child('t').isNumber()",
+          "c": {
+            ".validate": true
+          },
+          "s": {
+            ".validate": true
+          },
+          "t": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
