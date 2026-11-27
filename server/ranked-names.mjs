@@ -10,3 +10,15 @@ export async function saveRankedName(db,uid,name){
  if(result?.success!==true)throw Error('NAME_WRITE_FAILED');
  return {name};
 }
+
+// Opening a second device must not overwrite a previously saved nickname.
+export async function initRankedName(db,uid,name){
+ if(!validRankedName(name))throw Error('INVALID_NAME');
+ const player=await db.prepare('SELECT uid FROM ranked_players WHERE uid=?').bind(uid).first();
+ if(!player)throw Error('PROFILE_REQUIRED');
+ const result=await db.prepare('INSERT INTO ranked_names(uid,display_name) VALUES (?,?) ON CONFLICT(uid) DO NOTHING').bind(uid,name).run();
+ if(result?.success!==true)throw Error('NAME_WRITE_FAILED');
+ const row=await db.prepare('SELECT display_name FROM ranked_names WHERE uid=?').bind(uid).first();
+ if(!validRankedName(row?.display_name))throw Error('NAME_READ_FAILED');
+ return {name:row.display_name};
+}
