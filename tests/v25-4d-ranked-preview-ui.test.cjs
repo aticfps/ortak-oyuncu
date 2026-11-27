@@ -51,3 +51,16 @@ test('V26.0b rate-limit feedback pauses polling but answer-only limit leaves hea
  const n=f.calls.length;p.pulse();await f.wait();assert.equal(f.calls.length,n);
  p.reset();assert.equal(p.retryAt,0);
 });
+
+test('V26.1c production UI needs explicit enabled profile and successful authenticated probe',async()=>{
+ const f=fixture('ortak-oyuncu.pages.dev'),p=f.RankedPreview;
+ p.reset();p.open('u',false);assert.equal(f.calls.length,0);assert.equal(f.$('rkJoin').disabled,true);
+ f.replies.push({status:404,data:{error:'RANKED_PREVIEW_DISABLED'}});p.open('u',true);await f.wait();
+ assert.equal(p.allowed,false);assert.equal(f.$('rkJoin').disabled,true);p.join();assert.equal(f.calls.length,1);
+ f.replies.push({data:{status:'idle'}});p.open('u',true);await f.wait();
+ assert.equal(p.allowed,true);assert.equal(f.$('rkHint').textContent,'Rekabetçi 1v1');
+ f.replies.push({data:{status:'searching',waitMs:0,maxGap:100}});p.join();await f.wait();
+ assert.deepEqual(f.calls[2].body,{action:'queue.join'});assert.equal(f.calls[2].opt.headers.Authorization,'Bearer token');
+ p.reset();assert.equal(p.productionEnabled,false);assert.equal(p.allowed,false);assert.equal(f.$('rkJoin').disabled,true);
+ const netlify=fixture('effervescent-sunburst-6feddf.netlify.app');netlify.RankedPreview.open('u',true);assert.equal(netlify.calls.length,0);
+});
