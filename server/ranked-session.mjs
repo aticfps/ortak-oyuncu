@@ -60,12 +60,13 @@ export function createSessionState(match,{clock=Date.now,seed=seedRandom}={}){
 export function createRankedSessionService(store,{clock=Date.now,seed=seedRandom}={}){
  if(!store||!['read','insert','cas','match'].every(k=>typeof store[k]==='function'))fail('INVALID_SESSION_STORE');
  async function load(matchId){if(!validId(matchId))fail('INVALID_MATCH_ID');const row=await store.read(matchId);if(!row)fail('SESSION_NOT_FOUND');const s=parse(row);return {row,s,...replay(s)}}
- async function start(matchId){
+ async function start(matchId,{monitor=false}={}){
   if(!validId(matchId))fail('INVALID_MATCH_ID');
-  const existing=await store.read(matchId);if(existing)return replay(parse(existing)).g.snapshot();
+  const existing=await store.read(matchId);if(existing){const snapshot=replay(parse(existing)).g.snapshot();if(monitor&&!snapshot.presenceEnabled)fail('MONITOR_REQUIRED');return snapshot}
   const match=await store.match(matchId);if(!match||match.match_id!==matchId)fail('MATCH_NOT_FOUND');
   const s=createSessionState(match,{clock,seed});
-  await store.insert(s);return (await load(matchId)).g.snapshot();
+  if(monitor)s.events.push({id:'server-monitor-start',type:'monitor',at:s.startedAt});
+  await store.insert(s);const snapshot=(await load(matchId)).g.snapshot();if(monitor&&!snapshot.presenceEnabled)fail('MONITOR_REQUIRED');return snapshot;
  }
  async function snapshot(matchId,uid){
   const x=await load(matchId);if(uid!==x.s.uidA&&uid!==x.s.uidB)fail('NOT_PARTICIPANT');
@@ -106,7 +107,7 @@ export function d1RankedSessionStore(db){
  return Object.freeze({
   match:id=>first('SELECT match_id,uid_a,uid_b,status FROM ranked_matches WHERE match_id=?',id),
   read:id=>first('SELECT match_id,revision,state_json,updated_at FROM ranked_sessions WHERE match_id=?',id),
-  insert:s=>run("INSERT INTO ranked_sessions (match_id,revision,state_json,updated_at) SELECT ?,0,?,? WHERE EXISTS (SELECT 1 FROM ranked_matches WHERE match_id=? AND uid_a=? AND uid_b=? AND status='active') ON CONFLICT(match_id) DO NOTHING",s.matchId,encode(s),s.startedAt,s.matchId,s.uidA,s.uidB),
+  insert:s=>run("INSERT INTO ranked_sessions (match_id,revision,state_json,updated_at) SELECT ?,?,?,? WHERE EXISTS (SELECT 1 FROM ranked_matches WHERE match_id=? AND uid_a=? AND uid_b=? AND status='active') ON CONFLICT(match_id) DO NOTHING",s.matchId,s.events.length,encode(s),s.startedAt,s.matchId,s.uidA,s.uidB),
   cas:(id,revision,s)=>run("UPDATE ranked_sessions SET revision=revision+1,state_json=?,updated_at=? WHERE match_id=? AND revision=? AND EXISTS (SELECT 1 FROM ranked_matches WHERE match_id=? AND status='active')",encode(s),s.events.at(-1).at,id,revision,id)
  });
 }

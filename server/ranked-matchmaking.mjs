@@ -11,8 +11,8 @@ const JOIN=`INSERT INTO ranked_queue(uid,joined_at,seen_at)
  joined_at=CASE WHEN ranked_queue.seen_at<=? THEN excluded.joined_at ELSE ranked_queue.joined_at END,
  seen_at=MAX(ranked_queue.seen_at,excluded.seen_at)
  WHERE ranked_queue.seen_at<=excluded.seen_at`;
-const FIND=`INSERT INTO ranked_matches(match_id,uid_a,uid_b,status,score_a,score_b,finished_at)
- SELECT ?,q.uid,r.uid,'active',NULL,NULL,NULL
+const FIND=`INSERT INTO ranked_offers(match_id,uid_a,uid_b,created_at,expires_at,accepted_a,accepted_b,status)
+ SELECT ?,q.uid,r.uid,?,?,NULL,NULL,'pending'
  FROM ranked_queue q JOIN ranked_players a ON a.uid=q.uid
  JOIN ranked_queue r ON r.uid<>q.uid JOIN ranked_players b ON b.uid=r.uid
  WHERE q.uid=? AND q.seen_at>? AND q.seen_at<=? AND r.seen_at>? AND r.seen_at<=?
@@ -30,7 +30,9 @@ export function createRankedMatchmaker(db,{clock=Date.now,newId=()=>globalThis.c
  const run=async(q,...a)=>{const r=await db.prepare(q).bind(...a).run();if(r?.success===false)throw Error('QUEUE_WRITE_FAILED');return r};
  function validate(uid){if(!uidOK(uid))throw Error('INVALID_UID')}
  function now(){const t=clock();if(!Number.isSafeInteger(t)||t<=0)throw Error('INVALID_SERVER_CLOCK');return t}
+ async function expire(t){await run("UPDATE ranked_offers SET status='expired' WHERE status='pending' AND expires_at<=?",t)}
  async function statusAt(uid,t){
+  await expire(t);
   const m=await first(MATCH,uid,uid);
   if(m)return {status:m.status==='active'?'reserved':'settlement_pending',matchId:m.match_id,opponentUid:m.uid_a===uid?m.uid_b:m.uid_a};
   const q=await first('SELECT joined_at,seen_at FROM ranked_queue WHERE uid=?',uid);
@@ -40,7 +42,7 @@ export function createRankedMatchmaker(db,{clock=Date.now,newId=()=>globalThis.c
  }
  async function status(uid){validate(uid);return statusAt(uid,now())}
  async function join(uid){
-  validate(uid);const t=now();
+  validate(uid);const t=now();await expire(t);
   if(!await first('SELECT uid FROM ranked_players WHERE uid=?',uid))throw Error('PROFILE_REQUIRED');
   await run(JOIN,t,t,uid,t-QUEUE_RULES.leaseMs);
   return statusAt(uid,t);
@@ -54,9 +56,9 @@ export function createRankedMatchmaker(db,{clock=Date.now,newId=()=>globalThis.c
   if(before.status!=='searching')return before;
   const id=newId();if(!idOK(id))throw Error('INVALID_MATCH_ID');
   // Pair selection, busy checks, reservation and queue consumption occur in one SQL statement.
-  await run(FIND,id,uid,t-QUEUE_RULES.leaseMs,t,t-QUEUE_RULES.leaseMs,t,t,t);
+  await run(FIND,id,t,t+20000,uid,t-QUEUE_RULES.leaseMs,t,t-QUEUE_RULES.leaseMs,t,t,t);
   return statusAt(uid,t);
  }
- async function prune(){const t=now();await run('DELETE FROM ranked_queue WHERE seen_at<=?',t-QUEUE_RULES.leaseMs)}
+ async function prune(){const t=now();await expire(t);await run('DELETE FROM ranked_queue WHERE seen_at<=?',t-QUEUE_RULES.leaseMs)}
  return Object.freeze({join,status,cancel,find,prune});
 }

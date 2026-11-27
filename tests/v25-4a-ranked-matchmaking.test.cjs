@@ -7,7 +7,7 @@ async function fixture(t){
  const {createRankedMatchmaker}=await mod;
  const sql=new DatabaseSync(':memory:');t.after(()=>sql.close());
  sql.exec('PRAGMA foreign_keys=ON');
- for(const f of ['ranked-schema.sql','ranked-settlement-schema.sql','ranked-session-schema.sql','ranked-matchmaking-schema.sql'])sql.exec(fs.readFileSync(path.join(root,'server',f),'utf8'));
+ for(const f of ['ranked-schema.sql','ranked-settlement-schema.sql','ranked-session-schema.sql','ranked-matchmaking-schema.sql','ranked-acceptance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,'server',f),'utf8'));
  const db={
   prepare(q){
    return {bind(...args){
