@@ -93,7 +93,10 @@ export function createRankedSessionService(store,{clock=Date.now,seed=seedRandom
  }
  // Private result for later server-side terminal commit; not available before completion.
  async function terminal(matchId){const x=await load(matchId);return x.g.result()}
- return Object.freeze({start,snapshot,command,terminal});
+ // Internal only: result and revision from a single durable replay.
+ async function terminalRecord(matchId){const x=await load(matchId);const status=x.g.snapshot().status;
+  return {revision:x.row.revision,matchId:x.s.matchId,uidA:x.s.uidA,uidB:x.s.uidB,status,result:x.g.result()};}
+ return Object.freeze({start,snapshot,command,terminal,terminalRecord});
 }
 export function d1RankedSessionStore(db){
  if(!db||typeof db.prepare!=='function')fail('DB_BINDING_MISSING');
