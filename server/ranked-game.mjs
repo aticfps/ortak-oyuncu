@@ -2,6 +2,7 @@
 // UID, clock, RNG and catalog are provided only by trusted server code.
 import pinnedCatalog from './ranked-catalog.mjs';
 export const RULES=Object.freeze({rounds:5,roundMs:20000,wrongMs:3000,usedMs:1500});
+export const PRESENCE_RULES=Object.freeze({graceMs:45000,heartbeatMinMs:5000});
 export const normalizeName=s=>s.toLocaleLowerCase('tr').replace(/ı/g,'i').replace(/ø/g,'o').replace(/ł/g,'l').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 const uidOK=s=>typeof s==='string'&&s.length>0&&s.length<=128;
 const keyOf=(a,b)=>[a,b].sort().join('|');
@@ -38,6 +39,7 @@ export function createRankedGame({matchId,uidA,uidB},{clock=Date.now,choose=rand
  const data=catalog?makeCatalog(catalog):defaultCatalog;
  const uids=[uidA,uidB],scores=[0,0],locks=[0,0],used=new Set(),seen=new Set(),history=[];
  let lastTime=-1,round=0,status='active',current=null,finishedAt=null;
+ let presence=null,termination=null;
  function now(){const t=clock();if(!Number.isSafeInteger(t)||t<=0||t<lastTime||t>Number.MAX_SAFE_INTEGER-RULES.roundMs)throw Error('INVALID_SERVER_CLOCK');lastTime=t;return t}
  function finish(t){status='completed';current=null;finishedAt=t}
  function start(t){
@@ -55,8 +57,48 @@ export function createRankedGame({matchId,uidA,uidB},{clock=Date.now,choose=rand
  }
  // History only reveals answers after the relevant round closes.
  function snapshot(){return {matchId,status,round,scoreA:scores[0],scoreB:scores[1],current:current?{clubs:[...current.clubs],points:current.points,deadline:current.deadline}:null,
- history:history.map(h=>({...h,clubs:[...h.clubs],player:h.player?h.player.name:null})),finishedAt}}
- function advance(t){if(status==='active'&&t>=current.deadline)close(t)}
+ history:history.map(h=>({...h,clubs:[...h.clubs],player:h.player?h.player.name:null})),finishedAt,
+ presenceEnabled:presence!==null,termination:termination?{...termination}:null}}
+ function forfeit(t,idx,reason){
+  const winner=1-idx;
+  // The legacy settlement schema derives outcome from scores. Preserve the
+  // existing scores unless an adjustment is necessary to encode a forfeit.
+  const original=[...scores];
+  scores[winner]=Math.max(scores[winner],scores[idx]+1);
+  termination={reason,loser:uids[idx],winner:uids[winner],scoreABefore:original[0],scoreBBefore:original[1]};
+  finish(t);
+ }
+ function advance(t){
+  if(status!=='active')return;
+  if(presence){
+   const expired=presence.map(seen=>t-seen>=PRESENCE_RULES.graceMs);
+   if(expired.every(Boolean)){termination={reason:'BOTH_ABSENT'};status='void';current=null;finishedAt=null;return}
+   if(expired.some(Boolean)){forfeit(t,expired.indexOf(true),'DISCONNECT');return}
+  }
+  if(t>=current.deadline)close(t);
+ }
+ // Trusted server admission only; never expose this command to clients.
+ function monitor(){
+  const t=now();
+  if(status!=='active')return {accepted:false,reason:'MATCH_CLOSED'};
+  if(presence)return {accepted:false,reason:'MONITOR_ALREADY_ENABLED'};
+  if(round!==1||history.length||t>=current.deadline)return {accepted:false,reason:'MONITOR_TOO_LATE'};
+  presence=[t,t];return {accepted:true,state:snapshot()};
+ }
+ function heartbeat(uid){
+  const idx=uids.indexOf(uid);if(idx<0)return {accepted:false,reason:'NOT_PARTICIPANT'};
+  const t=now();advance(t);
+  if(status!=='active')return {accepted:false,reason:'MATCH_CLOSED'};
+  if(!presence)return {accepted:false,reason:'MONITOR_NOT_ENABLED'};
+  if(t-presence[idx]<PRESENCE_RULES.heartbeatMinMs)return {accepted:false,reason:'HEARTBEAT_THROTTLED'};
+  presence[idx]=t;return {accepted:true,state:snapshot()};
+ }
+ function surrender(uid){
+  const idx=uids.indexOf(uid);if(idx<0)return {accepted:false,reason:'NOT_PARTICIPANT'};
+  const t=now();advance(t);
+  if(status!=='active')return {accepted:false,reason:'MATCH_CLOSED'};
+  forfeit(t,idx,'SURRENDER');return {accepted:true,state:snapshot()};
+ }
  function tick(){const t=now();advance(t);return snapshot()}
  function answer(uid,turn,input){
   const idx=uids.indexOf(uid);
@@ -76,5 +118,5 @@ export function createRankedGame({matchId,uidA,uidB},{clock=Date.now,choose=rand
  }
  function result(){if(status!=='completed')return null;return Object.freeze({matchId,uidA,uidB,scoreA:scores[0],scoreB:scores[1],finishedAt})}
  start(now());
- return Object.freeze({snapshot,tick,answer,result});
+ return Object.freeze({snapshot,tick,answer,monitor,heartbeat,surrender,result});
 }
