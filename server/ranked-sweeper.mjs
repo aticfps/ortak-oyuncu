@@ -1,6 +1,6 @@
 
 import {recoverRankedQueue,START_GRACE_MS} from './ranked-recovery.mjs';
-import {QUEUE_RULES,createRankedMatchmaker} from './ranked-matchmaking.mjs';
+import {QUEUE_RULES} from './ranked-matchmaking.mjs';
 import {PRESENCE_RULES} from './ranked-game.mjs';
 
 // Small bounded batches keep cron work predictable on the preview plan.
@@ -34,11 +34,10 @@ export async function sweepRanked(db,{clock=Date.now}={}){
  const prunedQueue=await write(db,PRUNE,cutoff,cutoff,SWEEP_RULES.queue);
  const selected=await db.prepare(CANDIDATES).bind(t-START_GRACE_MS,t-PRESENCE_RULES.graceMs,SWEEP_RULES.matches).all();
  if(selected?.success!==true||!Array.isArray(selected.results)||selected.results.length>SWEEP_RULES.matches)throw Error('SWEEP_READ_FAILED');
- const queue=createRankedMatchmaker(db,{clock:()=>t});
  let checked=0,failed=0;
  for(const row of selected.results){
   try{
-   await recoverRankedQueue(db,queue,row.uid_a,{matchId:row.match_id,status:row.status==='completed'?'settlement_pending':'reserved'},{clock:()=>t});
+   await recoverRankedQueue(db,null,row.uid_a,{matchId:row.match_id,status:row.status==='completed'?'settlement_pending':'reserved'},{clock:()=>t,refreshQueue:false});
    checked++;
   }catch{failed++}
  }
