@@ -27,7 +27,11 @@ function makeCatalog(c){
  for(const id of Object.keys(c.teams))if(!Number.isSafeInteger(c.stars[id])||c.stars[id]<1||c.stars[id]>5)throw Error('CATALOG_STAR');
  return {pairs,full,aliases,stars:{...c.stars}};
 }
+export const ACTIVE_CLUBS=Object.freeze('GS FB BJK TS IBF RMA BAR ATM SEV VAL JUV MIL INT NAP ROM MUN MCI LIV CHE ARS BAY BVB B04 RBL SGE PSG OM OL MON LIL'.split(' '));
+const activeSet=new Set(ACTIVE_CLUBS);
 const defaultCatalog=makeCatalog(pinnedCatalog);
+// Keep full global answer resolution, but restrict selectable pairs only.
+for(const key of defaultCatalog.pairs.keys())if(!key.split('|').every(id=>activeSet.has(id)))defaultCatalog.pairs.delete(key);
 export function createRankedGame({matchId,uidA,uidB},{clock=Date.now,choose=randomIndex,catalog}={}){
  if(typeof matchId!=='string'||!/^[A-Za-z0-9_-]{1,128}$/.test(matchId))throw Error('INVALID_MATCH_ID');
  if(!uidOK(uidA)||!uidOK(uidB)||uidA===uidB)throw Error('INVALID_PARTICIPANTS');
