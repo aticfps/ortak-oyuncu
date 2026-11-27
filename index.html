@@ -4109,7 +4109,7 @@ const Notifications={
     $('ntBar').hidden=true;$('ntPanel').hidden=true;$('ntBell').setAttribute('aria-expanded','false');$('ntBadge').hidden=true;$('ntBadge').textContent='0';$('ntFrList').textContent='';$('ntFrList')._v22html=null;$('ntStatus').textContent='';
   },
   items(){return this.uid?notificationItems(this.uid,this.requests,Invites.data,now()):[]},
-  sync(type){if(!this.uid)return;this.seen=pruneNotificationSeen(this.seen,this.items(),type);this.persist();this.render()},
+  sync(type){if(!this.uid)return;const next=pruneNotificationSeen(this.seen,this.items(),type);if(next.size!==this.seen.size){this.seen=next;this.persist()}this.render()},
   async loadNames(epoch){
     for(const x of this.items().filter(x=>x.type==='friend'))if(!this.names.has(x.peer)){
       this.names.set(x.peer,'Oyuncu');try{const v=(await Net.db.ref('friendProfiles/'+x.peer).once('value')).val();if(epoch!==this.epoch)return;this.names.set(x.peer,clean(v));this.render()}catch(e){}
@@ -4123,8 +4123,8 @@ const Notifications={
     $('ntBadge').hidden=!unread;$('ntBadge').textContent=unread>99?'99+':String(unread);
     $('ntBell').setAttribute('aria-label','Bildirimler'+(unread?', '+unread+' okunmamış':''));
     if(!allowed||!this.open)return;
-    $('ntSummary').textContent=unread+' okunmamış · '+items.length+' bekleyen';
-    $('ntRead').disabled=!unread;$('ntEmpty').hidden=!!items.length||!this.loaded;
+    $('ntSummary').textContent=this.loaded&&Invites.loaded?unread+' okunmamış · '+items.length+' bekleyen':'Bildirimler yükleniyor…';
+    $('ntRead').disabled=!unread;$('ntEmpty').hidden=!!items.length||!this.loaded||!Invites.loaded;
     const friends=items.filter(x=>x.type==='friend');$('ntRequests').hidden=!friends.length;$('ntFrCount').textContent=friends.length;
     stableHTML($('ntFrList'),friends.map(x=>{const n=this.names.get(x.peer)||'Oyuncu';return '<div class="iv-row" data-nt-peer="'+esc(x.peer)+'"><span class="iv-av" aria-hidden="true">'+esc(n[0].toLocaleUpperCase('tr'))+'</span><div class="iv-info">'+esc(n)+(this.seen.has(x.key)?'':'<span class="nt-new">Yeni</span>')+'<small>Arkadaşlık isteği</small></div><div class="iv-actions"><button type="button" class="btn sm" data-nt-action="accept">Kabul et</button><button type="button" class="btn ghost sm" data-nt-action="reject">Reddet</button></div></div>'}).join(''));
   },
@@ -4149,17 +4149,17 @@ $('ntPanel').addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefaul
 $('ntFrList').addEventListener('click',e=>{const b=e.target.closest('[data-nt-action]');if(!b)return;const row=b.closest('[data-nt-peer]');if(row)Notifications.act(row.dataset.ntPeer,b.dataset.ntAction)});
 window.addEventListener('storage',e=>{if(Notifications.uid&&e.key===Notifications.storageKey()){try{Notifications.seen=notificationSeen(JSON.parse(e.newValue||'[]'));Notifications.render();Invites.render()}catch(err){}}});
 const Invites={
-  ref:null,listener:null,timer:null,epoch:0,data:null,names:new Map(),busy:false,pickerBusy:false,
+  ref:null,listener:null,timer:null,epoch:0,data:null,loaded:false,names:new Map(),busy:false,pickerBusy:false,
   start(uid){
     this.stop();if(!validFriendId(uid)||!Net.db)return;
     const epoch=this.epoch;this.ref=Net.db.ref('gameInvites/'+uid);
-    this.listener=snap=>{if(epoch!==this.epoch)return;this.data=snap.val();Notifications.sync('game');this.render();this.loadNames(epoch)};
-    this.ref.on('value',this.listener,()=>{if(epoch===this.epoch){this.data=null;this.render()}});
-    this.timer=setInterval(()=>{Notifications.sync('game');this.render()},5000);
+    this.listener=snap=>{if(epoch!==this.epoch)return;this.data=snap.val();this.loaded=true;Notifications.sync('game');this.render();this.loadNames(epoch)};
+    this.ref.on('value',this.listener,()=>{if(epoch===this.epoch){this.data=null;this.loaded=false;this.render()}});
+    this.timer=setInterval(()=>{if(this.loaded)Notifications.sync('game');this.render()},5000);
   },
   stop(){
     this.epoch++;if(this.ref&&this.listener)this.ref.off('value',this.listener);if(this.timer)clearInterval(this.timer);
-    this.ref=null;this.listener=null;this.timer=null;this.data=null;this.names.clear();this.busy=false;this.pickerBusy=false;
+    this.ref=null;this.listener=null;this.timer=null;this.data=null;this.loaded=false;this.names.clear();this.busy=false;this.pickerBusy=false;
     $('ivInbox').hidden=true;$('ivList').textContent='';$('ivList')._v22html=null;$('ivStatus').textContent='';this.closePicker();
   },
   async loadNames(epoch){
@@ -4169,11 +4169,14 @@ const Invites={
   },
   render(){
     Notifications.render();const items=activeInvites(this.data,now()),visible=!!(Notifications.allowed()&&Notifications.open&&items.length);
-    $('ivInbox').hidden=!visible;if(!visible)return;
+    $('ivInbox').hidden=!visible;if(!visible){if(!Notifications.open){$('ivList').textContent='';$('ivList')._v22html=null}return}
     $('ivCount').textContent=items.length;
-    stableHTML($('ivList'),items.map(x=>{const name=this.names.get(x.uid)||'Oyuncu',priv=isPrivateCode(x.c);
-      return '<div class="iv-row" data-invite="'+esc(x.uid)+'"><span class="iv-av" aria-hidden="true">'+esc(name[0].toLocaleUpperCase('tr'))+'</span><div class="iv-info">'+esc(name)+(Notifications.seen.has('g:'+x.uid+':'+x.t)?'':'<span class="nt-new">Yeni</span>')+'<small>'+(priv?'Şifreli oda':'Oyun daveti')+'</small></div><div class="iv-actions"><button type="button" class="btn sm" data-iv="accept">Katıl</button><button type="button" class="btn ghost sm" data-iv="dismiss">Reddet</button></div>'+(priv?'<input class="iv-pass" type="password" maxlength="64" autocomplete="off" placeholder="Oda şifresi" aria-label="Oda şifresi">':'')+'</div>';
+    const list=$('ivList'),passwords=new Map([...list.querySelectorAll('[data-invite-key]')].map(el=>[el.dataset.inviteKey,el.querySelector('.iv-pass')?.value||'']));
+    const focused=document.activeElement?.closest('[data-invite-key]'),focusKey=focused&&document.activeElement.classList.contains('iv-pass')?focused.dataset.inviteKey:null;
+    const changed=stableHTML(list,items.map(x=>{const name=this.names.get(x.uid)||'Oyuncu',priv=isPrivateCode(x.c);
+      return '<div class="iv-row" data-invite="'+esc(x.uid)+'" data-invite-key="'+esc(x.uid+':'+x.t)+'"><span class="iv-av" aria-hidden="true">'+esc(name[0].toLocaleUpperCase('tr'))+'</span><div class="iv-info">'+esc(name)+(Notifications.seen.has('g:'+x.uid+':'+x.t)?'':'<span class="nt-new">Yeni</span>')+'<small>'+(priv?'Şifreli oda':'Oyun daveti')+'</small></div><div class="iv-actions"><button type="button" class="btn sm" data-iv="accept">Katıl</button><button type="button" class="btn ghost sm" data-iv="dismiss">Reddet</button></div>'+(priv?'<input class="iv-pass" type="password" maxlength="64" autocomplete="off" placeholder="Oda şifresi" aria-label="Oda şifresi">':'')+'</div>';
     }).join(''));
+    if(changed)for(const row of list.querySelectorAll('[data-invite-key]')){const input=row.querySelector('.iv-pass');if(input&&passwords.has(row.dataset.inviteKey)){input.value=passwords.get(row.dataset.inviteKey);if(focusKey===row.dataset.inviteKey)input.focus()}}
   },
   async act(peer,action,password=''){
     if(this.busy||!ME||code||openingRoom)return;const uid=ME,epoch=this.epoch,x=activeInvites(this.data,now()).find(y=>y.uid===peer);if(!x)return;
