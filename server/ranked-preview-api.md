@@ -1,0 +1,7 @@
+# V25.4c – private preview API
+
+POST /api/ranked/play is deny-by-default. It only accepts an explicitly configured HTTPS Cloudflare preview hostname of this project, RANKED_PREVIEW_ENABLED=true and an explicit comma-separated RANKED_PREVIEW_UIDS list of Google Firebase UIDs. Use a separate Preview D1 binding containing all five ranked schemas. Do not set these flags on production. Do not enable even in Preview before D1 validation. Existing public status and UI still report ranked disabled.
+
+Actions: queue.join/status/find/cancel, offer.status/respond/start, game.poll/answer/heartbeat/surrender. Each action verifies the Firebase bearer token; request fields are allowlisted and limited to 2 KB. Identity, scores, clocks, rating and opponent choice are never trusted from the client. Match operations require membership; client command IDs are namespaced by player side. Responses omit raw opponent UID, private journal, RNG seed, and other player's settlement details.
+
+This is a restricted prototype, not a release. Polling advances server state only on requests; no background scheduler or automatic UI transitions yet. Rate limiting, accepted-but-unstarted cleanup, recovery/reconciliation, outage policy, stronger production randomness, D1 real-world integration, and two-account browser tests remain necessary. Preview allowlist is not a substitute for production abuse protections. No additional SQL migration. Run Node 22.13+ tests with no skips.
