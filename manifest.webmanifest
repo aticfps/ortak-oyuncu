@@ -1,16 +1,32 @@
 {
-  "name": "Ortak Oyuncu",
-  "short_name": "Ortak Oyuncu",
-  "description": "İki takım, tek futbolcu. Arkadaşlarınla online futbol bilgi oyunu.",
+  "name": "Çapraz90",
+  "short_name": "Çapraz90",
+  "description": "İki takım. Tek futbolcu. Rekabetçi futbol bilgi arenası.",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#072a1a",
-  "theme_color": "#072a1a",
+  "background_color": "#0c1014",
+  "theme_color": "#0c1014",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {
+      "src": "capraz90.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
