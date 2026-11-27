@@ -1,0 +1,5 @@
+# V25.4a – internal matchmaking reservation
+
+Initial rules: rating difference 100, increases by 50 every 15 seconds, maximum 400; both players must independently accept the gap through elapsed queue time. Prefer closest rating, then oldest queue entry, then UID for stable ordering. Heartbeat renews the queue lease (30 seconds); expired entries are ignored and rejoining starts a new wait. A single guarded SQL INSERT chooses and reserves both players and consumes their queue entries via a trigger. Active matches and completed matches pending settlement block further queue entry. No client-supplied rating, timestamp or opponent selection.
+
+Apply ranked-matchmaking-schema.sql after previous ranked migrations on a test database only. The service is internal; no public routes or UI. Reservation is not admission: the next phase must add authenticated acceptance by both players, acceptance deadline/cancellation, reliable expiry and cleanup, secure game start, request throttling and D1 Preview tests. Reserved games are not automatically started or expired in this phase. Ranked remains disabled. Run all Node 22.13+ tests (SQLite integration tests must not skip).
