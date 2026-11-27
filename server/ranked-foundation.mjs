@@ -1,9 +1,17 @@
 import {authenticate,AuthError} from './ranked-auth.mjs';
+import {rankedScope} from './ranked-access.mjs';
 export const VERSION='25.1a',INITIAL_RATING=1000;
 export const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
-export async function rankedStatus(env){
+export async function rankedStatus(env,request){
   if(!env?.RANKED_DB)return json({version:VERSION,ready:false,rankedEnabled:false,reason:'DB_BINDING_MISSING'},503);
-  try{await env.RANKED_DB.prepare('SELECT uid FROM ranked_players LIMIT 1').first();return json({version:VERSION,ready:true,rankedEnabled:false})}
+  try{
+    await env.RANKED_DB.prepare('SELECT uid FROM ranked_players LIMIT 1').first();
+    const production=rankedScope(request,env)==='production';
+    if(production){
+      for(const table of ['ranked_matches','ranked_offers','ranked_queue','ranked_request_limits','ranked_sessions','ranked_settlements'])await env.RANKED_DB.prepare('SELECT 1 FROM '+table+' LIMIT 1').first();
+    }
+    return json({version:VERSION,ready:true,rankedEnabled:production});
+  }
   catch{return json({version:VERSION,ready:false,rankedEnabled:false,reason:'DB_SCHEMA_OR_CONNECTION'},503)}
 }
 export async function rankedMe(request,env,verify){
@@ -16,6 +24,6 @@ export async function rankedMe(request,env,verify){
     // Initial rating is a server constant; arbitrary input is never read or applied.
     if(request.method==='POST')await db.prepare('INSERT INTO ranked_players (uid,rating,played,wins,draws,losses,created_at) VALUES (?, ?, 0, 0, 0, 0, ?) ON CONFLICT(uid) DO NOTHING').bind(uid,INITIAL_RATING,Date.now()).run();
     const row=await db.prepare('SELECT rating,played,wins,draws,losses FROM ranked_players WHERE uid = ?').bind(uid).first();
-    return json({version:VERSION,rankedEnabled:false,registered:!!row,profile:row?{rating:row.rating,played:row.played,wins:row.wins,draws:row.draws,losses:row.losses}:null});
+    return json({version:VERSION,rankedEnabled:rankedScope(request,env)==='production',registered:!!row,profile:row?{rating:row.rating,played:row.played,wins:row.wins,draws:row.draws,losses:row.losses}:null});
   }catch{return json({error:'DB_SCHEMA_OR_CONNECTION'},503)}
 }
