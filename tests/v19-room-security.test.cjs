@@ -10,7 +10,7 @@ const defs=html.split(/\r?\n/).filter(l=>/^(const (parsePresence|parseRoomNodes|
 const api=new Function('const MAXP=8,now=()=>100000;'+defs.join('\n')+';return {parsePresence,parseRoomNodes,validHost,selectRoomHost,alive}')();
 const state=(uid,t=99000,players=[{u:uid}])=>({uid,o:1,t,j:JSON.stringify({h:1,g:{host:uid,ph:'wait',pl:players}})});
 test('inline scripts compile',()=>{for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi))if(m[1].trim())assert.doesNotThrow(()=>new Function(m[1]));});
-test('V24.5 is published by the app',()=>assert.match(html,/const APPV='24.5';/));
+test('V25.1 is published by the app',()=>assert.match(html,/const APPV='25.1';/));
 test('room write rule binds UID to the path (static regression)',()=>{const p=rules.rules.rooms.$code.$peer;assert.equal(p['.write'],'auth != null && auth.uid === $peer');assert.match(p['.validate'],/child\('uid'\)\.val\(\) === \$peer/);});
 test('bad presence JSON is rejected',()=>{for(const j of ['[]','null','not-json','1',' '.repeat(24000),null])assert.equal(api.parsePresence(j),null);assert.deepEqual(api.parsePresence('{}'),{});});
 test('spoofed keys and malformed records are ignored',()=>{const out=api.parseRoomNodes({host:state('host'),imposter:state('host'),bad:{uid:'bad',o:1,t:99000,j:'[]'},wrongFlag:{...state('wrongFlag'),o:2},wrongTime:{...state('wrongTime'),t:'99000'}});assert.deepEqual(Object.keys(out),['host']);assert.equal(Object.getPrototypeOf(out),null);});
