@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),rules=JSON.parse(fs.readFileSync(path.join(__dirname,'..','database.rules.json'),'utf8')).rules;
-const src=html.slice(html.indexOf('const validFriendId='),html.indexOf('const Friends='));
+const src=html.slice(html.indexOf('const validFriendId='),html.indexOf('/* V24.2: independent presence'));
 const {validFriendId,friendRows,friendApi}=new Function(src+';return {validFriendId,friendRows,friendApi}')();
 const a='A'.repeat(28),b='B'.repeat(28),c='C'.repeat(28);
 function mock(){
