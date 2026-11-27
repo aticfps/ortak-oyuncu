@@ -1,0 +1,7 @@
+# V25.3a – Internal ranked settlement foundation
+
+This migration is additive; no changes to Firebase rules, production bindings, public API version, or UI. Ranked remains disabled. Do not apply the new schema to production yet. To test locally, Node 22.13+ is required for node:sqlite (no additional package). Run node --test tests/*.test.cjs; all seven SQLite integration tests must execute, not skip. D1 preview validation remains separate.
+
+After ranked-schema.sql, the new ranked-settlement-schema.sql creates server-owned match and audit tables plus guarded atomic updates. The settlement function takes only an internal match ID, reads completed scores, computes Elo, and inserts one immutable ledger row. A unique match key prevents repeat scoring. The insert and trigger updates are a single SQL statement; stale rating/played snapshots retry a maximum of four times. Tests include duplicate and interleaved settlement, rollback of partial updates, and invalid scores.
+
+IMPORTANT: there is not yet an authoritative match producer. No match creation or completion route is implemented; do not accept client/host scores or expose settlement via HTTP. The next stage must implement authoritative game state, answer validation, timeouts/forfeits, authentication, and safe match creation/completion before enabling the queue. SQL constraints are defense in depth, not a replacement for trusted game logic. Migration and triggers must still be validated on real D1 Preview. Do not insert test scores into the production database.
