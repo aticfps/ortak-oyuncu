@@ -1,8 +1,10 @@
 
- // Read-only private preview leaderboard. No raw UID or Google profile data leaves the server.
+ // Read-only leaderboard; public game nickname or pseudonymous fallback, never raw UID.
+import {validRankedName} from './ranked-names.mjs';
 const QUERY=`
 WITH eligible AS (
  SELECT uid,rating,played,wins,
+ (SELECT display_name FROM ranked_names WHERE uid=ranked_players.uid) AS display_name,
  RANK() OVER (ORDER BY rating DESC) AS position,
  COUNT(*) OVER () AS total
  FROM ranked_players WHERE played>0
@@ -27,7 +29,7 @@ export async function readRankedLeaderboard(db,uid){
  for(const r of result.results){
   if(typeof r.uid!=='string'||!r.uid||![0,1].includes(r.own)||!int(r.rating,0,100000)||!int(r.played,1,Number.MAX_SAFE_INTEGER)||!int(r.wins,0,r.played)||!int(r.total,1,Number.MAX_SAFE_INTEGER)||!int(r.position,1,r.total)||(total&&total!==r.total))throw Error('LEADERBOARD_RESPONSE_INVALID');
   total=r.total;
-  const item={name:await alias(r.uid),position:r.position,rating:r.rating,played:r.played,wins:r.wins,isSelf:r.uid===uid};
+  const item={name:validRankedName(r.display_name)?r.display_name:await alias(r.uid),position:r.position,rating:r.rating,played:r.played,wins:r.wins,isSelf:r.uid===uid};
   if(r.own){if(!item.isSelf||self)throw Error('LEADERBOARD_RESPONSE_INVALID');self=item}
   else{if(seen.has(r.uid)||r.position<prior||rows.length>=20)throw Error('LEADERBOARD_RESPONSE_INVALID');seen.add(r.uid);prior=r.position;rows.push(item)}
  }
