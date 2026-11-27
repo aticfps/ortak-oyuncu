@@ -46,3 +46,18 @@ test('V25.8 private board fetch ignores stale responses and production hosts',as
  const first=f.pending.shift();f.answer(sample);await b;first(new Response(JSON.stringify({rows:[],self:null,total:0}),{headers:{'content-type':'application/json'}}));await a;assert.equal(f.$('rkBoardList').children.length,2);
  const c=f.Ranked.loadBoard();await Promise.resolve();f.setUid('b');f.setUser('b');f.answer(sample);await c;assert.equal(f.$('rkBoardData').hidden,true);
 });
+
+test('V26.2a leaderboard syncs the current game nickname before reading and renders a level badge',async()=>{
+ const f=fixture();f.$('myName').value='Çağrı_10';
+ const p=f.Ranked.loadBoard();await Promise.resolve();
+ assert.deepEqual(JSON.parse(f.calls[0].opt.body),{action:'profile.name',name:'Çağrı_10'});
+ assert.equal(f.calls[0].opt.headers.Authorization,'Bearer test-token');
+ f.answer({name:'Çağrı_10'});await new Promise(resolve=>setImmediate(resolve));
+ assert.deepEqual(JSON.parse(f.calls[1].opt.body),{action:'leaderboard.get'});
+ const named={...own,name:'Çağrı_10'},data={rows:[{...row(1,1025),name:'Futbolcu10'},named],self:named,total:2};
+ f.answer(data);await p;assert.equal(f.$('rkBoardData').hidden,false);
+ const line=f.$('rkBoardList').children[1].children[1].children[0];
+ assert.equal(line.children[0].textContent,'3');assert.equal(line.children[1].textContent,'Sen · Çağrı_10');
+ const again=f.Ranked.loadBoard();await Promise.resolve();assert.deepEqual(JSON.parse(f.calls[2].opt.body),{action:'leaderboard.get'});f.answer(data);await again;
+ assert.equal(f.rankedBoardView({...data,rows:[{...data.rows[0],name:'<script>'},named]}),null);
+});
