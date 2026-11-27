@@ -34,7 +34,7 @@ const integration=(name,fn)=>test(name,{skip:!DatabaseSync?'Node 22.13+ required
 async function fixture(t){
  const {rankedPreviewPlay}=await mod;
  const sql=new DatabaseSync(':memory:');t.after(()=>sql.close());sql.exec('PRAGMA foreign_keys=ON');
- for(const f of ['ranked-schema.sql','ranked-settlement-schema.sql','ranked-session-schema.sql','ranked-matchmaking-schema.sql','ranked-acceptance-schema.sql'])sql.exec(fs.readFileSync(path.join(root,'server',f),'utf8'));
+ for(const f of ['ranked-schema.sql','ranked-settlement-schema.sql','ranked-session-schema.sql','ranked-matchmaking-schema.sql','ranked-acceptance-schema.sql','ranked-rate-limit-schema.sql'])sql.exec(fs.readFileSync(path.join(root,'server',f),'utf8'));
  for(const uid of ['a','b','c'])sql.prepare('INSERT INTO ranked_players(uid,created_at) VALUES (?,1)').run(uid);
  const db={prepare(q){return {bind(...args){return {
   async first(){return sql.prepare(q).get(...args)||null;},
@@ -42,7 +42,7 @@ async function fixture(t){
   async run(){const r=sql.prepare(q).run(...args);return {success:true,meta:{changes:Number(r.changes)}};}
  };}};}};
  const env={...flags,RANKED_PREVIEW_UIDS:'a,b,c',RANKED_DB:db};
- async function call(uid,action,fields={}){const r=await rankedPreviewPlay(req({action,...fields},uid),env,verify);return {status:r.status,body:await r.json(),cache:r.headers.get('cache-control')}}
+ async function call(uid,action,fields={}){const r=await rankedPreviewPlay(req({action,...fields},uid),env,verify);return {status:r.status,body:await r.json(),cache:r.headers.get('cache-control'),retryAfter:r.headers.get('retry-after')}}
  async function offer(){await call('a','queue.join');await call('b','queue.join');const r=await call('a','queue.find');assert.equal(r.status,200);assert.equal(r.body.status,'reserved');assert.equal('opponentUid'in r.body,false);return r.body.matchId}
  async function start(){const matchId=await offer();await call('a','offer.respond',{matchId,decision:'accept'});await call('b','offer.respond',{matchId,decision:'accept'});const r=await call('a','offer.start',{matchId});assert.equal(r.status,200);return {matchId,r}}
  return {sql,db,call,offer,start};
@@ -161,4 +161,22 @@ integration('V26.0a interrupted terminal result settles once during recovery',as
  assert.equal((await f.call('a','queue.status')).body.status,'idle');
  assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
  assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('b').rating,1025);
+});
+
+integration('V26.0b authenticated endpoint enforces shared answer budget, allows heartbeat and returns 429',async t=>{
+ t.mock.method(Date,'now',()=>Date.UTC(2026,10,27,12,0,10));
+ const f=await fixture(t);
+ const payload={matchId:'missing',commandId:'a',round:1,input:'x'};
+ for(let i=0;i<30;i++)assert.equal((await f.call('a','game.answer',payload)).status,404);
+ const r=await f.call('a','game.answer',payload);
+ assert.equal(r.status,429);assert.equal(r.body.error,'RATE_LIMITED');assert.equal(r.body.retryAfter,50);assert.equal(r.retryAfter,'50');assert.equal(r.cache,'no-store');
+ assert.equal((await f.call('a','game.heartbeat',{matchId:'missing',commandId:'h'})).status,404);
+ assert.equal((await f.call('b','game.answer',payload)).status,404);
+ assert.equal((await f.call('a','queue.status',{uid:'b'})).status,400);
+ assert.equal(f.sql.prepare('SELECT requests FROM ranked_request_limits WHERE uid=?').get('a').requests,31);
+});
+integration('V26.0b missing rate schema fails closed before gameplay writes',async t=>{
+ const f=await fixture(t);f.sql.exec('DROP TABLE ranked_request_limits');
+ assert.equal((await f.call('a','queue.join')).status,503);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_queue').get().n,0);
 });

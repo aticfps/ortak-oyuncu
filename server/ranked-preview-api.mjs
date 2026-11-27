@@ -10,6 +10,7 @@ import {readRankedSeason} from './ranked-seasons.mjs';
 import {readRankedHistory} from './ranked-history.mjs';
 import {readRankedLeaderboard} from './ranked-leaderboard.mjs';
 import {recoverRankedQueue} from './ranked-recovery.mjs';
+import {takeRankedRequest} from './ranked-rate-limit.mjs';
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const clientId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(x);
 const actions={
@@ -69,6 +70,11 @@ export async function rankedPreviewPlay(request,env,verify){
  let x;try{x=await body(request)}catch(e){return json({error:e?.message==='BODY_TOO_LARGE'?'BODY_TOO_LARGE':BAD.has(e?.message)?e.message:'INVALID_BODY'},e?.message==='BODY_TOO_LARGE'?413:400)}
  const db=env.RANKED_DB;if(!db)return json({error:'DB_BINDING_MISSING'},503);
  try{
+  const budget=await takeRankedRequest(db,uid,x.action);
+  if(!budget.allowed){
+   const res=json({error:'RATE_LIMITED',retryAfter:budget.retryAfter},429);
+   res.headers.set('retry-after',String(budget.retryAfter));return res;
+  }
   if(x.action==='season.me')return json(await readRankedSeason(db,uid));
   if(x.action==='history.me')return json(await readRankedHistory(db,uid));
   if(x.action==='leaderboard.get')return json(await readRankedLeaderboard(db,uid));

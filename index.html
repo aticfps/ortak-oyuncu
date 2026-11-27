@@ -3869,7 +3869,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.8';
+const APPV='26.0b';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4417,10 +4417,10 @@ function renderRankedBoard(data,state='ready'){
 
 const rankedSides=(s,side)=>side==='a'?[s.scoreA,s.scoreB]:[s.scoreB,s.scoreA];
 const RankedPreview={
- epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,onSettled:null,settledKey:null,
+ epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,onSettled:null,settledKey:null,retryAt:0,
  inProgress(){return this.allowed&&['search','offer','game'].includes(this.phase)},
  panels(phase){this.phase=phase;for(const [k,id] of [['idle','rkIdle'],['search','rkSearch'],['offer','rkOffer'],['game','rkGame'],['result','rkResult']])$(id).hidden=k!==phase;$('rankBack').disabled=this.inProgress();$('rankRefresh').disabled=this.inProgress()},
- reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.settledKey=null;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
+ reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.settledKey=null;this.retryAt=0;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
  valid(epoch,uid){return this.epoch===epoch&&this.uid===uid&&ME===uid&&screen==='ranked'&&!code},
  async request(action,fields={}){
   const epoch=this.epoch,uid=this.uid,user=firebase.auth().currentUser;
@@ -4430,13 +4430,17 @@ const RankedPreview={
   if(!this.valid(epoch,uid))throw Error('STALE_PREVIEW');
   if(!(r.headers.get('content-type')||'').includes('application/json'))throw Error('PREVIEW_UNAVAILABLE');
   const data=await r.json();if(!this.valid(epoch,uid))throw Error('STALE_PREVIEW');
+  if(r.status===429&&data.error==='RATE_LIMITED'){
+   if(action!=='game.answer')this.retryAt=Date.now()+1000*(Number.isInteger(data.retryAfter)?Math.min(60,Math.max(1,data.retryAfter)):5);
+   throw Error('RATE_LIMITED');
+  }
   if(!r.ok)throw Error(data.error||'PREVIEW_UNAVAILABLE');return data;
  },
  async task(fn){
   if(this.busy||!this.uid)return;
   const epoch=this.epoch,uid=this.uid;this.busy=true;
   try{await fn();if(this.valid(epoch,uid))$('rkError').textContent=''}
-  catch(e){if(this.valid(epoch,uid)&&e.message!=='STALE_PREVIEW')$('rkError').textContent=({RANKED_PREVIEW_DISABLED:'Önizleme henüz etkin değil.',PREVIEW_FORBIDDEN:'Bu hesap önizlemeye dahil değil.',MATCH_NOT_FOUND:'Maç oturumu bulunamadı.',OFFER_NOT_ACCEPTED:'İki oyuncunun da kabul etmesi gerekiyor.'})[e.message]||'İşlem tamamlanamadı. Bağlantını kontrol et.'}
+  catch(e){if(this.valid(epoch,uid)&&e.message!=='STALE_PREVIEW')$('rkError').textContent=({RATE_LIMITED:'Çok sık istek gönderdin. Biraz bekle.',RANKED_PREVIEW_DISABLED:'Önizleme henüz etkin değil.',PREVIEW_FORBIDDEN:'Bu hesap önizlemeye dahil değil.',MATCH_NOT_FOUND:'Maç oturumu bulunamadı.',OFFER_NOT_ACCEPTED:'İki oyuncunun da kabul etmesi gerekiyor.'})[e.message]||'İşlem tamamlanamadı. Bağlantını kontrol et.'}
   finally{if(this.valid(epoch,uid))this.busy=false}
  },
  open(uid){
@@ -4471,6 +4475,7 @@ const RankedPreview={
   if(!this.allowed||!this.valid(this.epoch,this.uid))return;
   if(this.phase==='offer')$('rkAcceptClock').textContent=rankedClock(this.deadline-Date.now());
   if(this.phase==='game')$('rkGameClock').textContent=rankedClock(this.deadline-Date.now());
+  if(Date.now()<this.retryAt)return;
   this.task(async()=>{
    if(this.phase==='search'){await this.request('queue.join');await this.queue(await this.request('queue.find'))}
    else if(this.phase==='offer')await this.offer(await this.request('offer.status',{matchId:this.matchId}));

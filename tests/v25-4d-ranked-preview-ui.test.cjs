@@ -41,3 +41,13 @@ test('V25.4d required controls and reduced-motion rules are present',()=>{
  for(const id of ['rkJoin','rkSearch','rkOffer','rkAccept','rkDecline','rkGame','rkAnswerForm','rkSurrender','rkResult'])assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(html,/@media\(prefers-reduced-motion:reduce\)\{\.rk-search\{animation:none\}\}/);
 });
+
+test('V26.0b rate-limit feedback pauses polling but answer-only limit leaves heartbeat available',async()=>{
+ const f=fixture(),p=f.RankedPreview;p.uid='u';p.allowed=true;p.phase='game';p.matchId='m';
+ f.replies.push({status:429,data:{error:'RATE_LIMITED',retryAfter:30}});
+ await assert.rejects(p.request('game.answer',{matchId:'m',commandId:'x',round:1,input:'x'}),/RATE_LIMITED/);assert.equal(p.retryAt,0);
+ f.replies.push({status:429,data:{error:'RATE_LIMITED',retryAfter:30}});p.pulse();await f.wait();
+ assert.ok(p.retryAt>Date.now());assert.match(f.$('rkError').textContent,/Çok sık/);
+ const n=f.calls.length;p.pulse();await f.wait();assert.equal(f.calls.length,n);
+ p.reset();assert.equal(p.retryAt,0);
+});

@@ -1,0 +1,5 @@
+# V26.0b – Ranked request limits
+
+Authenticated, allowlisted, syntactically valid requests to the private ranked play endpoint share a persistent per-UID fixed UTC-minute budget: 120 total requests and 30 answer requests. Atomic conditional UPSERT prevents concurrent overspend across isolates. Answer cap alone does not block heartbeat or other actions. A denied request returns HTTP 429, no-store and Retry-After; the client pauses automatic polls when non-answer requests are limited. Counters reset on the next minute; fixed windows permit boundary bursts. This is not bot detection, an edge/IP limiter or unauthenticated traffic protection; foundation endpoints are unchanged.
+
+Before deploying this version to the authorized Preview host, apply server/ranked-rate-limit-schema.sql to the **preview D1 only**. Missing schema fails closed. Do not migrate production until the release checklist. No modifications to existing ratings, matches or journals. A permitted action incurs an additional D1 write; monitor D1 quotas. Real D1 and device verification remain required.
