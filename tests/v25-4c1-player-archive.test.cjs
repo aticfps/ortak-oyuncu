@@ -14,19 +14,33 @@ test('V25.4c1 historical footballers and plain keyboard aliases are recognized',
 test('V25.4c1 recent and missing loan club links are recognized',()=>{
  for(const [a,b,q,n] of [['ARS','BJK','Trossard','Leandro Trossard'],['ARS','BJK','Elneny','Mohamed Elneny'],['ATM','B04','Hermoso','Mario Hermoso'],['ATM','LIL','Reinildo','Reinildo'],['INT','LIL','Pavard','Benjamin Pavard'],['BJK','B04','Hilbert','Roberto Hilbert']])verify(a,b,q,n);
 });
-test('V25.4c1 thirty active clubs preserved and common-answer coverage increases',()=>{
+test('V26.3a thirty active clubs preserved with verified corrections',()=>{
  assert.equal(d.IDS.length,30);assert.equal(d.ARCHIVE_IDS.length,114);
  assert.equal(d.PLAYERS.length,1906);
  const counts=[];
  for(let i=0;i<d.IDS.length;i++)for(let j=i+1;j<d.IDS.length;j++)counts.push(d.shared(d.IDS[i],d.IDS[j]).length);
  assert.equal(counts.length,435);
- assert.ok(counts.reduce((a,b)=>a+b,0)>=2006);
- assert.ok(counts.filter(n=>n===0).length<=31);
- assert.ok(counts.filter(n=>n===1).length<=60);
+ assert.equal(counts.reduce((a,b)=>a+b,0),1999);
+ assert.equal(counts.filter(n=>n===0).length,30);
+ assert.equal(counts.filter(n=>n===1).length,61);
 });
 test('V25.4c1 in-progress daily puzzle retains existing club pairs on rollout date',()=>{
  const a=html.indexOf('const Daily='),b=html.indexOf('function verCheck',a);
  const daily=new Function('IDS','ARCHIVE_IDS','shared','ptsOf',html.slice(a,b)+';return Daily')(d.IDS,d.ARCHIVE_IDS,d.shared,d.ptsOf);
  daily.day=()=> '2026-11-27';
  assert.deepEqual(daily.pairs(),[['FB','MUN'],['GS','NEW'],['VAL','BET'],['LAZ','GNO'],['BOL','COM']]);
+});
+
+test('V26.3a verified senior appearances count, signing without competitive appearance does not',async()=>{
+ const catalog=(await import('../server/ranked-catalog.mjs')).default;
+ for(const [name,club,expected] of [['Caner Erkin','INT',false],['Pierre-Emerick Aubameyang','MIL',false],['Wout Weghorst','TSG',true],['Fabinho','RMA',true],['Rigobert Song','KOE',true],['Rigobert Song','RCL',true],['Mohamed Salah','TS',true],['Fabinho','TS',true]]){
+  for(const players of [d.PLAYERS,catalog.players])assert.equal(players.find(p=>p.n===name).c.includes(club),expected,name+' / '+club);
+ }
+ verify('RMA','LIV','Fabinho','Fabinho');
+ verify('MUN','TSG','Weghorst','Wout Weghorst');
+ verify('GS','RCL','Rigobert Song','Rigobert Song');
+ assert.equal(d.match('Caner Erkin',d.shared('INT','GS')),null);
+ assert.equal(d.match('Aubameyang',d.shared('MIL','ARS')),null);
+ assert.equal(d.PLAYERS.find(p=>p.n==='Pierre-Emerick Aubameyang').k.includes('MIL'),false);
+ assert.equal(d.match('Carl Medjani',d.shared('TS','LIV')),null);
 });
