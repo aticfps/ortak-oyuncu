@@ -930,6 +930,36 @@ html[data-theme="light"] #brk .tb-match.active .tb-matchhead{color:var(--tb-acti
 #friends .fr-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}#friends .fr-actions .btn{font-size:11px;padding:7px 9px}
 #friends .fr-empty{color:var(--mute);font-size:12px;margin:6px 0}
 @media(max-width:400px){#friends .fr-card{padding:10px}#friends .fr-code{gap:5px}#friends .fr-actions{gap:4px}#friends .fr-actions .btn{padding:6px 7px}}
+/* V24.1a: mobile-first friend screen; no page-level horizontal overflow */
+#friends{min-width:0;width:100%;max-width:650px;margin-inline:auto;box-sizing:border-box}
+#friends .turnline{padding:14px 16px;margin:0 0 12px;background:var(--card);border:1px solid var(--line);border-radius:15px}
+#friends .turnline h2{font:800 26px/1.2 var(--ui);margin:0 0 5px}
+#friends .turnline .lead{font:500 13px/1.4 var(--ui);margin:0;color:var(--mute)}
+#friends .fr-card{min-width:0;width:100%;box-sizing:border-box;grid-template-columns:minmax(0,1fr);gap:8px}
+#friends .fr-card h3{margin:0;font:750 15px/1.3 var(--ui)}
+#friends .fr-code{display:grid;grid-template-columns:minmax(0,1fr) auto;min-width:0;gap:8px}
+#friends .fr-code input{width:100%;min-width:0;max-width:100%;font:500 16px/1.3 var(--ui);padding:10px 12px;min-height:46px;text-transform:none;letter-spacing:normal}
+#friends .fr-code .btn,#friends .fr-actions .btn,#friends #frBack{font:700 13px/1.2 var(--ui);min-height:44px;padding:10px 13px;white-space:normal;max-width:100%}
+#friends .fr-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:9px;align-items:center;min-width:0}
+#friends .fr-name{white-space:normal;overflow-wrap:anywhere;line-height:1.35}
+#friends .fr-actions{min-width:0;display:flex;flex-wrap:wrap;justify-content:flex-end}
+#friends .fr-head{min-width:0}
+#friends .fr-head .link{flex-shrink:0}
+#friends #frStatus{min-width:0;overflow-wrap:anywhere}
+#friends #frStatus:empty{display:none}
+#friends .fr-back{display:block;margin:12px 0 0}
+#friends #frBack{width:100%}
+@media(max-width:600px){
+ #friends .turnline{padding:12px;margin-bottom:10px}
+ #friends .turnline h2{font-size:23px}
+ #friends .fr-card{padding:12px;margin-bottom:8px;border-radius:12px}
+ #friends .fr-code{grid-template-columns:minmax(0,1fr);gap:7px}
+ #friends .fr-code .btn{width:100%}
+ #friends .fr-row{grid-template-columns:34px minmax(0,1fr);gap:8px;padding:10px 0}
+ #friends .fr-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:7px;width:100%}
+ #friends .fr-actions .btn{width:100%;min-height:44px}
+}
+@media(max-width:350px){#friends .fr-card{padding:10px}#friends .fr-code input{padding-inline:8px}#friends .fr-actions .btn{padding-inline:7px}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1069,12 +1099,12 @@ html[data-theme="light"] #brk .tb-match.active .tb-matchhead{color:var(--tb-acti
   <section class="screen" id="friends">
     <div class="turnline"><h2>Arkadaşlar</h2><p class="lead">Arkadaş koduyla ekle, istekleri yönet.</p></div>
     <div class="card fr-card"><h3>Arkadaş kodum</h3><div class="fr-code"><input id="frCode" readonly aria-label="Arkadaş kodum"><button class="btn sm" id="frCopy" type="button">Kopyala</button></div><p class="tiny">Kodunu yalnızca eklemek istediğin kişilerle paylaş.</p></div>
-    <div class="card fr-card"><h3>Arkadaş ekle</h3><form id="frAdd" class="fr-code"><input id="frTarget" maxlength="128" placeholder="Arkadaş kodu" autocomplete="off" spellcheck="false" aria-label="Arkadaş kodu"><button class="btn sm" id="frSend">İstek gönder</button></form></div>
+    <div class="card fr-card"><h3>Arkadaş ekle</h3><form id="frAdd" class="fr-code"><input id="frTarget" maxlength="128" placeholder="Arkadaş kodu" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Arkadaş kodu"><button class="btn sm" id="frSend">İstek gönder</button></form></div>
     <p class="status" id="frStatus" role="status"></p>
     <div class="card fr-card"><div class="fr-head"><h3>Arkadaşlarım <span id="frCount">0</span></h3><button class="link" id="frRefresh" type="button">Yenile</button></div><div id="frList"></div></div>
     <div class="card fr-card"><h3>Gelen istekler <span id="frInCount">0</span></h3><div id="frIncoming"></div></div>
     <div class="card fr-card"><h3>Gönderilen istekler <span id="frOutCount">0</span></h3><div id="frOutgoing"></div></div>
-    <div class="btns"><button class="btn ghost" id="frBack">Ana ekran</button></div>
+    <div class="fr-back"><button class="btn ghost" id="frBack" type="button">Ana ekran</button></div>
   </section>
   <section class="screen" id="adm">
     <div class="turnline"><h2>Yönetici paneli</h2><p class="lead" id="admSub"></p></div>
@@ -3605,7 +3635,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='24.1';
+const APPV='24.1a';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
