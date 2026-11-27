@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8'),rules=JSON.parse(fs.readFileSync(path.join(__dirname,'..','database.rules.json'),'utf8')).rules;
-const src=html.slice(html.indexOf('const INVITE_TTL='),html.indexOf('const Invites='));
+const src=html.slice(html.indexOf('const INVITE_TTL='),html.indexOf('/* V24.4: live pending items'));
 const {activeInvites,canInviteRoom,inviteHostReady,inviteApi}=new Function('const validFriendId=u=>typeof u==="string"&&/^[A-Za-z0-9_-]{20,128}$/.test(u),validRoomCode=c=>typeof c==="string"&&(/^[A-Z0-9]{4}$/.test(c)||/^P[A-Z2-9]{9}$/.test(c)),MAXP=8,alive=n=>!!n&&n.o===1,validHost=n=>n.pr&&n.pr.h===1&&n.pr.g&&n.pr.g.host===n.uid,firebase={database:{ServerValue:{TIMESTAMP:123456}}};'+src+';return {activeInvites,canInviteRoom,inviteHostReady,inviteApi}')();
 const a='A'.repeat(28),b='B'.repeat(28),c='C'.repeat(28),t=1234567;
 test('V24.3 invitations expire after five minutes and ignore invalid or dismissed records',()=>{
