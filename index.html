@@ -906,6 +906,17 @@ html[data-theme="light"] #ans #clock{background:transparent;box-shadow:none}
 html[data-theme="light"] #brk{--tb-gold:#946800;--tb-line:#c3ccda}html[data-theme="light"] #brk .tb-match.active{border-color:#477c1a;box-shadow:0 0 0 1px #477c1a}html[data-theme="light"] #brk .tb-match.active .tb-matchhead{color:#477c1a}html[data-theme="light"] #brk .tb-progress i{background:#477c1a}
 @media(max-width:600px){#brk{padding:9px;--tb-gap:18px;margin:6px 0 10px}#brk .tb-live{padding:6px;gap:5px}#brk .tb-live-score{font-size:19px}#brk .tb-live-side strong{font-size:11px}#brk .tb-grid{min-width:var(--tb-min-mobile)}#brk .tb-title strong{font-size:13px}}
 @media(prefers-reduced-motion:reduce){#brk .tb-progress i{transition:none}}
+/* V23.4a: active match stays unmistakable even while the tree is collapsed */
+#brk{--tb-active:#9cfa61;--tb-active-bg:rgba(156,250,97,.12);--tb-active-soft:rgba(156,250,97,.22)}
+#brk .tb-match.active,#brk .tb-live.active{border:2px solid var(--tb-active);box-shadow:0 0 0 1px var(--tb-active-soft),inset 0 0 0 1px var(--tb-active-soft);background:var(--tb-active-bg)}
+#brk .tb-match.active .tb-matchhead{color:var(--tb-active);background:var(--tb-active-soft)}
+#brk .tb-live.active .tb-live-score{color:var(--tb-active)}
+#brk .tb-live.active .tb-live-score small{color:var(--tb-active)}
+#brk .tb-active-label{display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:850;color:var(--tb-active);white-space:nowrap}
+#brk .tb-active-label:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--tb-active);flex-shrink:0}
+html[data-theme="light"] #brk{--tb-active:#286b22;--tb-active-bg:#edf8e9;--tb-active-soft:#d6edcf}
+html[data-theme="light"] #brk .tb-match.active,html[data-theme="light"] #brk .tb-live.active{border-color:var(--tb-active);box-shadow:0 0 0 1px var(--tb-active-soft)}
+html[data-theme="light"] #brk .tb-match.active .tb-matchhead{color:var(--tb-active)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -3571,7 +3582,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='23.4';
+const APPV='23.4a';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4382,13 +4393,13 @@ function bracketPlayer(side){
   return '<div class="tb-player'+(side.winner?' winner':'')+(side.eliminated?' eliminated':'')+(!side.uid?' placeholder':'')+'">'+bracketAvatar(side.uid,20)+'<strong title="'+esc(name)+'">'+esc(name)+'</strong><b>'+esc(score)+'</b></div>';
 }
 function bracketCard(m){
-  return '<div class="tb-slot"><span class="tb-out" aria-hidden="true"></span><div class="tb-match'+(m.active?' active':'')+(m.done?' finished':'')+'"><div class="tb-matchhead"><span>Maç '+m.number+'</span><span>'+esc(m.status)+'</span></div>'+m.sides.map(bracketPlayer).join('')+'</div></div>';
+  return '<div class="tb-slot"><span class="tb-out" aria-hidden="true"></span><div class="tb-match'+(m.active?' active':'')+(m.done?' finished':'')+'"><div class="tb-matchhead"><span>Maç '+m.number+'</span><span'+(m.active?' class="tb-active-label"':'')+'>'+esc(m.active?'CANLI':m.status)+'</span></div>'+m.sides.map(bracketPlayer).join('')+'</div></div>';
 }
 function bracketLive(v){
   if(v.finished)return '<div class="tb-champ">'+(v.champion?bracketAvatar(v.champion,38)+'<div><small>Turnuva şampiyonu</small><b>'+esc(bracketName(v.champion))+'</b></div><span aria-hidden="true">🏆</span>':'<b>Turnuva tamamlandı · Kazanan yok</b>')+'</div>';
   if(!v.current)return '';
   const m=v.current,a=m.sides[0],b=m.sides[1],side=x=>bracketAvatar(x.uid,25)+'<strong title="'+esc(bracketName(x.uid))+'">'+esc(bracketName(x.uid))+'</strong>';
-  return '<div class="tb-live"><div class="tb-live-side">'+side(a)+'</div><div class="tb-live-score">'+(a.score===null?'–':a.score)+' : '+(b.score===null?'–':b.score)+'<small>'+esc(m.done?m.status:m.label)+'</small></div><div class="tb-live-side">'+side(b)+'</div></div>';
+  return '<div class="tb-live'+(m.active?' active':'')+'"><div class="tb-live-side">'+side(a)+'</div><div class="tb-live-score">'+(a.score===null?'–':a.score)+' : '+(b.score===null?'–':b.score)+'<small>'+esc(m.done?m.status:m.label)+'</small>'+(m.active?'<small class="tb-active-label">CANLI</small>':'')+'</div><div class="tb-live-side">'+side(b)+'</div></div>';
 }
 function bracketTree(v){
   const n=v.stages.length,height=v.stages[0].matches.length*94;
