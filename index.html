@@ -3860,7 +3860,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.4c1';
+const APPV='25.4d';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4277,12 +4277,13 @@ const RankedPreview={
  },
  open(uid){
   if(!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked')return;
-  if(this.uid===uid)return;this.reset();this.uid=uid;
+  if(this.uid===uid&&this.allowed)return;this.reset();this.uid=uid;
   this.task(async()=>{const q=await this.request('queue.status');this.allowed=true;$('rkHint').textContent='Özel test ortamı · Rekabetçi 1v1';$('rkJoin').disabled=false;$('rkAgain').disabled=false;await this.queue(q);if(this.uid===uid&&!this.timer)this.timer=setInterval(()=>this.pulse(),2000)});
  },
  async queue(q){
   if(q.status==='searching'){this.panels('search');$('rkWait').textContent=rankedClock(q.waitMs);$('rkGap').textContent='ELO farkı: ±'+q.maxGap;return}
-  if(q.status==='reserved'||q.status==='settlement_pending'){this.matchId=q.matchId;await this.offer(await this.request('offer.status',{matchId:this.matchId}));return}
+  if(q.status==='settlement_pending'){this.matchId=q.matchId;this.panels('game');this.game(await this.request('game.poll',{matchId:this.matchId}));return}
+  if(q.status==='reserved'){this.matchId=q.matchId;await this.offer(await this.request('offer.status',{matchId:this.matchId}));return}
   if(q.status==='idle'){this.matchId=null;this.panels('idle');return}
   throw Error('PREVIEW_UNAVAILABLE');
  },
@@ -4294,8 +4295,8 @@ const RankedPreview={
  game(r){
   const s=r.state;if(!s||!['a','b'].includes(r.side)||r.revision<this.lastRevision)return;this.lastRevision=r.revision;
   const [a,b]=rankedSides(s,r.side);
-  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;return}
-  this.panels('game');$('rkRound').textContent='Tur '+s.round+'/5';$('rkSelfScore').textContent=a;$('rkOtherScore').textContent=b;
+  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');$('rkSubmit').disabled=true;$('rkSurrender').disabled=true;return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;if(Number.isSafeInteger(p?.ratingAfter))$('rankRating').textContent=p.ratingAfter.toLocaleString('tr-TR');return}
+  this.panels('game');$('rkSubmit').disabled=false;$('rkSurrender').disabled=false;$('rkRound').textContent='Tur '+s.round+'/5';$('rkSelfScore').textContent=a;$('rkOtherScore').textContent=b;
   this.deadline=s.current.deadline;$('rkGameClock').textContent=rankedClock(this.deadline-Date.now());
   if(this.round!==s.round){this.round=s.round;$('rkAnswer').value='';$('rkFeedback').textContent='';}
   stableHTML($('rkClubs'),s.current.clubs.filter(has).map(id=>'<div>'+crest(id)+'<b>'+esc(TEAMS[id][0])+'</b></div>').join(''));
