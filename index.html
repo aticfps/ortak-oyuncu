@@ -1000,6 +1000,34 @@ html[data-theme="light"] #ntBadge{color:#fff}
 #ntPanel #ntStatus:empty,#ntPanel #ivStatus:empty{display:none}
 #ntPanel .iv-info{overflow-wrap:anywhere}
 @media(max-width:600px){#ntPanel{padding:10px}#ntPanel .nt-tools{gap:2px}#ntBell{min-height:44px}}
+/* V24.5: compact friend-only standings with responsive podium */
+#flFromFriends{display:block;width:100%;max-width:650px;margin:0 auto 10px;font:700 14px/1.25 var(--ui)}
+#friendRanks{max-width:720px;margin-inline:auto;width:100%;min-width:0}
+#friendRanks [hidden]{display:none!important}
+.fl-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 12px;min-width:0}
+.fl-title h2{font:800 25px/1.2 var(--ui);margin:0 0 5px}.fl-title .lead{font:500 13px/1.35 var(--ui);margin:0}
+.fl-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.fl-tabs button{min-width:0;min-height:44px;padding:7px 4px;border:0;border-radius:9px;background:transparent;color:var(--mute);font:700 13px/1.2 var(--ui);cursor:pointer}
+.fl-tabs button[aria-pressed="true"]{background:var(--flood);color:#17210d}
+html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
+#flPeriod,#flStatus,#flHelp{margin:8px 0;color:var(--mute);overflow-wrap:anywhere}
+#flStatus:empty{display:none}
+.fl-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.fl-metric{min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:10px;display:flex;flex-direction:column;gap:3px}
+.fl-metric small,.fl-pod small{font:600 11px/1.3 var(--ui);color:var(--mute)}.fl-metric b{font:800 23px/1.2 var(--ui);color:var(--ink);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.fl-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+.fl-pod{min-width:0;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:5px;border:1px solid var(--line);border-radius:13px;background:var(--card);padding:12px 5px;text-align:center}
+.fl-pod[data-rank="1"]{border-color:#c99a40}.fl-pod[data-rank="2"]{border-color:#8e9bb5}.fl-pod[data-rank="3"]{border-color:#b77a53}
+.fl-pod strong{max-width:100%;font:750 13px/1.3 var(--ui);overflow-wrap:anywhere}.fl-pod b{font:800 18px/1.2 var(--ui);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;max-width:100%}
+.fl-medal{font-size:24px}
+.fl-list{width:100%;min-width:0;box-sizing:border-box;grid-template-columns:minmax(0,1fr);gap:0;padding:10px}
+.fl-row{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(0,130px);gap:8px;align-items:center;padding:10px 5px;border-top:1px solid var(--line);min-width:0}
+.fl-row:first-child{border-top:0}.fl-row.me{background:var(--bg);border-radius:9px}
+.fl-rank{font:800 15px/1.2 var(--ui);color:var(--mute);text-align:center}
+.fl-person{min-width:0;display:flex;flex-direction:column;gap:3px}.fl-person strong{font:750 14px/1.3 var(--ui);overflow-wrap:anywhere}.fl-person small{font:500 11px/1.4 var(--ui);color:var(--mute);overflow-wrap:anywhere}
+.fl-points{min-width:0;text-align:right;max-width:130px;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:3px}.fl-points b{font:800 19px/1.2 var(--ui);color:var(--ink);font-variant-numeric:tabular-nums}.fl-points small{font:500 11px/1.2 var(--ui);color:var(--mute)}
+#flBack{width:100%;margin-top:10px;font:700 14px/1.2 var(--ui)}
+@media(max-width:600px){.fl-title h2{font-size:21px}.fl-metric{padding:8px}.fl-metric b{font-size:19px}.fl-row{grid-template-columns:24px minmax(0,1fr) minmax(0,90px);gap:6px;padding:9px 3px}.fl-points{max-width:90px}.fl-points b{font-size:16px}.fl-pod{padding:9px 4px}.fl-pod b{font-size:16px}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1038,7 +1066,7 @@ html[data-theme="light"] #ntBadge{color:#fff}
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
-    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="friendsGo">Arkadaşlar</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
+    <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button> · <button class="link" id="friendsGo">Arkadaşlar</button> · <button class="link" id="flGo" type="button">Sıralama</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
       <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
       <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-8 kişilik oda. Şifre boşsa oda herkese açık olur.</p><label class="field v232-pass">Oda şifresi (isteğe bağlı)<input id="createPass" type="password" autocomplete="new-password" maxlength="64" placeholder="En az 12 karakter"></label><button class="link" id="generatePass" type="button">Güçlü şifre oluştur</button><small class="tiny">Şifreli oda 24 saat geçerlidir. Şifreyi ayrı paylaş, başka hesap şifreni kullanma.</small><button class="btn" id="create" disabled>Oda kur</button></div>
@@ -1147,7 +1175,7 @@ html[data-theme="light"] #ntBadge{color:#fff}
     <div class="btns"><button class="btn ghost" id="pfBack">Ana ekran</button></div>
   </section>
   <section class="screen" id="friends">
-    <div class="turnline"><h2>Arkadaşlar</h2><p class="lead">Arkadaş koduyla ekle, istekleri yönet.</p></div>
+    <div class="turnline"><h2>Arkadaşlar</h2><p class="lead">Arkadaş koduyla ekle, istekleri yönet.</p></div><button class="btn ghost" id="flFromFriends" type="button">Arkadaş sıralaması</button>
     <div class="card fr-card"><h3>Arkadaş kodum</h3><div class="fr-code"><input id="frCode" readonly aria-label="Arkadaş kodum"><button class="btn sm" id="frCopy" type="button">Kopyala</button></div><p class="tiny">Kodunu yalnızca eklemek istediğin kişilerle paylaş.</p></div>
     <div class="card fr-card"><h3>Arkadaş ekle</h3><form id="frAdd" class="fr-code"><input id="frTarget" maxlength="128" placeholder="Arkadaş kodu" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Arkadaş kodu"><button class="btn sm" id="frSend">İstek gönder</button></form></div>
     <p class="status" id="frStatus" role="status"></p>
@@ -1155,6 +1183,16 @@ html[data-theme="light"] #ntBadge{color:#fff}
     <div class="card fr-card"><h3>Gelen istekler <span id="frInCount">0</span></h3><div id="frIncoming"></div></div>
     <div class="card fr-card"><h3>Gönderilen istekler <span id="frOutCount">0</span></h3><div id="frOutgoing"></div></div>
     <div class="fr-back"><button class="btn ghost" id="frBack" type="button">Ana ekran</button></div>
+  </section>
+  <section class="screen" id="friendRanks">
+    <div class="fl-title"><div><h2>Arkadaş sıralaması</h2><p class="lead">Sen ve kabul ettiğin arkadaşların.</p></div><button class="link" id="flRefresh" type="button">Yenile</button></div>
+    <div class="fl-tabs" id="flTabs" role="group" aria-label="Sıralama dönemi"><button type="button" data-fl="w" aria-pressed="true">Bu hafta</button><button type="button" data-fl="m" aria-pressed="false">Bu ay</button><button type="button" data-fl="a" aria-pressed="false">Tüm zamanlar</button></div>
+    <p id="flPeriod" class="tiny"></p><p id="flStatus" class="tiny" role="status"></p>
+    <div class="fl-overview" id="flOverview" hidden></div>
+    <div class="fl-podium" id="flPodium" hidden></div>
+    <div class="card fl-list" id="flList"></div>
+    <p class="tiny" id="flHelp">Puan, ardından galibiyet sayısı belirleyicidir. Eşit puan ve galibiyet aynı sırayı paylaşır. Bot maçları dahil değildir.</p>
+    <div class="fr-back"><button class="btn ghost" id="flBack" type="button">Geri dön</button></div>
   </section>
   <section class="screen" id="adm">
     <div class="turnline"><h2>Yönetici paneli</h2><p class="lead" id="admSub"></p></div>
@@ -3684,8 +3722,8 @@ const okPh=u=>typeof u==='string'&&u.length<400&&/^https:\/\/[a-z0-9.-]+\.(googl
 const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=esc((pName(i)[0]||'?').toLocaleUpperCase('tr'));
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
-const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='24.4';
+const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
+const APPV='24.5';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4046,6 +4084,60 @@ $('frRefresh').onclick=()=>Friends.run(null,'Liste güncellendi.');
 $('frCopy').onclick=async()=>{const input=$('frCode');try{await navigator.clipboard.writeText(input.value);Friends.status('Arkadaş kodun kopyalandı.')}catch(e){input.focus();input.select();Friends.status('Kodu seçtik, kopyalayabilirsin.')}};
 $('frAdd').onsubmit=e=>{e.preventDefault();const peer=$('frTarget').value.trim();Friends.run(async api=>{await api.send(peer);$('frTarget').value=''},'Arkadaşlık isteği gönderildi.')};
 $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');if(!b)return;const {fr,peer,dir}=b.dataset;if(fr==='accept')Friends.run(api=>api.accept(peer),'Arkadaşlık isteği kabul edildi.');else if(fr==='remove')Friends.run(api=>api.remove(peer,dir),'Liste güncellendi.')});
+
+/* V24.5: read-only standings using accepted friends, never historical opponents. */
+function friendRankRows(uid,roster,stats,period,week,month){
+  const seen=new Set(),rows=[];
+  for(const x of roster||[]){
+    if(!x||!validFriendId(x.peer)||seen.has(x.peer)||(x.peer!==uid&&x.state!=='accepted'))continue;
+    seen.add(x.peer);
+    const s=stats&&Object.prototype.hasOwnProperty.call(stats,x.peer)?stats[x.peer]:null;
+    const source=period==='w'?(s&&s.wk&&s.wk.k===week?s.wk:null):period==='m'?(s&&s.mo&&s.mo.k===month?s.mo:null):s;
+    const known=s!==undefined,g=known?statCount(source&&source.g):null,w=known?Math.min(g,statCount(source&&source.w)):null,p=known?statCount(source&&source.p):null;
+    const name=clean(x.name||s&&s.n||'Oyuncu'),correct=period==='a'&&known?statCount(s&&s.c):null;
+    rows.push({uid:x.peer,name,g,w,p,correct,known,rate:g?Math.round(w/g*100):null,rank:null});
+  }
+  rows.sort((a,b)=>Number(b.known)-Number(a.known)||Number(!!b.g)-Number(!!a.g)||(b.p||0)-(a.p||0)||(b.w||0)-(a.w||0)||a.name.localeCompare(b.name,'tr')||a.uid.localeCompare(b.uid));
+  let previous=null,index=0;
+  for(const row of rows){if(!row.known||!row.g)continue;index++;row.rank=previous&&previous.p===row.p&&previous.w===row.w?previous.rank:index;previous=row}
+  return rows;
+}
+const FriendRanks={
+  epoch:0,uid:null,busy:false,period:'w',roster:[],stats:Object.create(null),ready:false,back:'lobby',
+  reset(){this.epoch++;this.uid=null;this.busy=false;this.period='w';this.roster=[];this.stats=Object.create(null);this.ready=false;this.back='lobby';$('flList').textContent='';$('flList')._v22html=null;$('flOverview').hidden=true;$('flPodium').hidden=true;$('flStatus').textContent='';$('flRefresh').disabled=false},
+  open(back){if(!ME||code||!Net.db)return;this.back=back;this.period='w';show('friendRanks');this.load()},
+  async load(){
+    if(!ME||code||!Net.db||this.busy)return;const uid=ME,epoch=++this.epoch;this.uid=uid;this.busy=true;this.ready=false;
+    $('flRefresh').disabled=true;$('flStatus').textContent='Sıralama yükleniyor…';this.draw();
+    try{
+      const friends=(await friendApi(Net.db,uid).list()).friends,roster=[{peer:uid,name:clean($('myName').value),state:'accepted'},...friends];
+      const unique=[...new Map(roster.map(x=>[x.peer,x])).values()],stats=Object.create(null);
+      for(let i=0;i<unique.length;i+=12){
+        await Promise.all(unique.slice(i,i+12).map(async x=>{try{stats[x.peer]=(await Net.db.ref('stats/'+x.peer).once('value')).val()||null}catch(e){stats[x.peer]=undefined}}));
+        if(ME!==uid||epoch!==this.epoch)return;
+      }
+      if(ME!==uid||epoch!==this.epoch)return;this.roster=unique;this.stats=stats;this.ready=true;this.draw();
+    }catch(e){if(ME===uid&&epoch===this.epoch)$('flStatus').textContent='Sıralama yüklenemedi. Yeniden dene.'}
+    finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('flRefresh').disabled=false}}
+  },
+  draw(){
+    const period=this.period,week=wkKey(),month=moKey();$('flPeriod').textContent=period==='w'?'Hafta başlangıcı: '+week:period==='m'?'Ay: '+moName(month):'Tüm zamanlar';
+    for(const b of $('flTabs').querySelectorAll('[data-fl]'))b.setAttribute('aria-pressed',String(b.dataset.fl===period));
+    if(!this.ready){$('flOverview').hidden=true;$('flPodium').hidden=true;stableHTML($('flList'),'<p class="tiny">Veri bekleniyor…</p>');return}
+    const rows=friendRankRows(this.uid,this.roster,this.stats,period,week,month),me=rows.find(r=>r.uid===this.uid),ranked=rows.filter(r=>r.rank!==null),top=ranked.slice(0,3),failed=rows.filter(r=>!r.known).length;
+    const num=v=>v===null?'—':Number(v).toLocaleString('tr-TR'),metric=(label,v)=>'<div class="fl-metric"><small>'+label+'</small><b>'+v+'</b></div>';
+    $('flOverview').hidden=!me;stableHTML($('flOverview'),me?metric('Sıran',me.rank===null?'—':'#'+me.rank)+metric('Puanın',num(me.p))+metric('Galibiyet',me.rate===null?'—':'%'+me.rate):'');
+    $('flStatus').textContent=failed?failed+' oyuncunun istatistiği yüklenemedi. Sıralama eksik olabilir.':ranked.length?ranked.length+' aktif oyuncu · '+rows.length+' toplam':'Bu dönemde henüz tamamlanmış maç yok.';
+    $('flPodium').hidden=!top.length;stableHTML($('flPodium'),top.map(r=>'<div class="fl-pod" data-rank="'+r.rank+'"><span class="fl-medal" aria-hidden="true">'+(['','🥇','🥈','🥉'][r.rank]||'🏅')+'</span><strong>'+esc(r.name)+'</strong><b>'+num(r.p)+'</b><small>puan · #'+r.rank+'</small></div>').join(''));
+    stableHTML($('flList'),rows.length?rows.map(r=>'<div class="fl-row'+(r.uid===this.uid?' me':'')+'"><span class="fl-rank">'+(r.rank===null?'—':r.rank)+'</span><div class="fl-person"><strong>'+esc(r.name)+(r.uid===this.uid?' · Sen':'')+'</strong><small>'+(r.known?num(r.g)+' maç · '+num(r.w)+' gal. · '+(r.rate===null?'—':'%'+r.rate)+(period==='a'?' · '+num(r.correct)+' doğru':''):'Veri alınamadı')+'</small></div><div class="fl-points"><b>'+num(r.p)+'</b><small>puan</small></div></div>').join(''):'<p class="tiny">Henüz oyuncu yok.</p>');
+    $('flHelp').textContent='Puan, ardından galibiyet sayısı belirleyicidir. Eşit puan ve galibiyet aynı sırayı paylaşır. Bot maçları dahil değildir.'+(period==='a'?'':' Doğru cevap toplamı yalnızca tüm zamanlarda mevcut.');
+  }
+};
+$('flGo').onclick=()=>FriendRanks.open('lobby');
+$('flFromFriends').onclick=()=>FriendRanks.open('friends');
+$('flBack').onclick=()=>{if(FriendRanks.back==='friends')Friends.open();else show('lobby')};
+$('flRefresh').onclick=()=>FriendRanks.load();
+$('flTabs').addEventListener('click',e=>{const b=e.target.closest('[data-fl]');if(b&&['w','m','a'].includes(b.dataset.fl)){FriendRanks.period=b.dataset.fl;FriendRanks.draw()}});
 
 /* V24.3: short-lived participant-only invitations. Passwords never enter invitation records. */
 const INVITE_TTL=300000,INVITE_COOLDOWN=30000;
@@ -4937,11 +5029,11 @@ const firebaseConfig={
   if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
   auth.onAuthStateChanged(u=>{
     $('authBox').hidden=!!u;$('cards').hidden=!u;$('who').hidden=!u;
-    if(!u){Notifications.stop();Invites.stop();FriendPresence.stop();Friends.reset();if(screen==='friends')show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
+    if(!u){Notifications.stop();Invites.stop();FriendPresence.stop();Friends.reset();FriendRanks.reset();if(['friends','friendRanks'].includes(screen))show('lobby');ME=null;$('create').disabled=true;$('joinB').disabled=true;if(!hashCode())lStatus('Oynamak için Google hesabınla giriş yap.');return}
     ME=u.uid;myPhoto=u.photoURL||'';$('whoName').textContent=u.displayName||u.email||'Oyuncu';
     if(!$('myName').value)$('myName').value=clean((u.displayName||'').split(' ')[0]);
     if(!Net.db)Net.init(firebase.database(),u.uid);else Net.uid=u.uid;
-    Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Notifications.start(u.uid);Invites.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
+    FriendRanks.reset();Friends.reset();Friends.register().catch(()=>{});FriendPresence.start(u.uid);Notifications.start(u.uid);Invites.start(u.uid);Season.load();Community.load();Fixes.load();Admin.check();
     try{if(localStorage.getItem('oo-intro')!=='1'&&!code)setTimeout(()=>Intro.open(),500)}catch(e){}
     Net.db.ref('stats/'+u.uid+'/fm').once('value').then(v=>{myFrame=okFm(v.val())}).catch(()=>{});
     $('create').disabled=false;$('joinB').disabled=false;$('watchB').disabled=false;$('dGo').disabled=false;$('botGo').disabled=false;lStatus('Hazır. Oda kur ya da arkadaşının koduyla katıl.');
