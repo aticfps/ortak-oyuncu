@@ -271,3 +271,57 @@ integration('V26.1a production worker recovers only its bound database and prese
  assert.equal(prod.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
  assert.equal(prod.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('a').rating,1000);
 });
+
+const prodUrl='https://ortak-oyuncu.pages.dev/api/ranked/play';
+const prodFlags={RANKED_PRODUCTION_ENABLED:'true',RANKED_PRODUCTION_HOST:'ortak-oyuncu.pages.dev'};
+test('V26.1b production gate is opt-in, exact host, HTTPS, same origin and mutually exclusive',async()=>{
+ const {rankedPreviewPlay}=await mod;
+ let authCalls=0;const v=async token=>{authCalls++;return {uid:token}};
+ for(const [target,env,headers] of [
+  [prodUrl,{},{}],[prodUrl,{...prodFlags,RANKED_PRODUCTION_ENABLED:'false'},{}],
+  [prodUrl,{...prodFlags,RANKED_PRODUCTION_HOST:'evil.example'},{}],
+  [url,prodFlags,{}],['https://evil.example/api/ranked/play',prodFlags,{}],
+  ['http://ortak-oyuncu.pages.dev/api/ranked/play',prodFlags,{}],
+  ['https://ortak-oyuncu.pages.dev:8443/api/ranked/play',prodFlags,{}],
+  [prodUrl,{...prodFlags,...flags},{}],[url,{...prodFlags,...flags},{}],
+  [prodUrl,prodFlags,{origin:'https://evil.example'}]]){
+  assert.equal((await rankedPreviewPlay(req({action:'queue.status'},'c',{url:target,headers}),env,v)).status,404);
+ }
+ assert.equal(authCalls,0);
+ assert.equal((await rankedPreviewPlay(req({action:'queue.status'},null,{url:prodUrl}),prodFlags,v)).status,401);
+ assert.equal((await rankedPreviewPlay(req({action:'queue.join',rating:9999},'c',{url:prodUrl}),prodFlags,v)).status,400);
+ assert.equal((await rankedPreviewPlay(req({action:'queue.status'},'c',{url:prodUrl}),prodFlags,v)).status,503);
+});
+integration('V26.1b verified production accounts can play without preview allowlist, only in bound database',async t=>{
+ const {rankedPreviewPlay}=await mod;
+ const prod=await fixture(t),preview=await fixture(t);
+ const env={...prodFlags,RANKED_PREVIEW_UIDS:'a',RANKED_DB:prod.db};
+ async function call(uid,action,fields={}){const r=await rankedPreviewPlay(req({action,...fields},uid,{url:prodUrl}),env,verify);return {status:r.status,body:await r.json()}}
+ assert.equal((await call('a','queue.join')).status,200);
+ assert.equal((await call('b','queue.join')).status,200);
+ const offer=await call('a','queue.find');assert.equal(offer.status,200);assert.equal(offer.body.status,'reserved');
+ const matchId=offer.body.matchId;
+ assert.equal((await call('c','offer.status',{matchId})).status,404);
+ assert.equal((await call('a','offer.respond',{matchId,decision:'accept'})).status,200);
+ assert.equal((await call('b','offer.respond',{matchId,decision:'accept'})).status,200);
+ assert.equal((await call('a','offer.start',{matchId})).status,200);
+ assert.equal((await call('c','game.surrender',{matchId,commandId:'x'})).status,404);
+ const result=await call('b','game.surrender',{matchId,commandId:'s'});assert.equal(result.status,200);assert.equal(result.body.settlement.ratingAfter,975);
+ assert.equal((await call('a','history.me')).body.matches.length,1);
+ assert.equal(preview.sql.prepare('SELECT count(*) AS n FROM ranked_matches').get().n,0);
+ assert.equal(preview.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('b').rating,1000);
+ assert.equal((await rankedPreviewPlay(req({action:'queue.status'},'b'),{...flags,RANKED_PREVIEW_UIDS:'a',RANKED_DB:preview.db},verify)).status,403);
+ env.RANKED_PRODUCTION_ENABLED='false';
+ assert.equal((await call('a','queue.join')).status,404);
+});
+integration('V26.1b production status checks all tables and defaults disabled',async t=>{
+ const {rankedStatus}=await import('../server/ranked-foundation.mjs'),f=await fixture(t);
+ const db={prepare(q){return {first:async()=>f.sql.prepare(q).get()||null}}};
+ const request=new Request('https://ortak-oyuncu.pages.dev/api/ranked/status');
+ const env={...prodFlags,RANKED_DB:db};
+ assert.equal((await (await rankedStatus(env,request)).json()).rankedEnabled,true);
+ assert.equal((await (await rankedStatus({RANKED_DB:db},request)).json()).rankedEnabled,false);
+ assert.equal((await (await rankedStatus(env,new Request('https://'+host+'/api/ranked/status'))).json()).rankedEnabled,false);
+ f.sql.exec('DROP TABLE ranked_request_limits');
+ const missing=await rankedStatus(env,request);assert.equal(missing.status,503);assert.equal((await missing.json()).rankedEnabled,false);
+});
