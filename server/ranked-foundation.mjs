@@ -8,7 +8,7 @@ export async function rankedStatus(env,request){
     await env.RANKED_DB.prepare('SELECT uid FROM ranked_players LIMIT 1').first();
     const production=rankedScope(request,env)==='production';
     if(production){
-      for(const table of ['ranked_matches','ranked_offers','ranked_queue','ranked_request_limits','ranked_sessions','ranked_settlements'])await env.RANKED_DB.prepare('SELECT 1 FROM '+table+' LIMIT 1').first();
+      for(const table of ['ranked_matches','ranked_offers','ranked_queue','ranked_request_limits','ranked_sessions','ranked_settlements','ranked_names'])await env.RANKED_DB.prepare('SELECT 1 FROM '+table+' LIMIT 1').first();
     }
     return json({version:VERSION,ready:true,rankedEnabled:production});
   }
