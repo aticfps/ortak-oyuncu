@@ -8,10 +8,11 @@ import {createRankedSessionService,d1RankedSessionStore} from './ranked-session.
 import {finalizeRankedSession} from './ranked-finalization.mjs';
 import {readRankedSeason} from './ranked-seasons.mjs';
 import {readRankedHistory} from './ranked-history.mjs';
+import {readRankedLeaderboard} from './ranked-leaderboard.mjs';
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const clientId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(x);
 const actions={
- 'season.me':[], 'history.me':[],
+ 'season.me':[], 'history.me':[], 'leaderboard.get':[],
  'queue.join':[], 'queue.status':[], 'queue.find':[], 'queue.cancel':[],
  'offer.status':['matchId'], 'offer.respond':['matchId','decision'], 'offer.start':['matchId'],
  'game.poll':['matchId'], 'game.answer':['matchId','commandId','round','input'],
@@ -69,6 +70,7 @@ export async function rankedPreviewPlay(request,env,verify){
  try{
   if(x.action==='season.me')return json(await readRankedSeason(db,uid));
   if(x.action==='history.me')return json(await readRankedHistory(db,uid));
+  if(x.action==='leaderboard.get')return json(await readRankedLeaderboard(db,uid));
   const q=createRankedMatchmaker(db),admission=createRankedAdmission(db),sessions=createRankedSessionService(d1RankedSessionStore(db));
   if(x.action.startsWith('queue.')){
    // Only authorized preview accounts may enter through this transport.
