@@ -1070,7 +1070,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   <section class="screen on" id="lobby">
     <div class="hero">
       <div><div class="v22-eyebrow">Futbol bilgi arenası</div><h1>Ortak<br><span>Oyuncu</span></h1>
-      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>114 takım</span><span>Canlı düello</span><span>2–8 oyuncu</span></div></div>
+      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>30 takım</span><span>Canlı düello</span><span>2–8 oyuncu</span></div></div>
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
@@ -3426,7 +3426,11 @@ const match=(input,list,universe=PLAYERS)=>{const q=norm(String(input||''));if(q
   return best<Infinity&&hits.length===1&&allowed.has(hits[0])?hits[0]:null;
 };
 
-const IDS=Object.keys(TEAMS);
+// Temporary easy pool: preserve the full archive, restrict new playable clubs.
+const ACTIVE_LEAGUES=Object.freeze(['GS FB BJK TS IBF','RMA BAR ATM SEV VAL','JUV MIL INT NAP ROM','MUN MCI LIV CHE ARS','BAY BVB B04 RBL SGE','PSG OM OL MON LIL']);
+const ARCHIVE_IDS=Object.keys(TEAMS);
+const IDS=ACTIVE_LEAGUES.flatMap(x=>x.split(' '));
+const activeClub=id=>IDS.includes(id);
 const has=id=>typeof id==='string'&&Object.prototype.hasOwnProperty.call(TEAMS,id);
 const SHC={};const shared=(a,b)=>{if(!has(a)||!has(b))return[];const k=a<b?a+'|'+b:b+'|'+a;return SHC[k]||(SHC[k]=PLAYERS.filter(p=>p.c.includes(a)&&p.c.includes(b)))};
 const starOf=id=>STARS[id]||3;const ptsOf=(a,b)=>Math.ceil((starOf(a)+starOf(b))/2);const starTxt=n=>'★'.repeat(n)+'<i class="off">'+'★'.repeat(5-n)+'</i>';
@@ -3739,7 +3743,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.1a';
+const APPV='25.3c';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3916,9 +3920,9 @@ const Daily={st:null,T:null,all:null,
   day(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date())},
   rng(seed){let h=1779033703^seed.length;for(const ch of seed){h=Math.imul(h^ch.charCodeAt(0),3432918353);h=h<<13|h>>>19}
     return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);h^=h>>>16;return(h>>>0)/4294967296}},
-  pairs(){const R=this.rng('oo-'+this.day());if(!this.all){this.all=[];for(let i=0;i<IDS.length;i++)for(let j=i+1;j<IDS.length;j++)if(shared(IDS[i],IDS[j]).filter(p=>!p.x).length>=2)this.all.push([IDS[i],IDS[j]])}
+  pairs(){const day=this.day(),R=this.rng('oo-'+day),ids=day<'2026-11-28'?ARCHIVE_IDS:IDS;if(!this.all||this.poolDay!==day){this.poolDay=day;this.all=[];for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)if(shared(ids[i],ids[j]).filter(p=>!p.x).length>=2)this.all.push([ids[i],ids[j]])}
     const out=[],used=new Set(),free=([a,b])=>!used.has(a)&&!used.has(b);
-    for(const t of[1,2,3,3,4]){let c=this.all.filter(p=>free(p)&&ptsOf(p[0],p[1])===t);if(!c.length)c=this.all.filter(free);const p=c[Math.floor(R()*c.length)];used.add(p[0]);used.add(p[1]);out.push(p)}
+    for(const t of[1,2,3,3,4]){let c=this.all.filter(p=>free(p)&&ptsOf(p[0],p[1])===t);if(!c.length)c=this.all.filter(free);if(!c.length)throw Error('DAILY_POOL_EXHAUSTED');const p=c[Math.floor(R()*c.length)];used.add(p[0]);used.add(p[1]);out.push(p)}
     return out},
   save(){try{localStorage.setItem('oo-daily',JSON.stringify(this.st))}catch(e){}},
   async open(){
@@ -4513,7 +4517,7 @@ function removePlayer(i){
   if(G.ob)checkVotes();
 }
 const pairOK=(a,b)=>a!==b&&!G.pairs.includes(pkey(a,b))&&shared(a,b).some(p=>!G.used.includes(p.n)&&themeOK(p));
-function leagueIds(){const l=G&&G.lg;if(!l||l==='a')return IDS;if(l==='e')return LEAGUES.slice(1).flatMap(x=>x[1].split(' '));return(LEAGUES[+l]||LEAGUES[0])[1].split(' ').filter(has)}
+function leagueIds(){const l=G&&G.lg;if(!l||l==='a')return IDS;if(l==='e')return ACTIVE_LEAGUES.slice(1).flatMap(x=>x.split(' '));return(ACTIVE_LEAGUES[+l]||ACTIVE_LEAGUES[0]).split(' ').filter(activeClub)}
 function nine(){                         // 9 takımın HER ikilisinin ortak oyuncusu var; lig seçiliyse önce o ligden takım alınır
   const IN=new Set(leagueIds()),all=IN.size===IDS.length,seeds=[...IN];
   const wpick=c=>{const w=c.map(x=>Math.pow(starOf(x),2.2));let r=Math.random()*w.reduce((p,q)=>p+q,0);for(let i=0;i<c.length;i++){r-=w[i];if(r<=0)return c[i]}return c[c.length-1]};
@@ -4528,7 +4532,7 @@ function nine(){                         // 9 takımın HER ikilisinin ortak oyu
   for(let t=0;t<120;t++){const pool=[seeds[Math.floor(Math.random()*seeds.length)]];      // gevşek: her takımın en az 2 ortağı olsun
     while(pool.length<9){const c=IDS.filter(x=>!pool.includes(x)&&pool.some(y=>pairOK(x,y)));if(!c.length)break;pool.push(c[Math.floor(Math.random()*c.length)])}
     if(pool.length===9&&pool.every(x=>pool.filter(y=>pairOK(x,y)).length>=2))return pool.sort(()=>Math.random()-.5)}
-  const big=['RMA','BAR','ATM','MUN','MCI','CHE','ARS','LIV','JUV','INT','MIL','PSG','BAY','GS','FB','BJK'];
+  const big=['RMA','BAR','ATM','MUN','MCI','CHE','ARS','LIV','JUV','INT','MIL','PSG','BAY','GS','FB','BJK'].filter(activeClub);
   for(let t=0;t<200;t++){const pool=[];for(const x of big.slice().sort(()=>Math.random()-.5))if(pool.length<9&&pool.every(y=>pairOK(x,y)))pool.push(x);if(pool.length===9)return pool}
   return big.slice(0,9);
 }
@@ -4554,7 +4558,7 @@ function nextRound(){
   G.nine=G.md==='k'?[]:nine();
   if(G.md==='k'){const x=kPick();if(!x){G.ph='end';G.note='Bu tema için sıralı kariyer havuzu tükendi.';G.pk=[];mark();return}G.pk=[];Object.assign(G,{kx:x.n,kc:x.k.slice(),a:x.k[0],b:x.k[1],ph:'ans',end:now()+G.T*1000+800,pts:Math.min(5,x.k.length-1)})}
   if(G.th==='t'&&G.md!=='k'){const all=[];for(let x=0;x<IDS.length;x++)for(let y=x+1;y<IDS.length;y++)if(pairOK(IDS[x],IDS[y]))all.push([IDS[x],IDS[y]]);if(all.length){const[x,y]=all[Math.floor(Math.random()*all.length)];G.nine=[];G.pk=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2500,rvOK:1,pts:ptsOf(x,y)})}}
-  else if(G.th==='d'&&G.md!=='k'){const dd=DERBY.filter(([x,y])=>has(x)&&has(y)&&pairOK(x,y));if(dd.length){const[x,y]=dd[Math.floor(Math.random()*dd.length)];G.nine=[];G.pk=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2500,rvOK:1,pts:ptsOf(x,y)})}}
+  else if(G.th==='d'&&G.md!=='k'){const dd=DERBY.filter(([x,y])=>activeClub(x)&&activeClub(y)&&pairOK(x,y));if(dd.length){const[x,y]=dd[Math.floor(Math.random()*dd.length)];G.nine=[];G.pk=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2500,rvOK:1,pts:ptsOf(x,y)})}}
   else if(G.md==='q'){const x=G.nine[0],y=G.nine[1];G.pk=[];G.nine=[];Object.assign(G,{a:x,b:y,ph:'rev',rvEnd:now()+2000,rvOK:1,pts:ptsOf(x,y)})}
   G.pl.forEach(p=>{p.lk=0;p.lr='';p.wr=null;p.h=null;p.ip='';p.obd=0;p.g=0;p.jb='';p.at=[]});mark();
 }
@@ -4588,7 +4592,7 @@ function joker(i){
 function hintIt(i){                       // ipucu: süre yarıya inince, bilirsen puanın yarısı
   const p=P(i);if(!p||G.ph!=='ans'||now()>=G.end||p.ip||!isDuel(p.u)||now()<(+G.end||0)-G.T*500)return;
   const pool=cands().filter(x=>G.md==='k'||!G.used.includes(x.n));if(!pool.length)return;
-  const oth=x=>x.c.filter(c=>c!==G.a&&c!==G.b&&has(c)),rich=pool.filter(x=>oth(x).length),from=rich.length?rich:pool,x=from[Math.floor(Math.random()*from.length)];
+  const oth=x=>x.c.filter(c=>c!==G.a&&c!==G.b&&activeClub(c)),rich=pool.filter(x=>oth(x).length),from=rich.length?rich:pool,x=from[Math.floor(Math.random()*from.length)];
   const o=oth(x).sort(()=>Math.random()-.5).slice(0,2).map(c=>TEAMS[c][0]),w=x.n.split(/\s+/);
   p.ip=clip(o.length&&G.md!=='k'?`Ayrıca ${o.join(' ve ')} formasını giydi. Adı ${w[0][0].toLocaleUpperCase('tr')} ile başlıyor.`:`Adı ${w[0][0].toLocaleUpperCase('tr')} ile başlıyor, ${w.length} kelime, ${[...x.n.replace(/\s/g,'')].length} harf.`,110);mark();
 }
@@ -4600,7 +4604,7 @@ const cands=()=>G.md==='k'?PLAYERS.filter(p=>p.n===G.kx):shared(G.a,G.b).filter(
 const kShown=()=>{const tot=(G.kc||[]).length,st=(+G.end||0)-G.T*1000-800,el=Math.max(0,gameNow()-st);return Math.min(tot,2+Math.floor(el/(G.T*1000/4)))};
 const kPts=()=>Math.min(5,Math.max(1,(G.kc||[]).length-kShown()+1));
 const careerPool=(players,used,theme)=>players.filter(p=>Array.isArray(p.k)&&p.k.length>=3&&p.k.every(has)&&!used.includes(p.n)&&(theme!=='t'||isTurk(p.n))&&(theme!=='e'||STAR.has(p.n)));
-function kPick(){const pool=careerPool(PLAYERS,G.used,G.th);return pool.length?pool[Math.floor(Math.random()*pool.length)]:null}
+function kPick(){const pool=careerPool(PLAYERS,G.used,G.th).filter(p=>p.k.every(activeClub));return pool.length?pool[Math.floor(Math.random()*pool.length)]:null}
 const winPts=p=>{const v=+G.pts||1;/*k: pts answer anında hesaplanır*/return p&&p.ip?Math.ceil(v/2):v};
 /* itiraz: cevaplar tur sonuna kadar gizli olduğu için, kimse bilemeden biten turda sonuç ekranında yapılır */
 function objectIt(i,t){
