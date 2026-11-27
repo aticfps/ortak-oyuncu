@@ -9,6 +9,7 @@ import {finalizeRankedSession} from './ranked-finalization.mjs';
 import {readRankedSeason} from './ranked-seasons.mjs';
 import {readRankedHistory} from './ranked-history.mjs';
 import {readRankedLeaderboard} from './ranked-leaderboard.mjs';
+import {recoverRankedQueue} from './ranked-recovery.mjs';
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const clientId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,64}$/.test(x);
 const actions={
@@ -74,7 +75,11 @@ export async function rankedPreviewPlay(request,env,verify){
   const q=createRankedMatchmaker(db),admission=createRankedAdmission(db),sessions=createRankedSessionService(d1RankedSessionStore(db));
   if(x.action.startsWith('queue.')){
    // Only authorized preview accounts may enter through this transport.
-   return json(safeQueue(await q[x.action.split('.')[1]](uid)));
+   const entry=await q[x.action.split('.')[1]](uid);
+   if(entry.opponentUid&&!allow.includes(entry.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
+   const recovered=await recoverRankedQueue(db,q,uid,entry);
+   if(recovered.opponentUid&&!allow.includes(recovered.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
+   return json(safeQueue(recovered));
   }
   const row=await db.prepare('SELECT uid_a,uid_b,status FROM ranked_matches WHERE match_id=?').bind(x.matchId).first();
   if(!row||![row.uid_a,row.uid_b].includes(uid))return json({error:'MATCH_NOT_FOUND'},404);
