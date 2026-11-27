@@ -1353,7 +1353,7 @@ Hakan Çalhanoğlu|MIL INT
 Cenk Tosun|BJK FB
 Burak Yılmaz|BJK FB GS TS
 Gökhan Gönül|FB BJK
-Caner Erkin|GS FB BJK INT
+Caner Erkin|GS FB BJK
 Tolga Ciğerci|GS FB
 Emre Mor|BVB GS FB
 Mario Gómez|BAY BJK
@@ -1370,7 +1370,7 @@ Gary Medel|INT BJK
 Adriano Correia|BAR BJK
 Demba Ba|CHE BJK
 Anderson Talisca|BJK FB
-Wout Weghorst|MUN BJK
+Wout Weghorst|MUN BJK TSG
 Ciro Immobile|BVB BJK
 Shinji Kagawa|BVB MUN BJK
 Hakim Ziyech|CHE GS
@@ -1432,7 +1432,7 @@ Jadon Sancho|BVB MUN CHE
 Erling Haaland|BVB MCI
 Jude Bellingham|BVB RMA
 Achraf Hakimi|RMA BVB INT PSG
-Pierre-Emerick Aubameyang|MIL BVB ARS BAR CHE|auba
+Pierre-Emerick Aubameyang|BVB ARS BAR CHE|auba
 Henrikh Mkhitaryan|BVB MUN ARS INT|miki
 Christian Pulisic|BVB CHE MIL
 Toni Kroos|BAY RMA
@@ -2611,7 +2611,7 @@ Islam Slimani|NEW FB MON OL
 Djibril Sidibé|LIL MON EVE
 Benoît Badiashile|MON CHE
 Kamil Glik|TOR MON
-Fabinho|MON LIV
+Fabinho|RMA MON LIV
 Rony Lopes|MON LIL SEV
 Adama Diakhaby|REN MON
 Pietro Pellegri|GNO MON MIL TOR
@@ -3388,7 +3388,7 @@ Paul Wanner|BAY ELV
 Mohamed Salah|TS
 Fabinho|TS
 Lazar Marković|TS
-Rigobert Song|LIV GS TS|rigobert,song
+Rigobert Song|LIV GS TS KOE RCL|rigobert,song
 Rüştü Reçber|FB BAR BJK|rustu,rustu recber
 Leandro Trossard|BJK
 Oğuzhan Özyakup|ARS BJK|oguzhan,ozyakup
@@ -3506,7 +3506,7 @@ Mauro Icardi|INT PSG GS
 Ángel Di María|RMA MUN PSG JUV
 Alexis Sánchez|UDI BAR ARS MUN INT OM SEV
 Michy Batshuayi|OM CHE BVB VAL CRY BJK NFO FB GS SGE
-Pierre-Emerick Aubameyang|MIL LIL MON BVB ARS BAR CHE OM
+Pierre-Emerick Aubameyang|LIL MON BVB ARS BAR CHE OM
 Mario Balotelli|INT MCI MIL LIV NIC OM MNZ GNO
 Gervinho|LMS LIL ARS ROM PAR TS
 Ricardo Quaresma|BAR INT CHE BJK
@@ -3869,7 +3869,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='26.2b';
+const APPV='26.3a';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
