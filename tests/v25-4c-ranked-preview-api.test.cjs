@@ -180,3 +180,70 @@ integration('V26.0b missing rate schema fails closed before gameplay writes',asy
  assert.equal((await f.call('a','queue.join')).status,503);
  assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_queue').get().n,0);
 });
+
+integration('V26.0c sweep bounds expired offers and queue pruning, preserves fresh entries',async t=>{
+ const f=await fixture(t),{sweepRanked}=await import('../server/ranked-sweeper.mjs'),now=Date.now();
+ const add=f.sql.prepare('INSERT INTO ranked_players(uid,created_at) VALUES (?,1)');
+ const offer=f.sql.prepare("INSERT INTO ranked_offers(match_id,uid_a,uid_b,created_at,expires_at,status) VALUES (?,?,?,?,?,'pending')");
+ const enqueue=f.sql.prepare('INSERT INTO ranked_queue(uid,joined_at,seen_at) VALUES (?,?,?)');
+ for(let i=0;i<52;i++){
+  const a='oa'+i,b='ob'+i;add.run(a);add.run(b);
+  const at=i===51?now-1000:now-90000;offer.run('o'+i,a,b,at,at+20000);
+ }
+ for(let i=0;i<102;i++){const uid='q'+i;add.run(uid);const at=i===101?now-1000:now-40000;enqueue.run(uid,at,at)}
+ const report=await sweepRanked(f.db,{clock:()=>now});
+ assert.deepEqual(report,{expiredOffers:50,prunedQueue:100,selected:0,checked:0,failed:0});
+ assert.equal(f.sql.prepare("SELECT count(*) AS n FROM ranked_offers WHERE status='pending'").get().n,2);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_queue').get().n,2);
+ const second=await sweepRanked(f.db,{clock:()=>now});assert.equal(second.expiredOffers,1);assert.equal(second.prunedQueue,1);
+ assert.equal(f.sql.prepare("SELECT status FROM ranked_matches WHERE match_id='o51'").get().status,'active');
+ assert.equal(f.sql.prepare("SELECT uid FROM ranked_queue WHERE uid='q101'").get().uid,'q101');
+});
+integration('V26.0c sweep voids abandoned accepted reservations in bounded batches without Elo',async t=>{
+ const f=await fixture(t),{sweepRanked}=await import('../server/ranked-sweeper.mjs'),now=Date.now(),created=now-180000;
+ for(let i=0;i<4;i++){
+  const a='sa'+i,b='sb'+i,id='sweep'+i;
+  for(const uid of [a,b])f.sql.prepare('INSERT INTO ranked_players(uid,created_at) VALUES (?,1)').run(uid);
+  f.sql.prepare("INSERT INTO ranked_offers(match_id,uid_a,uid_b,created_at,expires_at,status) VALUES (?,?,?,?,?,'pending')").run(id,a,b,created,created+20000);
+  f.sql.prepare("UPDATE ranked_offers SET accepted_a=?,accepted_b=?,status='accepted' WHERE match_id=?").run(created+1,created+2,id);
+ }
+ const first=await sweepRanked(f.db,{clock:()=>now});assert.equal(first.checked,3);assert.equal(first.failed,0);
+ const second=await sweepRanked(f.db,{clock:()=>now});assert.equal(second.checked,1);
+ assert.equal(f.sql.prepare("SELECT count(*) AS n FROM ranked_matches WHERE status='void'").get().n,4);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+});
+integration('V26.0c scheduled recovery preserves live sessions and voids both-absent sessions',async t=>{
+ const {sweepRanked}=await import('../server/ranked-sweeper.mjs');
+ const live=await recoveryFixture(t,{sessionAge:5000});
+ assert.equal((await sweepRanked(live.db)).selected,0);
+ assert.equal(live.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(live.id).status,'active');
+ const stale=await recoveryFixture(t,{sessionAge:60000});
+ assert.equal((await sweepRanked(stale.db)).checked,1);
+ assert.equal(stale.sql.prepare('SELECT status FROM ranked_matches WHERE match_id=?').get(stale.id).status,'void');
+ assert.equal(stale.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,0);
+ assert.equal((await sweepRanked(stale.db)).selected,0);
+});
+integration('V26.0c interrupted terminal settlement is finalized once by sweep',async t=>{
+ const {sweepRanked}=await import('../server/ranked-sweeper.mjs');
+ const f=await recoveryFixture(t,{sessionAge:60000});
+ // Surrender at session creation time, before the heartbeat expiry.
+ const r=await f.service.command(f.id,{id:'internal-surrender',type:'surrender',uid:'a'});assert.equal(r.state.status,'completed');
+ const terminal=await f.service.terminalRecord(f.id),result=terminal.result;
+ f.sql.prepare("UPDATE ranked_matches SET status='completed',score_a=?,score_b=?,finished_at=? WHERE match_id=?").run(result.scoreA,result.scoreB,result.finishedAt,f.id);
+ assert.equal((await sweepRanked(f.db)).checked,1);
+ assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('a').rating,975);
+ assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('b').rating,1025);
+ assert.equal((await sweepRanked(f.db)).selected,0);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
+});
+test('V26.0c worker is scheduled-only and refuses missing or production scope',async()=>{
+ const worker=(await import('../server/ranked-sweeper-worker.mjs')).default;
+ assert.equal((await worker.fetch()).status,404);
+ await assert.rejects(worker.scheduled({},{}),/PREVIEW_SWEEPER_NOT_CONFIGURED/);
+ await assert.rejects(worker.scheduled({},{RANKED_SWEEPER_ENABLED:'true',RANKED_SWEEPER_SCOPE:'production',RANKED_PREVIEW_DB:{}}),/PREVIEW_SWEEPER_NOT_CONFIGURED/);
+ await assert.rejects(worker.scheduled({},{RANKED_SWEEPER_ENABLED:'true',RANKED_SWEEPER_SCOPE:'preview',RANKED_DB:{}}),/PREVIEW_SWEEPER_NOT_CONFIGURED/);
+ const cfg=JSON.parse(fs.readFileSync(path.join(root,'workers','ranked-preview-sweeper','wrangler.example.json'),'utf8'));
+ assert.equal(cfg.workers_dev,false);assert.equal(cfg.preview_urls,false);assert.deepEqual(cfg.triggers.crons,['* * * * *']);
+ assert.equal(cfg.d1_databases[0].database_name,'ortak-oyuncu-ranked-preview');
+ assert.equal(cfg.d1_databases[0].database_id,'REPLACE_WITH_PREVIEW_DATABASE_ID');
+});
