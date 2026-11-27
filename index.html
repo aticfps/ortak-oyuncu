@@ -1051,6 +1051,8 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
 .rk-level{--rk-color:#a3a3a3;display:inline-grid;place-items:center;width:70px;height:70px;border:3px solid var(--rk-color);border-radius:20px;color:var(--rk-color);background:var(--line);font:900 36px/1 var(--ui)}
 .rk-level.l1{--rk-color:#94a3b8}.rk-level.l2,.rk-level.l3{--rk-color:#45a36f}.rk-level.l4,.rk-level.l5{--rk-color:#d4a017}.rk-level.l6,.rk-level.l7{--rk-color:#e39a31}.rk-level.l8,.rk-level.l9{--rk-color:#ea7443}.rk-level.l10{--rk-color:#e34b58}
 .rk-progress{display:grid;gap:6px;padding:4px 8px 12px;min-width:0}.rk-progress-label{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;font:600 12px/1.4 var(--ui);color:var(--mute)}
+.rk-season{padding:12px 8px 2px;border-top:1px solid var(--line);margin-top:12px;display:grid;gap:9px}.rk-season[hidden],.rk-season [hidden]{display:none!important}
+.rk-season-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.rk-season-head strong{font-size:15px}.rk-season-head small,.rk-season-status{font-size:12px;color:var(--mute)}.rk-season-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.rk-season-kpis>div{padding:10px;border:1px solid var(--line);border-radius:10px;min-width:0;display:grid;gap:3px}.rk-season-kpis b{font-size:21px;overflow-wrap:anywhere}.rk-season-kpis small{font-size:11px;color:var(--mute)}.rk-season-result{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;text-align:center}.rk-season-result>div{display:grid;gap:3px;min-width:0}.rk-season-result small{font-size:10px;overflow-wrap:anywhere}.rk-season-result b{font-size:16px}.rk-season [data-direction="up"]{color:#16874d}.rk-season [data-direction="down"]{color:#d64d55}#rkSeasonWinBar{width:100%;height:8px;accent-color:#45a36f}
 #rkLevelProgress{width:100%;height:12px;accent-color:var(--flood)}#rkLevelNotice{font-weight:800;color:var(--ink);overflow-wrap:anywhere}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1212,7 +1214,7 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   <section class="screen" id="ranked">
     <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1a</p></div><span class="v251-beta">Hazırlık</span></div>
     <div class="card v251-panel"><h3>Sunucu bağlantısı</h3><p id="rankStatus" class="tiny" role="status">Kontrol ediliyor…</p><button type="button" id="rankRefresh" class="btn ghost sm">Yenile</button></div>
-    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="rk-level" id="rkLevelBadge" aria-hidden="true">—</span><span class="v251-beta" id="rkLevelName">Seviye —</span><strong id="rankRating">—</strong><small>ELO</small></div><div class="rk-progress"><div class="rk-progress-label"><span id="rkLevelRange">—</span><span id="rkLevelNext">—</span></div><progress id="rkLevelProgress" max="100" value="0" aria-label="Sonraki seviyeye ilerleme"></progress></div><div id="rankStats" class="v251-stats"></div></div>
+    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="rk-level" id="rkLevelBadge" aria-hidden="true">—</span><span class="v251-beta" id="rkLevelName">Seviye —</span><strong id="rankRating">—</strong><small>ELO</small></div><div class="rk-progress"><div class="rk-progress-label"><span id="rkLevelRange">—</span><span id="rkLevelNext">—</span></div><progress id="rkLevelProgress" max="100" value="0" aria-label="Sonraki seviyeye ilerleme"></progress></div><div id="rankStats" class="v251-stats"></div><section id="rkSeason" class="rk-season" aria-label="Rekabetçi sezon" hidden><div class="rk-season-head"><strong id="rkSeasonTitle">Rekabetçi sezon</strong><small id="rkSeasonEnd"></small></div><div id="rkSeasonStatus" class="rk-season-status" role="status"></div><div id="rkSeasonData" hidden><div class="rk-season-kpis"><div><small>Sezon ELO değişimi</small><b id="rkSeasonDelta">—</b></div><div><small>Galibiyet oranı</small><b id="rkSeasonRate">—</b></div></div><progress id="rkSeasonWinBar" max="100" value="0" aria-label="Sezon galibiyet oranı"></progress><div class="rk-season-result"><div><b id="rkSeasonPlayed">—</b><small>Maç</small></div><div><b id="rkSeasonWins">—</b><small>Galibiyet</small></div><div><b id="rkSeasonDraws">—</b><small>Beraberlik</small></div><div><b id="rkSeasonLosses">—</b><small>Mağlubiyet</small></div></div></div></section></div>
     <div class="card v251-panel rk-action" id="rkIdle"><h3>Rekabetçi maçlar</h3><p id="rkHint">Rekabetçi maçlar henüz genel kullanıma açılmadı. Normal oda puanları ELO'yu etkilemez.</p><button class="btn" id="rkJoin" type="button" disabled>Rakip ara</button></div>
     <div class="card v251-panel rk-action" id="rkSearch" hidden><h3>Rakip aranıyor</h3><div class="rk-search" aria-hidden="true"></div><div class="rk-clock" id="rkWait">00:00</div><p id="rkGap"></p><button class="btn ghost" id="rkCancel" type="button">Aramayı iptal et</button></div>
     <div class="card v251-panel rk-action" id="rkOffer" hidden><h3>MAÇ BULUNDU!</h3><div class="rk-clock" id="rkAcceptClock">—</div><div class="rk-duel"><div><b>Sen</b><span id="rkSelfReady">Bekleniyor</span></div><div><b>Rakip</b><span id="rkOtherReady">Bekleniyor</span></div></div><button class="btn" id="rkAccept" type="button">Maçı kabul et</button><button class="btn ghost" id="rkDecline" type="button">Reddet</button></div>
@@ -3865,7 +3867,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.5';
+const APPV='25.6a';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4229,12 +4231,27 @@ $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');
 
 /* V25.1: server-only competitive profiles, no client rating writes. */
 const Ranked={
-  epoch:0,busy:false,
-  reset(){RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
+  epoch:0,busy:false,seasonEpoch:0,
+  reset(){this.seasonEpoch++;renderRankedSeason(null,'hidden');RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
   open(){if(!ME||code)return;show('ranked');this.load()},
+  async loadSeason(){
+    const uid=ME,user=firebase.auth().currentUser,epoch=this.epoch,serial=++this.seasonEpoch;
+    const valid=()=>ME===uid&&firebase.auth().currentUser?.uid===uid&&this.epoch===epoch&&this.seasonEpoch===serial&&screen==='ranked'&&!code;
+    if(!uid||!user||user.uid!==uid||!rankedPreviewHost(location.hostname)||location.protocol!=='https:'||screen!=='ranked'||code){renderRankedSeason(null,'hidden');return}
+    renderRankedSeason(null,'loading');
+    try{
+      const token=await user.getIdToken();if(!valid())return;
+      const r=await fetch('/api/ranked/play',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({action:'season.me'}),cache:'no-store'});
+      if(!valid())return;
+      if(r.status===403||r.status===404){renderRankedSeason(null,'hidden');return}
+      if(!r.ok||!(r.headers.get('content-type')||'').includes('application/json'))throw Error('SEASON_UNAVAILABLE');
+      const data=await r.json();if(!valid())return;
+      renderRankedSeason(data,'ready');
+    }catch{if(valid())renderRankedSeason(null,'error')}
+  },
   async load(){
-    if(this.busy||!ME||code)return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
-    const uid=ME,epoch=++this.epoch;this.busy=true;$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
+    if(this.busy||!ME||code||RankedPreview.inProgress())return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
+    const uid=ME,epoch=++this.epoch;this.busy=true;this.seasonEpoch++;renderRankedSeason(null,'hidden');$('rankRefresh').disabled=true;$('rankProfile').hidden=true;$('rankStatus').textContent='Sunucu kontrol ediliyor…';
     try{
       const token=await user.getIdToken(),res=await fetch('/api/ranked/me',{method:'POST',headers:{Authorization:'Bearer '+token,Accept:'application/json'},cache:'no-store'});
       if(ME!==uid||epoch!==this.epoch)return;
@@ -4243,9 +4260,9 @@ const Ranked={
       const p=data.profile;if(data.version!=='25.1a'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
       if(ME!==uid||epoch!==this.epoch)return;
       $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';renderRankedLevel(p.rating);
-      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.open(uid);
+      stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.onSettled=()=>this.loadSeason();RankedPreview.open(uid);void this.loadSeason();
     }catch(e){if(ME===uid&&epoch===this.epoch){$('rankStatus').textContent=({DB_BINDING_MISSING:'Rekabetçi veritabanı henüz bağlanmadı.',DB_SCHEMA_OR_CONNECTION:'Rekabetçi veritabanı henüz hazır değil.',AUTH_REQUIRED:'Google hesabınla tekrar giriş yap.',INVALID_TOKEN:'Kimlik doğrulanamadı. Tekrar giriş yap.',AUTH_UNAVAILABLE:'Kimlik sunucusuna ulaşılamadı.',API_NOT_DEPLOYED:'Rekabetçi API bu adreste henüz çalışmıyor.'})[e.message]||'Sunucu bağlantısı kurulamadı. Daha sonra yenile.'}}
-    finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=false}}
+    finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=RankedPreview.inProgress()}}
   }
 };
 $('rankGo').onclick=()=>Ranked.open();
@@ -4283,12 +4300,37 @@ function renderRankedLevelNotice(settlement){
  $('rkLevelNotice').textContent=msg;$('rkLevelNotice').hidden=!msg;
 }
 
+
+function rankedSeasonView(data){
+ if(data?.registered!==true||!data.season||!data.stats)return null;
+ const {id,startsAt,endsAt}=data.season,{played,wins,draws,losses,eloDelta}=data.stats;
+ if(typeof id!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(id)||!Number.isSafeInteger(startsAt)||!Number.isSafeInteger(endsAt))return null;
+ const [year,month]=id.split('-').map(Number);
+ if(year<1970||startsAt!==Date.UTC(year,month-1,1)||endsAt!==Date.UTC(year,month,1))return null;
+ if(![played,wins,draws,losses].every(n=>Number.isSafeInteger(n)&&n>=0)||played!==wins+draws+losses||!Number.isSafeInteger(eloDelta))return null;
+ const label=new Intl.DateTimeFormat('tr-TR',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(startsAt));
+ const end=new Intl.DateTimeFormat('tr-TR',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(endsAt));
+ return {label,end,played,wins,draws,losses,eloDelta,rate:played?Math.round(wins/played*100):null};
+}
+function renderRankedSeason(data,state='ready'){
+ const v=state==='ready'?rankedSeasonView(data):null;
+ $('rkSeason').hidden=state==='hidden';$('rkSeasonData').hidden=!v;
+ $('rkSeasonTitle').textContent=v?v.label+' sezonu':'Rekabetçi sezon';
+ $('rkSeasonEnd').textContent=v?'Bitiş: '+v.end+' (UTC)':'';
+ $('rkSeasonStatus').textContent=v?(v.played?'':'Henüz bu sezonda tamamlanmış maç yok.'):state==='loading'?'Sezon yükleniyor…':state==='hidden'?'':'Sezon verisi alınamadı. Yenile.';
+ for(const [id,k] of [['rkSeasonPlayed','played'],['rkSeasonWins','wins'],['rkSeasonDraws','draws'],['rkSeasonLosses','losses']])$(id).textContent=v?v[k].toLocaleString('tr-TR'):'—';
+ $('rkSeasonDelta').textContent=v?(v.eloDelta>0?'+':'')+v.eloDelta.toLocaleString('tr-TR'):'—';
+ $('rkSeasonDelta').dataset.direction=v?(v.eloDelta>0?'up':v.eloDelta<0?'down':'flat'):'flat';
+ $('rkSeasonRate').textContent=v&&v.rate!==null?'%'+v.rate:'—';
+ $('rkSeasonWinBar').value=v?.rate??0;$('rkSeasonWinBar').hidden=!v||v.rate===null;
+}
+
 const rankedSides=(s,side)=>side==='a'?[s.scoreA,s.scoreB]:[s.scoreB,s.scoreA];
 const RankedPreview={
- epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,
+ epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,onSettled:null,settledKey:null,
  inProgress(){return this.allowed&&['search','offer','game'].includes(this.phase)},
  panels(phase){this.phase=phase;for(const [k,id] of [['idle','rkIdle'],['search','rkSearch'],['offer','rkOffer'],['game','rkGame'],['result','rkResult']])$(id).hidden=k!==phase;$('rankBack').disabled=this.inProgress();$('rankRefresh').disabled=this.inProgress()},
- reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
+ reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.settledKey=null;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
  valid(epoch,uid){return this.epoch===epoch&&this.uid===uid&&ME===uid&&screen==='ranked'&&!code},
  async request(action,fields={}){
   const epoch=this.epoch,uid=this.uid,user=firebase.auth().currentUser;
@@ -4327,7 +4369,7 @@ const RankedPreview={
  game(r){
   const s=r.state;if(!s||!['a','b'].includes(r.side)||r.revision<this.lastRevision)return;this.lastRevision=r.revision;
   const [a,b]=rankedSides(s,r.side);
-  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');$('rkSubmit').disabled=true;$('rkSurrender').disabled=true;return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;if(rankedLevel(p?.ratingAfter))renderRankedLevel(p.ratingAfter);renderRankedLevelNotice(p);return}
+  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');$('rkSubmit').disabled=true;$('rkSurrender').disabled=true;return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;if(rankedLevel(p?.ratingAfter))renderRankedLevel(p.ratingAfter);renderRankedLevelNotice(p);if(rankedLevel(p?.ratingAfter)&&this.settledKey!==this.matchId){this.settledKey=this.matchId;this.onSettled?.()}return}
   this.panels('game');$('rkSubmit').disabled=false;$('rkSurrender').disabled=false;$('rkRound').textContent='Tur '+s.round+'/5';$('rkSelfScore').textContent=a;$('rkOtherScore').textContent=b;
   this.deadline=s.current.deadline;$('rkGameClock').textContent=rankedClock(this.deadline-Date.now());
   if(this.round!==s.round){this.round=s.round;$('rkAnswer').value='';$('rkFeedback').textContent='';}
@@ -4349,7 +4391,7 @@ const RankedPreview={
    }
   });
  },
- join(){this.task(async()=>{renderRankedLevelNotice(null);this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
+ join(){this.task(async()=>{renderRankedLevelNotice(null);this.settledKey=null;this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
  cancel(){this.task(async()=>this.queue(await this.request('queue.cancel')))},
  respond(decision){this.task(async()=>this.offer(await this.request('offer.respond',{matchId:this.matchId,decision})))},
  answer(){const input=$('rkAnswer').value.trim();if(!input||this.phase!=='game')return;this.task(async()=>this.game(await this.request('game.answer',{matchId:this.matchId,commandId:crypto.randomUUID(),round:this.round,input})))},
