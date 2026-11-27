@@ -11,7 +11,21 @@ async function fixture(t){
  for(const uid of ['a','b'])sql.prepare('INSERT INTO ranked_players(uid,created_at) VALUES (?,1)').run(uid);
  sql.prepare('INSERT INTO ranked_matches VALUES (?,?,?,?,?,?,?)').run('m','a','b','active',null,null,null);
  let clock=1000;
- const db={prepare(query){return {bind(...args){return {async first(){return sql.prepare(query).get(...args)||null},async run(){return {success:true,meta:{changes:Number(sql.prepare(query).run(...args).changes)}}}}}}};
+ const db={
+  prepare(query){
+   return {
+    bind(...args){
+     return {
+      async first(){return sql.prepare(query).get(...args)||null;},
+      async run(){
+       const result=sql.prepare(query).run(...args);
+       return {success:true,meta:{changes:Number(result.changes)}};
+      }
+     };
+    }
+   };
+  }
+ };
  const store=d1RankedSessionStore(db);
  const service=()=>createRankedSessionService(store,{clock:()=>clock,seed:()=>42});
  const correct=s=>{const p=catalog.players.find(p=>s.current.clubs.every(k=>p.c.includes(k)));assert.ok(p);return p.n};
