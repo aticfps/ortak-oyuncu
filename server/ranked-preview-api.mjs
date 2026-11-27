@@ -32,7 +32,7 @@ async function body(request){
   raw+=decoder.decode();
  }catch(e){if(e?.message==='BODY_TOO_LARGE')throw e;throw Error('INVALID_BODY')}
  let x;try{x=JSON.parse(raw)}catch{throw Error('INVALID_BODY')}
- if(!x||Array.isArray(x)||typeof x!=='object'||!Object.hasOwn(actions,x.action))throw Error('INVALID_ACTION');
+ if(!x||Array.isArray(x)||typeof x!=='object'||typeof x.action!=='string'||!Object.hasOwn(actions,x.action))throw Error('INVALID_ACTION');
  const fields=actions[x.action];
  if(Object.keys(x).some(k=>k!=='action'&&!fields.includes(k))||fields.some(k=>!Object.hasOwn(x,k)))throw Error('INVALID_FIELDS');
  if(fields.includes('matchId')&&!validId(x.matchId))throw Error('INVALID_MATCH_ID');

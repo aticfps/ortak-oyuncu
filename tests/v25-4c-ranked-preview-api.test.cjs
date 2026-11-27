@@ -355,3 +355,32 @@ integration('V26.2b automatic nickname initialization cannot overwrite an explic
  const {matchId}=await f.start();await f.call('a','game.surrender',{matchId,commandId:'s'});
  const board=await f.call('b','leaderboard.get');assert.equal(board.body.rows[1].name,'YeniAd');
 });
+
+test('V26.4a malformed action types are rejected before any database access',async()=>{
+ const {rankedPreviewPlay}=await mod;
+ for(const action of [['queue.status'],{toString:'queue.status'},null,42,true]){
+  const response=await rankedPreviewPlay(req({action}),{...flags,RANKED_DB:{prepare(){throw Error('must not access DB')}}},verify);
+  assert.equal(response.status,400);
+  assert.equal((await response.json()).error,'INVALID_ACTION');
+ }
+});
+integration('V26.4a scoped profile registration is allowlisted and shares authenticated request budget',async t=>{
+ const f=await fixture(t),{rankedMe}=await import('../server/ranked-foundation.mjs');
+ const env={...flags,RANKED_DB:f.db};
+ const profile=(uid,method='GET',origin)=>new Request('https://'+host+'/api/ranked/me',{method,headers:{authorization:'Bearer '+uid,...(origin?{origin}:{})}});
+ assert.equal((await rankedMe(profile('c','POST'),env,verify)).status,403);
+ assert.equal((await rankedMe(profile('a','POST','https://other.example'),env,verify)).status,403);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_request_limits').get().n,0);
+ assert.equal((await rankedMe(profile('a','POST'),env,verify)).status,200);
+ assert.equal((await f.call('a','queue.status')).status,200);
+ const now=Date.now(),window=Math.floor(now/60000)*60000;
+ // Set both adjacent windows via a fresh clock read if the boundary moves.
+ f.sql.prepare('UPDATE ranked_request_limits SET window_start=?,requests=120 WHERE uid=?').run(window+60000,'a');
+ const blocked=await rankedMe(profile('a'),env,verify);
+ assert.equal(blocked.status,429);assert.equal((await blocked.json()).error,'RATE_LIMITED');
+ assert.ok(Number(blocked.headers.get('retry-after'))>=1);
+ assert.equal(f.sql.prepare('SELECT rating FROM ranked_players WHERE uid=?').get('a').rating,1000);
+ const prod={...prodFlags,RANKED_DB:f.db};
+ const fresh=await rankedMe(new Request('https://ortak-oyuncu.pages.dev/api/ranked/me',{method:'POST',headers:{authorization:'Bearer fresh'}}),prod,verify);
+ assert.equal(fresh.status,200);assert.equal((await fresh.json()).profile.rating,1000);
+});
