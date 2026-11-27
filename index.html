@@ -3942,7 +3942,7 @@ const FriendPresence={
     if(this.timer)clearInterval(this.timer);this.timer=null;
     if(this.connection&&this.listener)this.connection.off('value',this.listener);
     const ref=this.ref;this.connection=null;this.listener=null;this.ref=null;this.uid=null;
-    if(ref&&Net.conn)ref.remove().then(()=>ref.onDisconnect().cancel()).catch(()=>{});
+    return ref&&Net.conn?ref.remove().then(()=>ref.onDisconnect().cancel()).catch(()=>{}):Promise.resolve();
   }
 };
 const FriendWatch={
@@ -4716,7 +4716,7 @@ const firebaseConfig={
   if(!window.firebase){lStatus('Firebase yüklenemedi. İnternet bağlantını kontrol et.',true);return}
   firebase.initializeApp(firebaseConfig);const auth=firebase.auth();const prov=new firebase.auth.GoogleAuthProvider();
   $('gIn').onclick=()=>{auth.signInWithPopup(prov).catch(e=>{const c=e&&e.code||'';if(/popup-blocked|operation-not-supported/.test(c))auth.signInWithRedirect(prov);else if(!/popup-closed|cancelled/.test(c))lStatus('Giriş yapılamadı: '+clip(e&&e.message,160),true)})};
-  $('gOut').onclick=()=>{FriendPresence.stop();leaveRoom();auth.signOut()};
+  $('gOut').onclick=async()=>{const pending=FriendPresence.stop();leaveRoom();await Promise.race([pending,new Promise(resolve=>setTimeout(resolve,1500))]);auth.signOut()};
   auth.getRedirectResult().catch(()=>{});
   Net.on(onNet);
   if(hashCode())lStatus(`Giriş yapınca ${hashCode()} odasına katılacaksın.`);
