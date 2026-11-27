@@ -118,6 +118,24 @@
           }
         }
       }
+    },
+    "gameInvites": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$from": {
+          ".write": "auth != null && $uid !== $from && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && $from.matches(/^[A-Za-z0-9_-]{20,128}$/) && ((auth.uid === $uid && !newData.exists()) || (auth.uid === $from && newData.exists() && (!data.exists() || data.child('t').val() + 120000 <= now) && (root.child('friendLinks').child($uid).child($from).val() === 'accepted' || root.child('friendLinks').child($from).child($uid).val() === 'accepted') && newData.child('c').isString() && ((newData.child('c').val().matches(/^[A-Z0-9]{4}$/) && root.child('rooms').child(newData.child('c').val()).child($from).child('o').val() === 1 && root.child('rooms').child(newData.child('c').val()).child($from).child('t').val() > now - 45000) || (newData.child('c').val().matches(/^P[A-Z2-9]{9}$/) && root.child('privateRoomLocks').child(newData.child('c').val()).child('owner').val() === $from && root.child('privateRoomLocks').child(newData.child('c').val()).child('createdAt').val() + 86400000 > now && root.child('privateRooms').child(newData.child('c').val()).child($from).child('o').val() === 1 && root.child('privateRooms').child(newData.child('c').val()).child($from).child('t').val() > now - 45000))))",
+          ".validate": "newData.hasChildren(['c','t']) && newData.child('c').isString() && newData.child('t').isNumber() && newData.child('t').val() === now",
+          "c": {
+            ".validate": true
+          },
+          "t": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
