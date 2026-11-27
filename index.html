@@ -4325,10 +4325,10 @@ const Ranked={
     finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=RankedPreview.inProgress()}}
   }
 };
+$('rankGo').onclick=()=>Ranked.open();
 $('myName').addEventListener('input',()=>Ranked.editName());
 $('rkNameForm').onsubmit=e=>{e.preventDefault();void Ranked.rename()};
 $('rkBoardRefresh').onclick=()=>{if(Ranked.nameBusy)return;Ranked.syncedName=null;void Ranked.loadBoard()};
-$('rankGo').onclick=()=>Ranked.open();
 $('rankRefresh').onclick=()=>Ranked.load();
 $('rankBack').onclick=()=>{if(RankedPreview.inProgress())return;Ranked.reset();show('lobby')};
 
