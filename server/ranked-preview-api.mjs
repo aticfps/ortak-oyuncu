@@ -1,5 +1,5 @@
-// V25.4c private preview transport. Production must remain disabled.
-// A separate Preview D1 binding and explicitly allowlisted Google UIDs are required.
+// V26.1b authenticated transport. Host and deployment flags select access scope.
+import {rankedScope} from './ranked-access.mjs';
 import {authenticate,AuthError} from './ranked-auth.mjs';
 import {json} from './ranked-foundation.mjs';
 import {createRankedMatchmaker} from './ranked-matchmaking.mjs';
@@ -20,13 +20,6 @@ const actions={
  'game.poll':['matchId'], 'game.answer':['matchId','commandId','round','input'],
  'game.heartbeat':['matchId','commandId'], 'game.surrender':['matchId','commandId']
 };
-function enabled(request,env){
- const u=new URL(request.url),host=env?.RANKED_PREVIEW_HOST;
- // Only explicitly configured Cloudflare branch/hash preview host for this project.
- return env?.RANKED_PREVIEW_ENABLED==='true'&&typeof host==='string'&&
- /^[a-z0-9-]+\.ortak-oyuncu\.pages\.dev$/.test(host)&&u.protocol==='https:'&&u.hostname===host&&
- (!request.headers.has('origin')||request.headers.get('origin')===u.origin);
-}
 async function body(request){
  if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type')||''))throw Error('INVALID_BODY');
  const stream=request.body;if(!stream)throw Error('INVALID_BODY');
@@ -62,11 +55,13 @@ function safeSettlement(r,uid){
  ratingBefore:a?x.rating_a_before:x.rating_b_before,ratingAfter:a?x.rating_a_after:x.rating_b_after};
 }
 export async function rankedPreviewPlay(request,env,verify){
- if(!enabled(request,env))return json({error:'RANKED_PREVIEW_DISABLED'},404);
+ const scope=rankedScope(request,env);
+ if(!scope)return json({error:'RANKED_PREVIEW_DISABLED'},404);
  if(request.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
  let identity;try{identity=await authenticate(request,verify)}catch(e){return json({error:e instanceof AuthError?e.code:'AUTH_UNAVAILABLE'},e?.code==='AUTH_UNAVAILABLE'||!(e instanceof AuthError)?503:401)}
  const uid=identity?.uid,allow=String(env.RANKED_PREVIEW_UIDS||'').split(',').map(x=>x.trim()).filter(Boolean);
- if(typeof uid!=='string'||!allow.includes(uid))return json({error:'PREVIEW_FORBIDDEN'},403);
+ const permitted=id=>validId(id)&&(scope==='production'||allow.includes(id));
+ if(!permitted(uid))return json({error:'PREVIEW_FORBIDDEN'},403);
  let x;try{x=await body(request)}catch(e){return json({error:e?.message==='BODY_TOO_LARGE'?'BODY_TOO_LARGE':BAD.has(e?.message)?e.message:'INVALID_BODY'},e?.message==='BODY_TOO_LARGE'?413:400)}
  const db=env.RANKED_DB;if(!db)return json({error:'DB_BINDING_MISSING'},503);
  try{
@@ -80,17 +75,17 @@ export async function rankedPreviewPlay(request,env,verify){
   if(x.action==='leaderboard.get')return json(await readRankedLeaderboard(db,uid));
   const q=createRankedMatchmaker(db),admission=createRankedAdmission(db),sessions=createRankedSessionService(d1RankedSessionStore(db));
   if(x.action.startsWith('queue.')){
-   // Only authorized preview accounts may enter through this transport.
+   // Preview allowlist remains mandatory; production requires verified identity.
    const entry=await q[x.action.split('.')[1]](uid);
-   if(entry.opponentUid&&!allow.includes(entry.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
+   if(entry.opponentUid&&!permitted(entry.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
    const recovered=await recoverRankedQueue(db,q,uid,entry);
-   if(recovered.opponentUid&&!allow.includes(recovered.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
+   if(recovered.opponentUid&&!permitted(recovered.opponentUid))return json({error:'PREVIEW_FORBIDDEN'},403);
    return json(safeQueue(recovered));
   }
   const row=await db.prepare('SELECT uid_a,uid_b,status FROM ranked_matches WHERE match_id=?').bind(x.matchId).first();
   if(!row||![row.uid_a,row.uid_b].includes(uid))return json({error:'MATCH_NOT_FOUND'},404);
   const other=row.uid_a===uid?row.uid_b:row.uid_a;
-  if(!allow.includes(other))return json({error:'PREVIEW_FORBIDDEN'},403);
+  if(!permitted(other))return json({error:'PREVIEW_FORBIDDEN'},403);
   if(x.action==='offer.status')return json(await admission.status(x.matchId,uid));
   if(x.action==='offer.respond')return json(await admission.respond(x.matchId,uid,x.decision));
   if(x.action==='offer.start'){
