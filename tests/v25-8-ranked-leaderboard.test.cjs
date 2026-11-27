@@ -50,7 +50,7 @@ test('V25.8 private board fetch ignores stale responses and production hosts',as
 test('V26.2a leaderboard syncs the current game nickname before reading and renders a level badge',async()=>{
  const f=fixture();f.$('myName').value='Çağrı_10';
  const p=f.Ranked.loadBoard();await Promise.resolve();
- assert.deepEqual(JSON.parse(f.calls[0].opt.body),{action:'profile.name',name:'Çağrı_10'});
+ assert.deepEqual(JSON.parse(f.calls[0].opt.body),{action:'profile.name.init',name:'Çağrı_10'});
  assert.equal(f.calls[0].opt.headers.Authorization,'Bearer test-token');
  f.answer({name:'Çağrı_10'});await new Promise(resolve=>setImmediate(resolve));
  assert.deepEqual(JSON.parse(f.calls[1].opt.body),{action:'leaderboard.get'});
@@ -60,4 +60,18 @@ test('V26.2a leaderboard syncs the current game nickname before reading and rend
  assert.equal(line.children[0].textContent,'3');assert.equal(line.children[1].textContent,'Sen · Çağrı_10');
  const again=f.Ranked.loadBoard();await Promise.resolve();assert.deepEqual(JSON.parse(f.calls[2].opt.body),{action:'leaderboard.get'});f.answer(data);await again;
  assert.equal(f.rankedBoardView({...data,rows:[{...data.rows[0],name:'<script>'},named]}),null);
+});
+
+test('V26.2b stale local nickname does not overwrite server and explicit rename updates board',async()=>{
+ const f=fixture();f.$('myName').value='EskiAd';
+ const p=f.Ranked.loadBoard();await Promise.resolve();assert.deepEqual(JSON.parse(f.calls[0].opt.body),{action:'profile.name.init',name:'EskiAd'});
+ f.answer({name:'YeniAd'});await new Promise(resolve=>setImmediate(resolve));f.answer(sample);await p;
+ assert.equal(f.$('rkNameInput').value,'YeniAd');assert.equal(f.Ranked.syncedName,'YeniAd');
+ f.$('rkNameInput').value='  Atic  ';const rename=f.Ranked.rename();await Promise.resolve();
+ assert.deepEqual(JSON.parse(f.calls[2].opt.body),{action:'profile.name',name:'Atic'});assert.equal(f.$('rkNameSave').disabled,true);
+ f.answer({name:'Atic'});await new Promise(resolve=>setImmediate(resolve));const named={...own,name:'Atic'};
+ f.answer({rows:[sample.rows[0],named],self:named,total:2});await rename;
+ assert.equal(f.$('myName').value,'Atic');assert.equal(f.$('rkNameInput').value,'Atic');assert.match(f.$('rkNameStatus').textContent,/kaydedildi/);assert.equal(f.$('rkNameSave').disabled,false);
+ f.$('myName').value='LobiAdı';f.Ranked.editName();const lobby=f.Ranked.loadBoard();await Promise.resolve();assert.deepEqual(JSON.parse(f.calls[4].opt.body),{action:'profile.name',name:'LobiAdı'});
+ f.answer({name:'LobiAdı'});await new Promise(resolve=>setImmediate(resolve));f.answer(sample);await lobby;assert.equal(f.Ranked.pendingName,null);
 });
