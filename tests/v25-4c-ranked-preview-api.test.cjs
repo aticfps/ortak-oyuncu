@@ -325,3 +325,22 @@ integration('V26.1b production status checks all tables and defaults disabled',a
  f.sql.exec('DROP TABLE ranked_request_limits');
  const missing=await rankedStatus(env,request);assert.equal(missing.status,503);assert.equal((await missing.json()).rankedEnabled,false);
 });
+
+integration('V26.2a names are authenticated, validated, editable and never modify scores',async t=>{
+ const f=await fixture(t);
+ for(const name of ['', 'a'.repeat(17),'<script>','a@b.com','a\u202eb','___',' a ']){
+  assert.equal((await f.call('a','profile.name',{name})).status,400);
+ }
+ assert.equal((await f.call('a','profile.name',{name:'Atic',uid:'b'})).status,400);
+ assert.equal((await f.call('a','profile.name',{name:'Çağrı_10'})).status,200);
+ assert.equal((await f.call('b','profile.name',{name:'Futbolcu10'})).status,200);
+ assert.equal((await f.call('a','profile.name',{name:'Çağrı_10'})).status,200);
+ const {matchId}=await f.start();await f.call('a','game.surrender',{matchId,commandId:'s'});
+ const first=await f.call('a','leaderboard.get');assert.deepEqual(first.body.rows.map(x=>x.name),['Futbolcu10','Çağrı_10']);assert.equal(first.body.self.name,'Çağrı_10');
+ assert.equal((await f.call('a','profile.name',{name:'Atic'})).status,200);
+ const second=await f.call('b','leaderboard.get');assert.deepEqual(second.body.rows.map(x=>x.name),['Futbolcu10','Atic']);assert.equal(second.body.rows[1].rating,975);
+ assert.equal(f.sql.prepare('SELECT count(*) AS n FROM ranked_settlements').get().n,1);
+ assert.equal((await f.call('unregistered','profile.name',{name:'X'})).status,403);
+ const {rankedPreviewPlay}=await mod;
+ const r=await rankedPreviewPlay(req({action:'profile.name',name:'X'},'missing',{url:prodUrl}),{...prodFlags,RANKED_DB:f.db},verify);assert.equal(r.status,409);
+});
