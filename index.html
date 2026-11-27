@@ -850,6 +850,24 @@ body[data-screen="ans"] .note,body[data-screen="rev"] .note,body[data-screen="pi
 #ans #clock b{position:absolute;inset:0;display:grid;place-items:center;padding:0 0 12%;margin:0;line-height:1;text-align:center}
 #ans #clock::after{top:65%;line-height:1}
 html[data-theme="light"] #ans #clock{background:transparent;box-shadow:none}
+
+/* V23.1: eight-player room and dense scoreboard; existing small-room layout retained */
+.slots{grid-template-columns:repeat(2,minmax(0,1fr))}
+.slots .slot{min-height:62px;overflow:hidden}
+.slots .slot strong{font-size:clamp(16px,3vw,23px);overflow-wrap:anywhere}
+.slots .slot:not(.full){opacity:.62;border-style:dashed}
+.v222-scorewrap .chips:has(.chip:nth-child(5)){grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip{min-height:39px;gap:5px;padding:5px 6px}
+.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip .av{--s:22px}
+.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip .sc{font-size:19px!important;min-width:28px;padding:4px}
+.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip .nm{font-size:11px}
+#ans .opps:has(.opp:nth-child(4)){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#ans .opps:has(.opp:nth-child(4)) .opp{padding:8px;gap:5px}
+#ans .opp .who2{min-width:0;overflow-wrap:anywhere}
+@media(max-width:720px){.v222-scorewrap .chips:has(.chip:nth-child(5)){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.slots .slot{min-height:54px;padding:7px;gap:7px}.slots .slot .av{--s:30px!important}.slots .slot strong{font-size:15px}.slots .slot .rm{font-size:10px;padding:4px}#ans .opps:has(.opp:nth-child(4)){grid-template-columns:1fr}.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip .nm{font-size:10px}}
+@media(max-width:350px){.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip .av{display:none}.v222-scorewrap .chips:has(.chip:nth-child(5)) .chip{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name score"}}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -875,14 +893,14 @@ html[data-theme="light"] #ans #clock{background:transparent;box-shadow:none}
   <section class="screen on" id="lobby">
     <div class="hero">
       <div><div class="v22-eyebrow">Futbol bilgi arenası</div><h1>Ortak<br><span>Oyuncu</span></h1>
-      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>114 takım</span><span>Canlı düello</span><span>2–4 oyuncu</span></div></div>
+      <p class="lead">İki takım. Tek futbolcu. İlk bilen kazanır.</p><div class="v22-meta"><span>114 takım</span><span>Canlı düello</span><span>2–8 oyuncu</span></div></div>
       <div class="fan" id="fan" aria-hidden="true"></div>
     </div>
     <div class="card authbox" id="authBox"><h3>Giriş yap</h3><p>Oda kurmak ya da katılmak için Google hesabınla giriş yap. Arkadaşların da aynı linkten girer.</p><button class="btn alt" id="gIn">Google ile giriş yap</button><p class="tiny">Linki Telegram, Instagram gibi uygulamaların içinden açtıysan önce sağ üstteki menüden “Safari'de / Chrome'da aç” de.</p></div>
     <p class="whoami" id="who" hidden>Giriş yapıldı: <b id="whoName"></b> · <button class="link" id="pfGo">Profilim</button><span id="admW" hidden> · <button class="link" id="admGo">Yönetici</button></span> · <button class="link" id="gOut">Çıkış</button></p>
     <div class="cards" id="cards" hidden>
       <label class="field">Adın<input id="myName" maxlength="16" autocomplete="nickname" placeholder="Örn. Kaan"></label>
-      <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-4 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
+      <div class="card v22-create"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="5"/></svg></span><h3>Oda kur</h3></div><p>2-8 kişilik oda. Davet linkini arkadaşlarına gönderirsin.</p><button class="btn" id="create" disabled>Oda kur</button></div>
       <div class="card v22-join"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5M3 12h13m-5-5 5 5-5 5"/></svg></span><h3>Odaya katıl</h3></div><p>Arkadaşının verdiği 4 harfli kodu yaz.</p><form id="joinF" class="row"><input id="code" maxlength="4" placeholder="KOD" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Oda kodu"><button class="btn alt" id="joinB" disabled>Katıl</button></form><button class="link" id="watchB" type="button" disabled>Oynamadan izle</button></div>
       <div class="card v22-bot"><div class="v22-cardhead"><span class="v22-modeicon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 3v4M2 11v5m20-5v5M9 13h.01M15 13h.01M9 17h6"/></svg></span><h3>Bota karşı oyna</h3></div><p>Arkadaşların yoksa bilgisayara karşı pratik yap. Bot maçları sezon tablosuna sayılmaz.</p><div class="row"><select id="botL" autocomplete="off" aria-label="Bot seviyesi"><option value="k">Kolay</option><option value="o" selected>Orta</option><option value="z">Zor</option></select><button class="btn alt" id="botGo" disabled>Başla</button></div></div>
       <div class="card install" id="instC" hidden><h3>Ana ekrana ekle</h3><p id="instT">Oyunu telefonuna uygulama gibi ekle, tek dokunuşla aç.</p><button class="btn alt" id="instB">Ekle</button></div>
@@ -3369,8 +3387,10 @@ const $=id=>document.getElementById(id);
 $('themeMode').addEventListener('change',e=>Theme.set(e.target.value));Theme.apply();
 const clean=s=>String(s||'').replace(/[\u0000-\u001f\u200b-\u200f\u2028-\u202e]/g,'').trim().slice(0,16)||'Oyuncu';
 const clip=(s,n)=>String(s==null?'':s).slice(0,n);
-const COLORS=['#46b0ff','#ff6a5c','#b48cff','#ffa94d'];
-const MAXP=4;
+const COLORS=['#46b0ff','#ff6a5c','#b48cff','#ffa94d','#2dd4bf','#f472b6','#a3e635','#facc15'];
+const MAXP=8;
+const roomModeAllowed=(mode,n)=>Number.isInteger(n)&&n>=2&&n<=MAXP&&(mode==='t'?n===4:mode==='tr'?n<=4:['c','q','k'].includes(mode));
+const nextFreeColor=players=>Array.from({length:MAXP},(_,i)=>i).find(c=>!players.some(p=>p.c===c));
 const STAR=new Set(`Zlatan Ibrahimović|Cristiano Ronaldo|Ronaldo Nazário|Lionel Messi|Neymar|Kylian Mbappé|Luís Figo|Thierry Henry|Cesc Fàbregas|Alexis Sánchez|Fernando Torres|Luis Suárez|Robert Lewandowski|Ángel Di María|David Beckham|Kaká|Andrea Pirlo|Gonzalo Higuaín|Álvaro Morata|Mauro Icardi|Arturo Vidal|Xabi Alonso|Michael Owen|Raheem Sterling|Kevin De Bruyne|Mohamed Salah|Arjen Robben|Romelu Lukaku|Edin Džeko|Juan Mata|Wesley Sneijder|Didier Drogba|Mesut Özil|Robin van Persie|Ricardo Quaresma|Pepe|Radamel Falcao|Arda Turan|Hakan Şükür|Emre Belözoğlu|Hamit Altıntop|Hakan Çalhanoğlu|Burak Yılmaz|Roberto Carlos|Nicolas Anelka|Dirk Kuyt|Gheorghe Hagi|Felipe Melo|Lukas Podolski|Franck Ribéry|İlkay Gündoğan|Leroy Sané|Hakim Ziyech|Ronaldinho|Rivaldo|Samuel Eto'o|Patrick Kluivert|Edgar Davids|Zinedine Zidane|Christian Vieri|Paul Pogba|Patrice Evra|Thiago Silva|Sergio Agüero|Diego Forlán|Antoine Griezmann|Thibaut Courtois|Diego Costa|Erling Haaland|Jude Bellingham|Achraf Hakimi|Pierre-Emerick Aubameyang|Toni Kroos|David Alaba|Eden Hazard|Claude Makélélé|Ruud van Nistelrooy|Mario Balotelli|Hernán Crespo|Andriy Shevchenko|Olivier Giroud|Patrick Vieira|Dennis Bergkamp|Edinson Cavani|Casemiro|Gerard Piqué|Harry Kane|Gareth Bale|Luka Modrić|Christian Eriksen|Dani Alves|Ivan Rakitić|Johan Cruyff|Marco van Basten|Edwin van der Sar|Frenkie de Jong|Deco|James Rodríguez|Rui Costa|David Villa|David Silva|Jordi Alba|George Weah|Alessandro Nesta|Pavel Nedvěd|Diego Simeone|Miroslav Klose|Cafu|Gabriel Batistuta|Sergio Ramos|Mario Götze|Mats Hummels|Ousmane Dembélé|Cengiz Ünder|Victor Osimhen|Dries Mertens|Robinho|Iker Casillas|Didier Deschamps|Marcel Desailly|Jean-Pierre Papin|Gianluca Zambrotta|Fabio Cannavaro|Lilian Thuram|Luis Díaz|Darwin Núñez|Kerem Aktürkoğlu|Arda Güler`.split('|'));
 const hintOf=n=>n.split(/\s+/).map(w=>w[0].toLocaleUpperCase('tr')+'•'.repeat(Math.max(0,[...w].length-1))).join('  ');
 const pkey=(a,b)=>[a,b].sort().join('|');
@@ -3437,7 +3457,7 @@ Net.init=(db,uid)=>{
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Net.ready)Net.write()});
 };
 // A room key is the authenticated UID, not an alias supplied by a client.
-const parsePresence=(j)=>{if(typeof j!=='string'||j.length>=6000)return null;try{const p=JSON.parse(j);return p&&typeof p==='object'&&!Array.isArray(p)?p:null}catch(e){return null}};
+const parsePresence=(j)=>{if(typeof j!=='string'||j.length>=24000)return null;try{const p=JSON.parse(j);return p&&typeof p==='object'&&!Array.isArray(p)?p:null}catch(e){return null}};
 const parseRoomNodes=(v)=>{const out=Object.create(null);if(!v||typeof v!=='object'||Array.isArray(v))return out;Object.keys(v).forEach(k=>{const x=v[k];if(!x||x.uid!==k||(x.o!==0&&x.o!==1)||!Number.isFinite(x.t))return;const pr=parsePresence(x.j);if(pr)out[k]={uid:k,o:x.o,t:x.t,pr}});return out};
 Net.parse=v=>{const out=parseRoomNodes(v);if(out[Net.uid])out[Net.uid].pr=Net.mine;return out};
 Net.peek=async c=>{const s=await Net.db.ref('rooms/'+c).once('value');return Net.parse(s.val())};
@@ -3486,7 +3506,7 @@ const idxOf=u=>G&&Array.isArray(G.pl)?G.pl.findIndex(x=>x&&x.u===u):-1;
 const myIdx=()=>idxOf(ME);
 const P=i=>G&&G.pl&&G.pl[i]||null;
 const pName=i=>P(i)?clean(P(i).n):'—';
-const pCol=i=>P(i)?COLORS[(+P(i).c||0)%4]:'#888';
+const pCol=i=>P(i)?COLORS[(+P(i).c||0)%COLORS.length]:'#888';
 const nameOfU=u=>u?pName(idxOf(u)):'';
 const TNAME=['Mavi','Kırmızı'],TCOL=['#4aa8ff','#ff5a5f'];
 const isTeam=()=>!!(G&&G.md==='t'&&G.tm);
@@ -3499,7 +3519,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','adm'].includes(id);window.scrollTo(0,0)};
-const APPV='22.6';
+const APPV='23.1';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -3785,11 +3805,11 @@ const act=f=>{if(gamePaused())return;f();if(dirty)publish()};
 const mark=()=>{dirty=true};
 function readSettings(){G.md=$('sM').value;G.R=+$('sR').value;G.T=+$('sT').value;G.J=+$('sJ').value;G.lg=$('sL').value;G.th=$('sTh').value;if(G.md==='q'){G.T=15;G.R=10}}
 ['sM','sR','sT','sJ','sL','sTh'].forEach(id=>$(id).addEventListener('change',()=>{if(isHost&&G&&(G.ph==='wait'||G.ph==='end')){readSettings();publish()}}));
-const freeColor=()=>[0,1,2,3].find(c=>!G.pl.some(p=>p.c===c));
+const freeColor=()=>nextFreeColor(G.pl);
 const isBot=u=>String(u||'').startsWith('bot-');
 const BOTL={k:['Kolay',.5,.55,.95],o:['Orta',.72,.35,.8],z:['Zor',.9,.15,.55]};const BT={pk:{},an:{}};
 function addBot(l){if(!isHost||!G||G.pl.length>=MAXP||!(G.ph==='wait'||G.ph==='end'))return;l=BOTL[l]?l:'o';
-  G.pl.push({u:'bot-'+l+'-'+Math.random().toString(36).slice(2,6),n:'Bot '+BOTL[l][0],c:freeColor(),s:0,j:0,ph:'',bl:l});G.note='';mark();publish()}
+  const c=freeColor();G.pl.push({u:'bot-'+l+'-'+Math.random().toString(36).slice(2,6),n:'Bot '+BOTL[l][0]+' '+(c+1),c,s:0,j:0,ph:'',bl:l});G.note='';mark();publish()}
 function botTick(t){
   G.pl.forEach((p,i)=>{if(!isBot(p.u))return;const L=BOTL[p.bl]||BOTL.o;
     if(G.ph==='pick'&&(G.pk||[]).includes(p.u)&&!G.sp[p.u]){const k=G.pn+':'+p.u;if(!BT.pk[k])BT.pk[k]=t+1200+Math.random()*2500;
@@ -3867,8 +3887,8 @@ function setPickers(){const N=G.pl.length,o=(G.r-1+(+G.vc||0));
  G.pk=N<=2?G.pl.map(p=>p.u):[G.pl[o%N].u,G.pl[(o+1)%N].u]}
 function startGame(){
   if(G.pl.length<2)return;readSettings();
-  if(G.md==='t'&&G.pl.length!==4){G.note='Takım modu için tam 4 oyuncu gerekli.';mark();return}
-  G.mt=null;G.ch='';G.du={};G.mi=0;
+  if(!roomModeAllowed(G.md,G.pl.length)){G.note=G.md==='t'?'Takım modu için tam 4 oyuncu gerekli.':G.md==='tr'?'Bu turnuva sürümü 2–4 oyuncu destekler.':'Bu mod için 2–8 oyuncu gerekli.';mark();return}
+  G.mt=null;G.ch='';G.du={};G.mi=0;G.mw=[];BT.pk={};BT.an={};
   if(G.md==='tr'){const u=G.pl.map(p=>p.u).sort(()=>Math.random()-.5);G.mt=u.length===2?[[u[0],u[1]]]:u.length===3?[[u[0],u[1]],[u[2],''],['','']]:[[u[0],u[1]],[u[2],u[3]],['','']];G.R=0}
   G.tm=null;if(G.md==='t'){G.tm={};G.pl.forEach((p,i)=>{G.tm[p.u]=i%2})}
   Object.assign(G,{sv:{},pds:{},pdk:'',gid:(+G.gid||0)+1,st:now(),r:0,vc:0,used:[],pairs:[],hist:[],note:'',ph:'wait',wu:null});G.pl.forEach(p=>{p.s=0;p.j=G.J;p.g=0});nextRound();
@@ -3899,7 +3919,7 @@ function answer(i,t){
   const p=P(i);if(!p||G.ph!=='ans'||now()>=G.end||now()<(+p.lk||0)||typeof t!=='string'||!t.trim()||!isDuel(p.u))return;
   const hit=match(t,cands());if(hit&&G.md==='k')G.pts=kPts();p.at=Array.isArray(p.at)?p.at:[];
   if(hit&&!G.used.includes(hit.n)){p.at.push({t:clip(hit.n,30),ok:1});return endRound(i,hit.n)}
-  if(!hit&&G.th&&G.th!=='d'&&G.md!=='k'&&match(t,shared(G.a,G.b))){p.at.push({t:clip(t,30)});p.wr={t:clip(t,30),k:(p.wr?+p.wr.k||0:0)+1,unk:0,used:0};p.lk=now()+1500;p.lr='th';mark();return}
+  if(!hit&&G.th&&G.th!=='d'&&G.md!=='k'&&match(t,shared(G.a,G.b))){if(p.at.length<6)p.at.push({t:clip(t,30)});p.wr={t:clip(t,30),k:(p.wr?+p.wr.k||0:0)+1,unk:0,used:0};p.lk=now()+1500;p.lr='th';mark();return}
   const known=!!hit||!!match(t,PLAYERS);
   p.wr={t:clip(t,30),k:(p.wr?+p.wr.k||0:0)+1,unk:known?0:1,used:hit?1:0};
   if(p.at.length<6)p.at.push({t:clip(t,30),unk:known?0:1,used:hit?1:0});
@@ -3958,11 +3978,11 @@ function snapPreds(){if(G.pdk===rKey())return;G.pdk=rKey();G.pds={};
 function scorePreds(){snapPreds();G.sv=G.sv||{};const ok=G.wu||'none';
   Object.entries(G.pds||{}).forEach(([u,v])=>{const n=Net.node(u),r=G.sv[u]||{n:'',s:0,t:0};r.n=clip(clean(n&&n.pr&&n.pr.nm||r.n||'İzleyici'),16);r.t++;if(v===ok)r.s++;G.sv[u]=r});
   const ks=Object.keys(G.sv);if(ks.length>8)ks.sort((a,b)=>G.sv[a].s-G.sv[b].s).slice(0,ks.length-8).forEach(k=>delete G.sv[k])}
-function pushHist(){                      // maç özeti için turun kısa kaydı (G 6000 karakter sınırında kalmalı)
+function pushHist(){                      // bounded match history for larger rooms
   G.hist=Array.isArray(G.hist)?G.hist:[];const wp=P(idxOf(G.wu));
   G.hist.push({k:G.md==='k'?1:0,r:G.r,a:G.a,b:G.b,w:G.wu||'',h:G.hit?clip(G.hit,40):'',p:wp?+wp.g||0:0,i:wp&&wp.ip?1:0,t:G.pl.map(p=>(p.at||[]).slice(0,3).map(x=>clip(x.t,18).replace(/\|/g,'')).join('|'))});
   while(G.hist.length>14)G.hist.shift();
-  for(let k=0;k<G.hist.length&&JSON.stringify(G).length>5200;k++)G.hist[k].t=[];
+  for(let k=0;k<G.hist.length&&JSON.stringify(G).length>18000;k++)G.hist[k].t=[];
 }
 function endRound(w,hitName){
   if(G.ph!=='ans')return;
@@ -3975,7 +3995,7 @@ function endRound(w,hitName){
 
 /* ---------- misafir: kurucunun yayınladığı durumu izler ---------- */
 // Validate identity and basic shape; this is not a server-authoritative anti-cheat system.
-const validHost=n=>{const p=n&&n.pr,g=p&&p.g;return !!(p&&p.h===1&&g&&g.host===n.uid&&['wait','pick','rev','ans','res','end'].includes(g.ph)&&Array.isArray(g.pl)&&g.pl.length<=MAXP&&g.pl.every(x=>x&&typeof x.u==='string')&&g.pl.some(x=>x.u===n.uid))};
+const validHost=n=>{const p=n&&n.pr,g=p&&p.g;return !!(p&&p.h===1&&g&&g.host===n.uid&&['wait','pick','rev','ans','res','end'].includes(g.ph)&&Array.isArray(g.pl)&&g.pl.length<=MAXP&&g.pl.every(x=>x&&typeof x.u==='string'&&x.u.length>0)&&new Set(g.pl.map(x=>x.u)).size===g.pl.length&&g.pl.some(x=>x.u===n.uid))};
 const selectRoomHost=(hosts,known,me)=>{if(known)return hosts.find(n=>n.uid===known);const active=hosts.filter(alive);const pool=active.length?active:hosts;return pool.find(n=>n.pr.g.pl.some(x=>x.u===me))||[...pool].sort((a,b)=>b.t-a.t)[0]};
 function onNet(){
   if(!code||!Net.ready)return;
@@ -4156,16 +4176,16 @@ function drawWait(){
   if(isHost&&mi>=0&&(G.pl[mi].fm||'')!==myFrame){G.pl[mi].fm=myFrame;mark()}
   const md=isHost?$('sM').value:G.md;
   const slots=G.pl.map((p,i)=>`<div class="slot full${p.off?' off':''}" style="--pc:${pCol(i)}">${avI(i,46)}<div><small>${md==='t'?`<b style="color:${TCOL[i%2]}">${TNAME[i%2]}</b> · `:''}${p.u===G.host?'Kurucu':isBot(p.u)?'Bilgisayar':'Oyuncu'}${p.off?' · bağlantı koptu':''}</small><strong>${esc(pName(i))}${i===mi?'<em>sen</em>':''}</strong></div>${isHost&&isBot(p.u)?`<button class="rm" data-rm="${esc(p.u)}">Çıkar</button>`:''}</div>`);
-  if(n<MAXP)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
-  $('slots').innerHTML=slots.join('');
+  for(let k=n;k<MAXP;k++)slots.push(`<div class="slot"><span class="av" style="--s:46px;background:rgba(255,255,255,.06);box-shadow:none;color:var(--mute)">+</span><div><small>${n<2?'Rakip':'Boş yer'}</small><strong class="dots" style="color:var(--mute);font-size:20px">Bekleniyor</strong></div></div>`);
+  stableHTML($('slots'),slots.join(''));
   $('wNote').textContent=isHost?(n>1?`${n} oyuncu hazır. Ayarları seç ve maçı başlat. En fazla ${MAXP} kişi.`:'“Davet et” ile linki arkadaşlarına gönder. Katılan herkes burada görünür.'):'';
   if(isHost){const o=id=>$(id).options[$(id).selectedIndex].text;$('wNote').dataset.m=`Seçili: ${o('sM')} · Tema: ${o('sTh')} · ${o('sL')}`}
-  $('hostCtl').hidden=!isHost;$('start').disabled=n<2||(md==='t'&&n!==4);
+  $('hostCtl').hidden=!isHost;$('start').disabled=!roomModeAllowed(md,n);
   if(isHost&&md==='t'&&n!==4)$('wNote').textContent=`Takım modu için tam 4 oyuncu gerekli (şu an ${n}).`;
   if(isHost&&md==='q'&&n>1)$('wNote').textContent='Hızlı mod: takım seçimi yok, 10 tur, her tur 15 sn.';
   {const th=isHost?$('sTh').value:G.th;if(isHost&&n>1&&th)$('wNote').textContent=({d:'Derbiler: her tur bir derbi eşleşmesi gelir, takım seçimi yok.',e:'Sadece efsaneler: yalnızca efsane futbolcular doğru sayılır.',t:'Türk oyuncular: her tur iki takım gelir, yalnızca Türk oyuncular doğru sayılır.'})[th]}
   if(isHost&&md==='k'&&n>1)$('wNote').textContent='Kariyer zinciri: futbolcunun kulüpleri teker teker açılır, erken bilen çok puan alır.';
-  if(isHost&&md==='tr'&&n>1)$('wNote').textContent=n===3?'Turnuva: kura ile biri finale bay geçer. Her maç 2 tur kazananındır.':'Turnuva: kura çekilir, her maç 2 tur kazananındır, kazananlar finale.';
+  if(isHost&&md==='tr'&&n>1)$('wNote').textContent=n>4?'Turnuva şu an en fazla 4 oyuncu destekler. Klasik, Hızlı veya Kariyer zinciri seçebilirsin.':n===3?'Turnuva: kura ile biri finale bay geçer. Her maç 2 tur kazananındır.':'Turnuva: kura çekilir, her maç 2 tur kazananındır, kazananlar finale.';
   $('wStatus').textContent=G.note?clip(G.note,160):isHost?($('wNote').dataset.m||''):(mi<0?(Net.mine&&Net.mine.sp?'İzleyici olarak buradasın. Maç başlayınca her şeyi canlı göreceksin.':n>=MAXP?'Oda dolu. İzleyici olarak bakabilirsin.':'Odaya ekleniyorsun…'):`${({t:'Takım 2v2 · ',q:'Hızlı mod · ',k:'Kariyer zinciri · ',tr:'Turnuva · '})[G.md]||''}${({d:'Derbiler · ',e:'Efsaneler · ',t:'Türk oyuncular · '})[G.th]||''}${G.md==='tr'?'eleme,':G.R+' tur,'} ${G.T} sn, ${G.J} joker. Kurucunun başlatması bekleniyor…`);
 }
 function drawPick(){
