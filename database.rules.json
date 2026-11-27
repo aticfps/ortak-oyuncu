@@ -77,6 +77,29 @@
           ".validate": "newData.hasChildren(['uid', 'o', 't', 'j']) && newData.child('uid').val() === $peer && newData.child('o').isNumber() && (newData.child('o').val() === 0 || newData.child('o').val() === 1) && newData.child('t').isNumber() && newData.child('t').val() <= now && newData.child('j').isString() && newData.child('j').val().length < 24000"
         }
       }
+    },
+    "friendProfiles": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && newData.isString() && newData.val().length >= 1 && newData.val().length <= 16"
+      }
+    },
+    "friendLinks": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$peer": {
+          ".read": "auth != null && auth.uid === $peer",
+          ".write": "auth != null && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && $peer.matches(/^[A-Za-z0-9_-]{20,128}$/) && $uid !== $peer && ((auth.uid === $peer && !data.exists() && newData.val() === 'pending' && root.child('friendProfiles').child($uid).exists() && root.child('friendProfiles').child($peer).exists() && !root.child('friendLinks').child($peer).child($uid).exists()) || (auth.uid === $uid && data.val() === 'pending' && newData.val() === 'accepted') || ((auth.uid === $uid || auth.uid === $peer) && !newData.exists()))"
+        }
+      }
+    },
+    "friendOutgoing": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$peer": {
+          ".write": "auth != null && auth.uid === $uid && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && $peer.matches(/^[A-Za-z0-9_-]{20,128}$/) && $uid !== $peer && (!newData.exists() || (newData.val() === true && root.child('friendProfiles').child($peer).exists()))"
+        }
+      }
     }
   }
 }
