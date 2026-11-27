@@ -41,6 +41,42 @@
       "$id": {
         ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }
+    },
+    "privateRoomLocks": {
+      "$code": {
+        ".read": false,
+        ".write": "auth != null && !data.exists() && newData.exists() && $code.matches(/^P[A-Z2-9]{9}$/)",
+        ".validate": "newData.hasChildren(['owner','password','createdAt']) && newData.child('owner').val() === auth.uid && newData.child('password').isString() && newData.child('password').val().length >= 12 && newData.child('password').val().length <= 64 && newData.child('createdAt').isNumber() && newData.child('createdAt').val() === now",
+        "owner": {
+          ".validate": true
+        },
+        "password": {
+          ".validate": true
+        },
+        "createdAt": {
+          ".validate": true
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "privateRoomAccess": {
+      "$code": {
+        "$uid": {
+          ".read": false,
+          ".write": "auth != null && auth.uid === $uid && root.child('privateRoomLocks').child($code).exists() && now < root.child('privateRoomLocks').child($code).child('createdAt').val() + 86400000 && newData.isString() && newData.val() === root.child('privateRoomLocks').child($code).child('password').val()"
+        }
+      }
+    },
+    "privateRooms": {
+      "$code": {
+        ".read": "auth != null && root.child('privateRoomLocks').child($code).exists() && now < root.child('privateRoomLocks').child($code).child('createdAt').val() + 86400000 && (root.child('privateRoomLocks').child($code).child('owner').val() === auth.uid || root.child('privateRoomAccess').child($code).child(auth.uid).val() === root.child('privateRoomLocks').child($code).child('password').val())",
+        "$peer": {
+          ".write": "(auth != null && root.child('privateRoomLocks').child($code).exists() && now < root.child('privateRoomLocks').child($code).child('createdAt').val() + 86400000 && (root.child('privateRoomLocks').child($code).child('owner').val() === auth.uid || root.child('privateRoomAccess').child($code).child(auth.uid).val() === root.child('privateRoomLocks').child($code).child('password').val())) && auth.uid === $peer",
+          ".validate": "newData.hasChildren(['uid', 'o', 't', 'j']) && newData.child('uid').val() === $peer && newData.child('o').isNumber() && (newData.child('o').val() === 0 || newData.child('o').val() === 1) && newData.child('t').isNumber() && newData.child('t').val() <= now && newData.child('j').isString() && newData.child('j').val().length < 24000"
+        }
+      }
     }
   }
 }
