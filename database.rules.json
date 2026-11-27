@@ -100,6 +100,24 @@
           ".write": "auth != null && auth.uid === $uid && $uid.matches(/^[A-Za-z0-9_-]{20,128}$/) && $peer.matches(/^[A-Za-z0-9_-]{20,128}$/) && $uid !== $peer && (!newData.exists() || (newData.val() === true && root.child('friendProfiles').child($peer).exists()))"
         }
       }
+    },
+    "friendPresence": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('friendLinks').child($uid).child(auth.uid).val() === 'accepted' || root.child('friendLinks').child(auth.uid).child($uid).val() === 'accepted')",
+        "$sid": {
+          ".write": "auth != null && auth.uid === $uid && $sid.matches(/^[A-Z2-9]{20}$/)",
+          ".validate": "newData.hasChildren(['s','t']) && (newData.child('s').val() === 'online' || newData.child('s').val() === 'room' || newData.child('s').val() === 'game') && newData.child('t').isNumber() && newData.child('t').val() === now",
+          "s": {
+            ".validate": true
+          },
+          "t": {
+            ".validate": true
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
     }
   }
 }
