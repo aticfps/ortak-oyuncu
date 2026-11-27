@@ -1,7 +1,7 @@
 // V25.3d internal-only durable replay. Never expose seed or journal to clients.
 // Authentication and match admission must be performed by the future server boundary.
 import {createRankedGame} from './ranked-game.mjs';
-export const SESSION_VERSION='ranked-session-v1-top30';
+export const SESSION_VERSION='ranked-session-v2-top30-archive1906';
 const MAX_EVENTS=256,MAX_JSON=65536,MAX_RETRIES=6;
 const validId=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(x);
 const uidOK=x=>typeof x==='string'&&x.length>0&&x.length<=128;
