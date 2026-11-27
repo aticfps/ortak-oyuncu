@@ -1047,6 +1047,11 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
 #rkAnswerForm{display:flex;gap:6px;min-width:0}#rkAnswer{flex:1;min-width:0;width:100%}#rkAnswerForm .btn{width:auto}
 #rkHistory{display:grid;gap:6px;text-align:left;max-height:180px;overflow:auto}#rkHistory>div{font:500 12px/1.4 var(--ui);padding:7px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
 @media(prefers-reduced-motion:reduce){.rk-search{animation:none}}
+/* V25.5: ranked progression is derived from verified ELO, never written by the UI. */
+.rk-level{--rk-color:#a3a3a3;display:inline-grid;place-items:center;width:70px;height:70px;border:3px solid var(--rk-color);border-radius:20px;color:var(--rk-color);background:var(--line);font:900 36px/1 var(--ui)}
+.rk-level.l1{--rk-color:#94a3b8}.rk-level.l2,.rk-level.l3{--rk-color:#45a36f}.rk-level.l4,.rk-level.l5{--rk-color:#d4a017}.rk-level.l6,.rk-level.l7{--rk-color:#e39a31}.rk-level.l8,.rk-level.l9{--rk-color:#ea7443}.rk-level.l10{--rk-color:#e34b58}
+.rk-progress{display:grid;gap:6px;padding:4px 8px 12px;min-width:0}.rk-progress-label{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;font:600 12px/1.4 var(--ui);color:var(--mute)}
+#rkLevelProgress{width:100%;height:12px;accent-color:var(--flood)}#rkLevelNotice{font-weight:800;color:var(--ink);overflow-wrap:anywhere}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1207,12 +1212,12 @@ html[data-theme="light"] .fl-tabs button[aria-pressed="true"]{color:#fff}
   <section class="screen" id="ranked">
     <div class="v251-head"><div><h2>Rekabetçi</h2><p class="lead">Güvenli altyapı · V25.1a</p></div><span class="v251-beta">Hazırlık</span></div>
     <div class="card v251-panel"><h3>Sunucu bağlantısı</h3><p id="rankStatus" class="tiny" role="status">Kontrol ediliyor…</p><button type="button" id="rankRefresh" class="btn ghost sm">Yenile</button></div>
-    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="v251-beta">Başlangıç profili</span><strong id="rankRating">—</strong><small>ELO</small></div><div id="rankStats" class="v251-stats"></div></div>
+    <div class="card v251-panel" id="rankProfile" hidden><div class="v251-score"><span class="rk-level" id="rkLevelBadge" aria-hidden="true">—</span><span class="v251-beta" id="rkLevelName">Seviye —</span><strong id="rankRating">—</strong><small>ELO</small></div><div class="rk-progress"><div class="rk-progress-label"><span id="rkLevelRange">—</span><span id="rkLevelNext">—</span></div><progress id="rkLevelProgress" max="100" value="0" aria-label="Sonraki seviyeye ilerleme"></progress></div><div id="rankStats" class="v251-stats"></div></div>
     <div class="card v251-panel rk-action" id="rkIdle"><h3>Rekabetçi maçlar</h3><p id="rkHint">Rekabetçi maçlar henüz genel kullanıma açılmadı. Normal oda puanları ELO'yu etkilemez.</p><button class="btn" id="rkJoin" type="button" disabled>Rakip ara</button></div>
     <div class="card v251-panel rk-action" id="rkSearch" hidden><h3>Rakip aranıyor</h3><div class="rk-search" aria-hidden="true"></div><div class="rk-clock" id="rkWait">00:00</div><p id="rkGap"></p><button class="btn ghost" id="rkCancel" type="button">Aramayı iptal et</button></div>
     <div class="card v251-panel rk-action" id="rkOffer" hidden><h3>MAÇ BULUNDU!</h3><div class="rk-clock" id="rkAcceptClock">—</div><div class="rk-duel"><div><b>Sen</b><span id="rkSelfReady">Bekleniyor</span></div><div><b>Rakip</b><span id="rkOtherReady">Bekleniyor</span></div></div><button class="btn" id="rkAccept" type="button">Maçı kabul et</button><button class="btn ghost" id="rkDecline" type="button">Reddet</button></div>
     <div class="card v251-panel rk-action" id="rkGame" hidden><h3 id="rkRound">Tur 1/5</h3><div class="rk-duel"><div><b>Sen</b><strong id="rkSelfScore">0</strong></div><div><b>Rakip</b><strong id="rkOtherScore">0</strong></div></div><div class="rk-clock" id="rkGameClock">—</div><div class="rk-duel rk-clubs" id="rkClubs"></div><form id="rkAnswerForm"><input id="rkAnswer" maxlength="100" autocomplete="off" aria-label="Ortak futbolcu" placeholder="Ortak futbolcuyu yaz…"><button class="btn" type="submit" id="rkSubmit">Cevapla</button></form><p id="rkFeedback" role="status"></p><div id="rkHistory"></div><button class="btn ghost" id="rkSurrender" type="button">Teslim ol</button></div>
-    <div class="card v251-panel rk-action" id="rkResult" hidden><h3 id="rkOutcome">Maç sonucu</h3><div class="rk-clock" id="rkDelta">—</div><p id="rkFinalScore"></p><button class="btn" id="rkAgain" type="button">Tekrar rakip ara</button></div>
+    <div class="card v251-panel rk-action" id="rkResult" hidden><h3 id="rkOutcome">Maç sonucu</h3><div class="rk-clock" id="rkDelta">—</div><p id="rkFinalScore"></p><p id="rkLevelNotice" role="status" hidden></p><button class="btn" id="rkAgain" type="button">Tekrar rakip ara</button></div>
     <p class="tiny" role="status" id="rkError"></p>
     <button class="btn ghost" id="rankBack" type="button">Ana ekran</button>
   </section>
@@ -3860,7 +3865,7 @@ const avI=(i,sz)=>{const p=P(i),st=`--pc:${pCol(i)}${sz?`;--s:${sz}px`:''}`,ini=
   return`<span class="av${p&&okFm(p.fm)?' fm-'+p.fm:''}" style="${st}">${ini}${p&&okPh(p.ph)?`<img src="${esc(p.ph)}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">`:''}</span>`};
 const turnU=()=>G&&G.ph==='pick'&&Array.isArray(G.pk)?(G.a?G.pk[1]:G.pk[0]):null;
 const show=id=>{if(screen===id)return;if(screen==='friends')FriendWatch.stop();if(screen==='res'||screen==='end'){Fx.stop();$('v224Round').classList.remove('v224-enter');$('v224Final').classList.remove('v224-enter')}screen=id;document.body.dataset.screen=id;document.body.classList.remove('hurry');document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));$('board').hidden=!['pick','rev','ans','res','end'].includes(id);$('quit').hidden=['lobby','daily','prof','friends','friendRanks','ranked','adm'].includes(id);window.scrollTo(0,0);FriendPresence.publish();Invites.render();if(id!=='wait')Invites.closePicker()};
-const APPV='25.4d';
+const APPV='25.5';
 const banner=t=>{$('banner').textContent=t||''};
 /* ---------- sezon tablosu: stats/{uid}, her oyuncu yalnız kendi kaydını yazar ---------- */
 const BADGES={ilk:['İlk düdük','İlk maçını bitirdin'],zor:['Zor iş','4 ve üstü puanlık bir turu bildin'],seri:['Seri katil','Bir maçta üst üste 3 tur bildin'],
@@ -4225,7 +4230,7 @@ $('friends').addEventListener('click',e=>{const b=e.target.closest('[data-fr]');
 /* V25.1: server-only competitive profiles, no client rating writes. */
 const Ranked={
   epoch:0,busy:false,
-  reset(){RankedPreview.reset();this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
+  reset(){RankedPreview.reset();renderRankedLevel(null);this.epoch++;this.busy=false;$('rankProfile').hidden=true;$('rankRating').textContent='—';$('rankStats').textContent='';$('rankStatus').textContent='';$('rankRefresh').disabled=false},
   open(){if(!ME||code)return;show('ranked');this.load()},
   async load(){
     if(this.busy||!ME||code)return;const user=firebase.auth().currentUser;if(!user||user.uid!==ME)return;
@@ -4237,7 +4242,7 @@ const Ranked={
       const data=await res.json();if(!res.ok)throw Error(data.error||'API_UNAVAILABLE');
       const p=data.profile;if(data.version!=='25.1a'||!data.registered||!p||!['rating','played','wins','draws','losses'].every(k=>Number.isSafeInteger(p[k])&&p[k]>=0))throw Error('API_RESPONSE');
       if(ME!==uid||epoch!==this.epoch)return;
-      $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';$('rankRating').textContent=p.rating.toLocaleString('tr-TR');
+      $('rankStatus').textContent='Sunucu bağlantısı ve kimlik doğrulaması başarılı.';renderRankedLevel(p.rating);
       stableHTML($('rankStats'),[['Maç',p.played],['Galibiyet',p.wins],['Beraberlik',p.draws],['Mağlubiyet',p.losses]].map(([k,v])=>'<div><b>'+v.toLocaleString('tr-TR')+'</b><small>'+k+'</small></div>').join(''));$('rankProfile').hidden=false;RankedPreview.open(uid);
     }catch(e){if(ME===uid&&epoch===this.epoch){$('rankStatus').textContent=({DB_BINDING_MISSING:'Rekabetçi veritabanı henüz bağlanmadı.',DB_SCHEMA_OR_CONNECTION:'Rekabetçi veritabanı henüz hazır değil.',AUTH_REQUIRED:'Google hesabınla tekrar giriş yap.',INVALID_TOKEN:'Kimlik doğrulanamadı. Tekrar giriş yap.',AUTH_UNAVAILABLE:'Kimlik sunucusuna ulaşılamadı.',API_NOT_DEPLOYED:'Rekabetçi API bu adreste henüz çalışmıyor.'})[e.message]||'Sunucu bağlantısı kurulamadı. Daha sonra yenile.'}}
     finally{if(ME===uid&&epoch===this.epoch){this.busy=false;$('rankRefresh').disabled=false}}
@@ -4251,12 +4256,39 @@ $('rankBack').onclick=()=>{if(RankedPreview.inProgress())return;Ranked.reset();s
 /* V25.4d: authenticated preview UI; no public activation or locally fabricated result. */
 const rankedPreviewHost=host=>/^[a-z0-9-]+\.ortak-oyuncu\.pages\.dev$/.test(host);
 const rankedClock=ms=>{const n=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
+
+const RANK_LEVEL_MIN=Object.freeze([0,500,750,1000,1150,1300,1450,1600,1800,2000]);
+function rankedLevel(rating){
+ if(!Number.isSafeInteger(rating)||rating<0||rating>100000)return null;
+ let index=0;for(let i=1;i<RANK_LEVEL_MIN.length;i++){if(rating<RANK_LEVEL_MIN[i])break;index=i}
+ const min=RANK_LEVEL_MIN[index],next=RANK_LEVEL_MIN[index+1]??null;
+ return {level:index+1,min,next,remaining:next===null?0:next-rating,progress:next===null?100:Math.floor(100*(rating-min)/(next-min))};
+}
+function renderRankedLevel(rating){
+ const l=rankedLevel(rating),b=$('rkLevelBadge');
+ b.className='rk-level'+(l?' l'+l.level:'');b.textContent=l?String(l.level):'—';
+ $('rkLevelName').textContent=l?'Seviye '+l.level:'Seviye —';
+ $('rankRating').textContent=l?rating.toLocaleString('tr-TR'):'—';
+ $('rkLevelRange').textContent=l?(l.next===null?'Maksimum seviye':l.min+' – '+(l.next-1)+' ELO'):'—';
+ $('rkLevelNext').textContent=l?(l.next===null?'Seviye 10':l.remaining+' ELO kaldı'):'—';
+ $('rkLevelProgress').value=l?l.progress:0;
+}
+function rankedLevelChange(before,after){
+ const a=rankedLevel(before),b=rankedLevel(after);
+ if(!a||!b||a.level===b.level)return '';
+ return b.level>a.level?'Seviye atladın! '+a.level+' → '+b.level:'Seviye düştü: '+a.level+' → '+b.level;
+}
+function renderRankedLevelNotice(settlement){
+ const msg=rankedLevelChange(settlement?.ratingBefore,settlement?.ratingAfter);
+ $('rkLevelNotice').textContent=msg;$('rkLevelNotice').hidden=!msg;
+}
+
 const rankedSides=(s,side)=>side==='a'?[s.scoreA,s.scoreB]:[s.scoreB,s.scoreA];
 const RankedPreview={
  epoch:0,uid:null,phase:'idle',matchId:null,timer:null,busy:false,allowed:false,round:null,lastBeat:0,deadline:0,lastRevision:-1,
  inProgress(){return this.allowed&&['search','offer','game'].includes(this.phase)},
  panels(phase){this.phase=phase;for(const [k,id] of [['idle','rkIdle'],['search','rkSearch'],['offer','rkOffer'],['game','rkGame'],['result','rkResult']])$(id).hidden=k!==phase;$('rankBack').disabled=this.inProgress();$('rankRefresh').disabled=this.inProgress()},
- reset(){this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
+ reset(){renderRankedLevelNotice(null);this.epoch++;clearInterval(this.timer);this.timer=null;this.uid=null;this.busy=false;this.allowed=false;this.matchId=null;this.round=null;this.lastBeat=0;this.lastRevision=-1;this.deadline=0;this.panels('idle');$('rkJoin').disabled=true;$('rkAgain').disabled=true;$('rkHint').textContent='Rekabetçi maçlar henüz genel kullanıma açılmadı.';$('rkError').textContent='';$('rkFeedback').textContent='';$('rkAnswer').value='';$('rkClubs').textContent='';$('rkHistory').textContent=''},
  valid(epoch,uid){return this.epoch===epoch&&this.uid===uid&&ME===uid&&screen==='ranked'&&!code},
  async request(action,fields={}){
   const epoch=this.epoch,uid=this.uid,user=firebase.auth().currentUser;
@@ -4295,7 +4327,7 @@ const RankedPreview={
  game(r){
   const s=r.state;if(!s||!['a','b'].includes(r.side)||r.revision<this.lastRevision)return;this.lastRevision=r.revision;
   const [a,b]=rankedSides(s,r.side);
-  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');$('rkSubmit').disabled=true;$('rkSurrender').disabled=true;return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;if(Number.isSafeInteger(p?.ratingAfter))$('rankRating').textContent=p.ratingAfter.toLocaleString('tr-TR');return}
+  if(s.status!=='active'){if(s.status==='completed'&&!r.settlement){this.panels('game');$('rkSubmit').disabled=true;$('rkSurrender').disabled=true;return}this.panels('result');const p=r.settlement;$('rkOutcome').textContent=s.status==='void'?'Maç iptal edildi':p?.outcome==='win'?'GALİBİYET':p?.outcome==='loss'?'MAĞLUBİYET':'BERABERLİK';const delta=p?.ratingAfter-p?.ratingBefore;$('rkDelta').textContent=Number.isFinite(delta)?(delta>0?'+':'')+delta+' ELO':'ELO değişmedi';$('rkFinalScore').textContent=a+' – '+b;if(rankedLevel(p?.ratingAfter))renderRankedLevel(p.ratingAfter);renderRankedLevelNotice(p);return}
   this.panels('game');$('rkSubmit').disabled=false;$('rkSurrender').disabled=false;$('rkRound').textContent='Tur '+s.round+'/5';$('rkSelfScore').textContent=a;$('rkOtherScore').textContent=b;
   this.deadline=s.current.deadline;$('rkGameClock').textContent=rankedClock(this.deadline-Date.now());
   if(this.round!==s.round){this.round=s.round;$('rkAnswer').value='';$('rkFeedback').textContent='';}
@@ -4317,7 +4349,7 @@ const RankedPreview={
    }
   });
  },
- join(){this.task(async()=>{this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
+ join(){this.task(async()=>{renderRankedLevelNotice(null);this.lastRevision=-1;this.round=null;this.lastBeat=0;await this.queue(await this.request('queue.join'))})},
  cancel(){this.task(async()=>this.queue(await this.request('queue.cancel')))},
  respond(decision){this.task(async()=>this.offer(await this.request('offer.respond',{matchId:this.matchId,decision})))},
  answer(){const input=$('rkAnswer').value.trim();if(!input||this.phase!=='game')return;this.task(async()=>this.game(await this.request('game.answer',{matchId:this.matchId,commandId:crypto.randomUUID(),round:this.round,input})))},
